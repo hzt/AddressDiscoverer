@@ -3,6 +3,7 @@
  */
 package org.norvelle.addressdiscoverer;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,8 +43,7 @@ public class Utils {
         return sb.toString();
     }
 
-    public static
-            <T extends Comparable<? super T>> List<T> 
+    public static <T extends Comparable<? super T>> List<T> 
         asSortedList(Collection<T> c, int direction) 
     {
         List<T> list = new ArrayList<T>(c);
@@ -52,5 +52,15 @@ public class Utils {
         else
             Collections.sort(list);
         return list;
+    }
+        
+    public static String basename(String url) {
+        Pattern BASENAME = Pattern.compile(".*?([^/]*)$");
+        Matcher matcher = BASENAME.matcher(url);
+        if (matcher.matches()) {
+                return matcher.group(1);
+        } else {
+                throw new IllegalArgumentException("Can't parse " + url);
+        }
     }
 }

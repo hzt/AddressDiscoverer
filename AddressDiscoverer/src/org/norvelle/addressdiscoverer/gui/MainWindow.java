@@ -33,7 +33,7 @@ public class MainWindow extends javax.swing.JFrame {
     public MainWindow(AddressDiscoverer application) throws OrmObjectNotConfiguredException {
         this.application = application;
         initComponents();
-        ThreeWaySplitPane threePane = new ThreeWaySplitPane(this, application);
+        GUIManagementPane threePane = new GUIManagementPane(this, application);
         this.setLayout(new BorderLayout());
         Toolkit tk = Toolkit.getDefaultToolkit(); 
         this.getContentPane().add(threePane, BorderLayout.CENTER);
@@ -90,6 +90,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         jFileMenu.setText("File");
 
+        jExitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.event.InputEvent.CTRL_MASK));
         jExitMenuItem.setText("Exit");
         jExitMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -138,7 +139,5 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenu jFileMenu;
     private javax.swing.JMenu jHelpMenu;
     private javax.swing.JMenuBar jMainMenuBar;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
 }

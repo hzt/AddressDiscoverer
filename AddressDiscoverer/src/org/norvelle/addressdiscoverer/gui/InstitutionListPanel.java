@@ -31,7 +31,7 @@ import org.norvelle.addressdiscoverer.model.Institution;
  */
 public class InstitutionListPanel extends javax.swing.JPanel {
 
-    private final ThreeWaySplitPane parent;
+    private final GUIManagementPane parent;
     private final HashMap<Integer, Institution> institutions;
     private final DefaultListModel listModel;
     
@@ -40,7 +40,7 @@ public class InstitutionListPanel extends javax.swing.JPanel {
      * @param parent
      * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      */
-    public InstitutionListPanel(ThreeWaySplitPane parent) throws OrmObjectNotConfiguredException {
+    public InstitutionListPanel(GUIManagementPane parent) throws OrmObjectNotConfiguredException {
         this.parent = parent;
         initComponents();
         
@@ -148,6 +148,7 @@ public class InstitutionListPanel extends javax.swing.JPanel {
             Institution selectedInstitution = (Institution) this.listModel.get(selection);
             Institution.delete(selectedInstitution);
             this.listModel.remove(selection);
+            this.parent.setSelectedInstitution(null);
         } catch (SQLException ex) {
             AddressDiscoverer.reportException(ex);
         }
@@ -155,6 +156,9 @@ public class InstitutionListPanel extends javax.swing.JPanel {
 
     private void jInstitutionListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jInstitutionListValueChanged
         this.jDeleteSelectedButton.setEnabled(true);
+        int selection = this.jInstitutionList.getSelectedIndex();
+        Institution selectedInstitution = (Institution) this.listModel.get(selection);
+        this.parent.setSelectedInstitution(selectedInstitution);
     }//GEN-LAST:event_jInstitutionListValueChanged
 
 

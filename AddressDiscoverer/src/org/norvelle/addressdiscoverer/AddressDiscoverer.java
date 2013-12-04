@@ -25,6 +25,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.ErrorCreatingDatabaseException;
 import org.norvelle.addressdiscoverer.gui.MainWindow;
+import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Institution;
 
 /**
@@ -54,7 +55,7 @@ public class AddressDiscoverer {
         
         // First setup our logger
         this.checkSettingsDirExists();
-        logger.setLevel(Level.INFO);
+        logger.setLevel(Level.SEVERE);
         FileHandler fh = new FileHandler(this.settingsDirname + File.separator + "debug.log", 
                 8096, 1, true);  
         logger.addHandler(fh);
@@ -110,11 +111,13 @@ public class AddressDiscoverer {
             throw new CannotLoadJDBCDriverException(ex.getMessage());
         }
 
-        // create a database connection and initialize our tables
+        // create a database connection and initialize our tables.
+        // All object persistence is managed via ORMLite.
         String dbFilename = this.settingsDirname + File.separator + "addresses.sqlite";
         ConnectionSource connectionSource =
             new JdbcConnectionSource("jdbc:sqlite:" + dbFilename);
         Institution.initialize(connectionSource);
+        Department.initialize(connectionSource);
     }
     
     private void loadProperties() {

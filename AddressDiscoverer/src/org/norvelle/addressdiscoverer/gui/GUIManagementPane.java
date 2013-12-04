@@ -26,6 +26,8 @@ import org.jdesktop.swingx.MultiSplitLayout.Leaf;
 import org.jdesktop.swingx.MultiSplitLayout.Split;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.model.Department;
+import org.norvelle.addressdiscoverer.model.Institution;
 
 /**
  * Creates a three-way split pane without using nesting, thanks to the SwingX
@@ -33,7 +35,7 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class ThreeWaySplitPane extends JPanel {
+public class GUIManagementPane extends JPanel {
     
     private JFrame mainWindow;
     private AddressDiscoverer application;
@@ -41,7 +43,7 @@ public class ThreeWaySplitPane extends JPanel {
     private DepartmentListPanel departmentListPanel;
     private InstitutionListPanel institutionListPanel;
     
-    public ThreeWaySplitPane(JFrame parent, AddressDiscoverer application) throws OrmObjectNotConfiguredException
+    public GUIManagementPane(JFrame parent, AddressDiscoverer application) throws OrmObjectNotConfiguredException
     {
         this.mainWindow = parent;
         this.application = application;
@@ -59,6 +61,14 @@ public class ThreeWaySplitPane extends JPanel {
 
         this.setLayout(new BorderLayout());
         this.add(sp);
+    }
+    
+    public void setSelectedInstitution(Institution selectedInstitution) {
+        this.departmentListPanel.setInstitution(selectedInstitution);
+    }
+
+    public void setSelectedDepartment(Department selectedDepartment) {
+        this.emailDiscoveryPanel.setDepartment(selectedDepartment);
     }
     
 }

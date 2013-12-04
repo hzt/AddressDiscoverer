@@ -24,7 +24,7 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
  */
 
 @DatabaseTable(tableName = "institution")
-public class Institution implements Comparable<Institution> {
+public class Institution implements Comparable {
     
     private final HashMap<String, Department> departments = new HashMap();
     private static Dao<Institution, String> dao;
@@ -68,8 +68,9 @@ public class Institution implements Comparable<Institution> {
     }
     
     @Override
-    public int compareTo(Institution o) {
-        return this.name.compareToIgnoreCase(o.getName());
+    public int compareTo(Object o) {
+        String otherString = o.toString();
+        return this.name.compareTo(otherString);
     }
 
     // ===================== Static Data Manipulation Methods =============================

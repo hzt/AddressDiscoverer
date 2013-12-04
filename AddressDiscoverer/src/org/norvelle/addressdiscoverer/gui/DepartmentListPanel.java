@@ -10,21 +10,53 @@
  */
 package org.norvelle.addressdiscoverer.gui;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
+import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.model.Department;
+import org.norvelle.addressdiscoverer.model.Institution;
+
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public class DepartmentListPanel extends javax.swing.JPanel {
 
-    private final ThreeWaySplitPane parent;
+    private final GUIManagementPane parent;
+    private Institution institution;
+    private DefaultListModel listModel;
 
     /**
      * Creates new form InstitutionListPanel
      * @param parent
      */
-    public DepartmentListPanel(ThreeWaySplitPane parent) {
+    public DepartmentListPanel(GUIManagementPane parent) {
         this.parent = parent;
         initComponents();
+        this.listModel = new DefaultListModel();
+        this.jDepartmentList.setModel(listModel);
+    }
+    
+    public void setInstitution(Institution selectedInstitution) {
+        try {
+            this.institution = selectedInstitution;
+            this.listModel.clear();
+            if (selectedInstitution != null) {
+                HashMap<Integer, Department> departments = Department.
+                        getDepartmentsForInstitution(selectedInstitution);
+                for (int key : departments.keySet()) 
+                    this.listModel.addElement(departments.get(key));
+                this.jAddDepartmentButton.setEnabled(true);
+            }
+            this.jDeleteSelectedButton.setEnabled(false);
+        } catch (OrmObjectNotConfiguredException | SQLException ex) {
+            AddressDiscoverer.reportException(ex);
+        }
         
     }
 
@@ -38,47 +70,115 @@ public class DepartmentListPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jAddDepartmentButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jDepartmentList = new javax.swing.JList();
+        jPanel1 = new javax.swing.JPanel();
+        jAddDepartmentButton = new javax.swing.JButton();
+        jDeleteSelectedButton = new javax.swing.JButton();
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Departments");
         jLabel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        jAddDepartmentButton.setText("Add Department");
 
         jDepartmentList.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
+        jDepartmentList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                jDepartmentListValueChanged(evt);
+            }
+        });
         jScrollPane2.setViewportView(jDepartmentList);
+
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        jAddDepartmentButton.setText("Add Department");
+        jAddDepartmentButton.setEnabled(false);
+        jAddDepartmentButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jAddDepartmentButtonActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jAddDepartmentButton, java.awt.BorderLayout.WEST);
+
+        jDeleteSelectedButton.setText("Delete Selected");
+        jDeleteSelectedButton.setEnabled(false);
+        jDeleteSelectedButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jDeleteSelectedButtonActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jDeleteSelectedButton, java.awt.BorderLayout.EAST);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jAddDepartmentButton, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
             .addComponent(jScrollPane2)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jAddDepartmentButton))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jAddDepartmentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jAddDepartmentButtonActionPerformed
+        String name = JOptionPane.showInputDialog("Department name: ");
+        try {
+            Department d = Department.create(name, this.institution);
+            this.listModel.addElement(d);
+        } catch (SQLException | OrmObjectNotConfiguredException ex) {
+            AddressDiscoverer.reportException(ex);
+        }
+
+        ArrayList<Department> list = new ArrayList<>();
+        for (int i = 0; i < this.listModel.getSize(); i ++ )
+            list.add((Department) this.listModel.getElementAt(i));
+        Collections.sort(list);
+        this.listModel.clear();
+        for (Department i : list) {
+            this.listModel.addElement(i);
+        }        
+    }//GEN-LAST:event_jAddDepartmentButtonActionPerformed
+
+    private void jDepartmentListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jDepartmentListValueChanged
+        this.jDeleteSelectedButton.setEnabled(true);
+        int selection = this.jDepartmentList.getSelectedIndex();
+        if (selection < 0 || selection > this.listModel.size())
+            return;
+        Department selectedDepartment = (Department) this.listModel.get(selection);
+        this.parent.setSelectedDepartment(selectedDepartment);
+    }//GEN-LAST:event_jDepartmentListValueChanged
+
+    private void jDeleteSelectedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDeleteSelectedButtonActionPerformed
+        try {
+            int selection = this.jDepartmentList.getSelectedIndex();
+            Department selectedDepartment = (Department) this.listModel.get(selection);
+            Department.delete(selectedDepartment);
+            this.listModel.remove(selection);
+            this.parent.setSelectedDepartment(null);
+            this.jDeleteSelectedButton.setEnabled(false);
+        } catch (SQLException ex) {
+            AddressDiscoverer.reportException(ex);
+        }
+    }//GEN-LAST:event_jDeleteSelectedButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jAddDepartmentButton;
+    private javax.swing.JButton jDeleteSelectedButton;
     private javax.swing.JList jDepartmentList;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
 }
