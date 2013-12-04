@@ -8,7 +8,10 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.Utils;
+import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
  * Creates and manages the main MDI window of the GUI, with its menu and managed
@@ -25,8 +28,9 @@ public class MainWindow extends javax.swing.JFrame {
     /**
      * Creates new form MainWindow
      * @param application
+     * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      */
-    public MainWindow(AddressDiscoverer application) {
+    public MainWindow(AddressDiscoverer application) throws OrmObjectNotConfiguredException {
         this.application = application;
         initComponents();
         ThreeWaySplitPane threePane = new ThreeWaySplitPane(this, application);
@@ -49,6 +53,17 @@ public class MainWindow extends javax.swing.JFrame {
         imagesList.add(medImage);
         imagesList.add(largeImage);
         this.setIconImages(imagesList);
+    }
+    
+    /**
+     * A single-access point for reporting exceptions to the user.
+     * 
+     * @param message
+     */
+    public void reportException(String message) {
+        JOptionPane.showMessageDialog(this,
+            Utils.wordWrapString(message, 50),
+            "Program error", JOptionPane.ERROR_MESSAGE);
     }
 
     /**

@@ -6,17 +6,14 @@
 
 package org.norvelle.addressdiscoverer;
 
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -24,12 +21,11 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.ErrorCreatingDatabaseException;
 import org.norvelle.addressdiscoverer.gui.MainWindow;
+import org.norvelle.addressdiscoverer.model.Institution;
 
 /**
  * 
@@ -37,8 +33,11 @@ import org.norvelle.addressdiscoverer.gui.MainWindow;
  */
 public class AddressDiscoverer {
 
+    // Property keys
+    private static final String DUMMY_PROPERTY = "DummyProperty";
+    
     // A logger instance
-    static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     // Our "singleton" application instance
     private static AddressDiscoverer application;
@@ -51,6 +50,8 @@ public class AddressDiscoverer {
     private Connection connection;
     
     public AddressDiscoverer() throws Exception {
+        AddressDiscoverer.application = this;
+        
         // First setup our logger
         this.checkSettingsDirExists();
         logger.setLevel(Level.INFO);
@@ -101,7 +102,7 @@ public class AddressDiscoverer {
     }
     
     private void attachDatabase() 
-            throws CannotLoadJDBCDriverException, ErrorCreatingDatabaseException, SQLException, IOException {
+            throws CannotLoadJDBCDriverException, SQLException, IOException {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException ex) {
@@ -109,32 +110,11 @@ public class AddressDiscoverer {
             throw new CannotLoadJDBCDriverException(ex.getMessage());
         }
 
-        // create a database connection
+        // create a database connection and initialize our tables
         String dbFilename = this.settingsDirname + File.separator + "addresses.sqlite";
-        connection = DriverManager.getConnection("jdbc:sqlite:" + dbFilename);
-        Statement statement = connection.createStatement();
-
-        // See if our database is already configured.
-        try {
-            ResultSet rs = statement.executeQuery("SELECT * FROM config");
-        } 
-        // If not, run our database creation code.
-        catch (SQLException e) {
-            InputStream inputStream = getClass().getResourceAsStream("/org/norvelle/addressdiscoverer/resources/create_database.sql");
-            StringWriter writer = new StringWriter();
-            IOUtils.copy(inputStream, writer, "UTF-8");
-            String createSQL = writer.toString();
-            String[] createCommands = StringUtils.split(createSQL, "===");
-            for (String createCommand : createCommands) {
-                statement.addBatch(StringUtils.trim(createCommand));
-            }
-            try {
-                statement.executeBatch();
-            }
-            catch (SQLException sqle) {
-                throw new ErrorCreatingDatabaseException(sqle.getMessage());
-            }
-        }
+        ConnectionSource connectionSource =
+            new JdbcConnectionSource("jdbc:sqlite:" + dbFilename);
+        Institution.initialize(connectionSource);
     }
     
     private void loadProperties() {
@@ -144,7 +124,7 @@ public class AddressDiscoverer {
             this.props.load(new java.io.FileInputStream(this.propsFilename));
         }
         catch (IOException e) {
-            //this.props.setProperty(PROXY_FILE_LOCATION_PROPERTY, "");
+            this.props.setProperty(DUMMY_PROPERTY, "");
         }
     }
     
@@ -153,6 +133,14 @@ public class AddressDiscoverer {
             this.props.store(fos, "Properties for AddressDiscoverer");
             fos.flush();
         }
+    }
+        
+    // ===================== Getters and setters =============================
+    
+    public static void reportException(Exception e) {
+        logger.log(Level.SEVERE, e.getMessage());
+        logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+        AddressDiscoverer.application.window.reportException(e.getMessage());
     }
     
     // ===================== Getters and setters =============================
