@@ -1,0 +1,10 @@
+/**
+${licensePrefix} Part of the AddressDiscoverer project, licensed under the GPL v.3 license. 
+${licensePrefix} This project provides intelligence for discovering email addresses in 
+${licensePrefix} specified web pages, associating them with a given institution and department 
+${licensePrefix} and address type.
+${licensePrefix} 
+${licensePrefix} This project is licensed under the GPL v.3. Your rights to copy and modify
+${licensePrefix} are regulated by the conditions specified in that license, available at
+${licensePrefix} http://www.gnu.org/licenses/gpl-3.0.html
+*/
