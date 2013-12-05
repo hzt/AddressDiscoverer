@@ -23,7 +23,6 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
-import org.norvelle.addressdiscoverer.exceptions.ErrorCreatingDatabaseException;
 import org.norvelle.addressdiscoverer.gui.MainWindow;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Institution;
@@ -72,6 +71,7 @@ public class AddressDiscoverer {
             UIManager.getSystemLookAndFeelClassName());
         window = new MainWindow(this);
         window.setLocationRelativeTo(null);
+        window.setTitle("AddressDiscoverer");
         window.setVisible(true);
     }
 

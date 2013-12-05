@@ -89,6 +89,12 @@
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="jWebAddressField">
+              <Properties>
+                <Property name="enabled" type="boolean" value="false"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jWebAddressFieldActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="jRetrieveHTMLButton">
               <Properties>
@@ -109,6 +115,7 @@
                   <Font name="Tahoma" size="13" style="1"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="0"/>
+                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
             </Component>
           </SubComponents>
@@ -168,6 +175,15 @@
             <Container class="javax.swing.JPanel" name="jPageContentPanel">
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+              <SubComponents>
+                <Container class="org.lobobrowser.html.gui.HtmlPanel" name="jHTMLPanel">
+                  <Constraints>
+                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                      <BorderConstraints direction="Center"/>
+                    </Constraint>
+                  </Constraints>
+                </Container>
+              </SubComponents>
             </Container>
           </SubComponents>
         </Container>

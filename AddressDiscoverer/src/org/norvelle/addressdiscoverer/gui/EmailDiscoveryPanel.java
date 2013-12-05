@@ -10,11 +10,17 @@
  */
 package org.norvelle.addressdiscoverer.gui;
 
-import java.awt.BorderLayout;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
+import org.apache.commons.io.IOUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.xml.sax.SAXException;
@@ -25,9 +31,8 @@ import org.xml.sax.SAXException;
  */
 public class EmailDiscoveryPanel extends javax.swing.JPanel {
 
-    private GUIManagementPane parent;
+    private final GUIManagementPane parent;
     private Department currentDepartment;
-    private final HTMLPageRenderer renderer;
     
     /**
      * Creates new form EmailDiscoveryPanel
@@ -37,38 +42,55 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     public EmailDiscoveryPanel(GUIManagementPane parent) {
         this.parent = parent;
         initComponents();
-        this.renderer = new HTMLPageRenderer(this);
-        this.jHTMLRenderPanel.add(this.renderer, BorderLayout.CENTER);
-        this.setEnabled(false);
     }
     
     public void setDepartment(Department department) throws IOException, SAXException {
         this.currentDepartment = department;
         if (department == null) {
             this.jWebAddressField.setText("");
-            this.setEnabled(false);
+            this.jWebAddressField.setEnabled(false);
+            this.jBytesReceivedLabel.setEnabled(false);
+            this.jRetrieveHTMLButton.setEnabled(false);
+            this.jHTMLPanel.setEnabled(false);
         }
         else {
             this.setEnabled(true);
             String url = department.getWebAddress();
             this.jWebAddressField.setText(url);
-            this.updateHTMLContentRenderer();
+            this.jWebAddressField.setEnabled(true);
+            this.jBytesReceivedLabel.setEnabled(true);
+            this.jRetrieveHTMLButton.setEnabled(true);
+            this.jHTMLPanel.setEnabled(true);
+            this.updateWebPageContents();
         }
     }
     
-    public void updateHTMLContentRenderer() {
-        final String myUrl = this.jWebAddressField.getText();
-        if (!myUrl.isEmpty())
+    public void updateWebPageContents() {
+        this.jRetrieveHTMLButton.setEnabled(false);
+        final String myURI = this.jWebAddressField.getText();
+        if (!myURI.isEmpty())
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        renderer.setURLSource(myUrl);
-                    } catch (IOException | SAXException ex) {
+                        URL url = new URL(myURI);
+                        URLConnection connection = url.openConnection();
+                        InputStream in = connection.getInputStream();
+                        StringWriter writer = new StringWriter();
+                        IOUtils.copy(in, writer, Charset.forName("UTF-8"));
+                        String html = writer.toString();
+                        jBytesReceivedLabel.setText(Integer.toString(html.length()));
+                        jRetrieveHTMLButton.setEnabled(true);
+                        setHTMLPanelContents(html);
+                    } catch (IOException ex) {
                         AddressDiscoverer.reportException(ex);
                     }
                 }
             });
+    }
+    
+    private void setHTMLPanelContents(String html) {
+        
     }
 
     /**
@@ -90,8 +112,16 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jEmailDisplayPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jPageContentPanel = new javax.swing.JPanel();
+        jHTMLPanel = new org.lobobrowser.html.gui.HtmlPanel();
 
         jLabel1.setText("Web address:");
+
+        jWebAddressField.setEnabled(false);
+        jWebAddressField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jWebAddressFieldActionPerformed(evt);
+            }
+        });
 
         jRetrieveHTMLButton.setText("Retrieve HTML");
         jRetrieveHTMLButton.addActionListener(new java.awt.event.ActionListener() {
@@ -104,6 +134,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
 
         jBytesReceivedLabel.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         jBytesReceivedLabel.setText("0");
+        jBytesReceivedLabel.setEnabled(false);
 
         javax.swing.GroupLayout jEmailSourcePanelLayout = new javax.swing.GroupLayout(jEmailSourcePanel);
         jEmailSourcePanel.setLayout(jEmailSourcePanelLayout);
@@ -156,6 +187,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jHTMLRenderPanel.addTab("Discovered Emails", jEmailDisplayPanel);
 
         jPageContentPanel.setLayout(new java.awt.BorderLayout());
+        jPageContentPanel.add(jHTMLPanel, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -189,14 +221,26 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jRetrieveHTMLButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRetrieveHTMLButtonActionPerformed
-        this.updateHTMLContentRenderer();
+        if (this.jWebAddressField.getText().isEmpty())
+            return;
+        this.updateWebPageContents();
     }//GEN-LAST:event_jRetrieveHTMLButtonActionPerformed
+
+    private void jWebAddressFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jWebAddressFieldActionPerformed
+        this.currentDepartment.setWebAddress(this.jWebAddressField.getText());
+        try {
+            Department.update(this.currentDepartment);
+        } catch (SQLException ex) {
+            AddressDiscoverer.reportException(ex);
+        }
+    }//GEN-LAST:event_jWebAddressFieldActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jBytesReceivedLabel;
     private javax.swing.JPanel jEmailDisplayPanel;
     private javax.swing.JPanel jEmailSourcePanel;
+    private org.lobobrowser.html.gui.HtmlPanel jHTMLPanel;
     private javax.swing.JTabbedPane jHTMLRenderPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

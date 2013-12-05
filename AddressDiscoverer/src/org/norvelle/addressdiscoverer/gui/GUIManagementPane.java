@@ -18,6 +18,9 @@
 package org.norvelle.addressdiscoverer.gui;
 
 import java.awt.BorderLayout;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.jdesktop.swingx.JXMultiSplitPane;
@@ -28,6 +31,7 @@ import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Institution;
+import org.xml.sax.SAXException;
 
 /**
  * Creates a three-way split pane without using nesting, thanks to the SwingX
@@ -62,13 +66,17 @@ public class GUIManagementPane extends JPanel {
         this.setLayout(new BorderLayout());
         this.add(sp);
     }
-    
+
     public void setSelectedInstitution(Institution selectedInstitution) {
         this.departmentListPanel.setInstitution(selectedInstitution);
     }
 
     public void setSelectedDepartment(Department selectedDepartment) {
-        this.emailDiscoveryPanel.setDepartment(selectedDepartment);
+        try {
+            this.emailDiscoveryPanel.setDepartment(selectedDepartment);
+        } catch (IOException | SAXException ex) {
+            AddressDiscoverer.reportException(ex);
+        }
     }
     
 }

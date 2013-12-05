@@ -92,6 +92,12 @@ public class Department implements Comparable {
     public String getWebAddress() {
         return webAddress;
     }
+
+    public void setWebAddress(String webAddress) {
+        this.webAddress = webAddress;
+    }
+    
+    
     
     // ===================== Static Data Manipulation Methods =============================
     
