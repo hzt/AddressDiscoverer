@@ -10,6 +10,7 @@
  */
 package org.norvelle.addressdiscoverer.gui;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -19,7 +20,11 @@ import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.model.Department;
@@ -30,6 +35,9 @@ import org.xml.sax.SAXException;
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public class EmailDiscoveryPanel extends javax.swing.JPanel {
+
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     private final GUIManagementPane parent;
     private Department currentDepartment;
@@ -42,57 +50,149 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     public EmailDiscoveryPanel(GUIManagementPane parent) {
         this.parent = parent;
         initComponents();
+        this.jWebAddressField.getDocument().addDocumentListener(
+                new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent de) {
+                updateDepartmentWebAddress();
+                jRetrieveHTMLButton.setEnabled(true);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent de) {
+                updateDepartmentWebAddress();
+                jRetrieveHTMLButton.setEnabled(true);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent de) {
+                updateDepartmentWebAddress();
+                jRetrieveHTMLButton.setEnabled(true);
+            }
+        });
     }
     
+    /**
+     * If the user selects a department in the GUI, this pane should be activated
+     * so that he user can adjust its properties and retrieve HTML for its personnel.
+     * 
+     * @param department The Department object selected by the user.
+     * @throws IOException
+     * @throws SAXException 
+     */
     public void setDepartment(Department department) throws IOException, SAXException {
         this.currentDepartment = department;
         if (department == null) {
             this.jWebAddressField.setText("");
             this.jWebAddressField.setEnabled(false);
-            this.jBytesReceivedLabel.setEnabled(false);
             this.jRetrieveHTMLButton.setEnabled(false);
+            this.jOpenFileButton.setEnabled(false);
             this.jHTMLPanel.setEnabled(false);
+            this.setHTMLPanelContents("");
+            this.jBytesReceivedLabel.setEnabled(false);
         }
         else {
-            this.setEnabled(true);
             String url = department.getWebAddress();
             this.jWebAddressField.setText(url);
             this.jWebAddressField.setEnabled(true);
             this.jBytesReceivedLabel.setEnabled(true);
             this.jRetrieveHTMLButton.setEnabled(true);
+            this.jOpenFileButton.setEnabled(true);
             this.jHTMLPanel.setEnabled(true);
-            this.updateWebPageContents();
+            String html = department.getHtml();
+            if ((html != null && !html.isEmpty())) {
+                this.setHTMLPanelContents(html);
+            }
+            else this.setHTMLPanelContents("");
         }
     }
     
-    public void updateWebPageContents() {
+    /**
+     * Asynchronously fetch the HTML for the specified webpage and update our
+     * HTML rendering pane with that content.
+     */
+    private void webAddressChanged() {
         this.jRetrieveHTMLButton.setEnabled(false);
         final String myURI = this.jWebAddressField.getText();
-        if (!myURI.isEmpty())
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        URL url = new URL(myURI);
-                        URLConnection connection = url.openConnection();
-                        InputStream in = connection.getInputStream();
-                        StringWriter writer = new StringWriter();
-                        IOUtils.copy(in, writer, Charset.forName("UTF-8"));
-                        String html = writer.toString();
-                        jBytesReceivedLabel.setText(Integer.toString(html.length()));
-                        jRetrieveHTMLButton.setEnabled(true);
-                        setHTMLPanelContents(html);
-                    } catch (IOException ex) {
-                        AddressDiscoverer.reportException(ex);
-                    }
+        if (!myURI.isEmpty()) {
+            File file = new File(myURI);
+            
+            // If the user has specified a local file, we use that to fetch HTML
+            if (file.exists()) {
+                try {
+                    String html = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
+                    this.updateDepartmentHTML(html);
+                    this.setHTMLPanelContents(html);
+                } catch (IOException ex) {
+                    AddressDiscoverer.reportException(ex);
                 }
-            });
+            }            
+            
+            // Otherwise we fetch the HTML from the website via HTTP
+            else {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            URL url = new URL(myURI);
+                            URLConnection connection = url.openConnection();
+                            InputStream in = connection.getInputStream();
+                            StringWriter writer = new StringWriter();
+                            IOUtils.copy(in, writer, Charset.forName("UTF-8"));
+                            String html = writer.toString();
+                            jBytesReceivedLabel.setText(Integer.toString(html.length()));
+                            jRetrieveHTMLButton.setEnabled(true);
+                            updateDepartmentHTML(html);
+                            setHTMLPanelContents(html);
+                        } catch (IOException ex) {
+                            AddressDiscoverer.reportException(ex);
+                        }
+                    } // run()
+                }); // invokeLater()
+            } // else
+        } // if (!myURI
     }
     
+    /**
+     * Handles turning the HTML retrieved into a W3C Document that can be
+     * displayed in the HTML panel.
+     * 
+     * @param html 
+     */
     private void setHTMLPanelContents(String html) {
-        
+        this.jBytesReceivedLabel.setText(Integer.toString(html.length()));
+        this.jBytesReceivedLabel.setEnabled(true);
+    }
+    
+    /**
+     * Given new HTML that has been retrieved, update the Department object to
+     * store it.
+     * 
+     * @param html 
+     */
+    private void updateDepartmentHTML(String html) {
+        this.currentDepartment.setHtml(html);
+        try {
+            Department.update(this.currentDepartment);
+        } catch (SQLException ex) {
+            AddressDiscoverer.reportException(ex);
+        }                
     }
 
+    /**
+     * Gets called when the user changes the value for the web address field.
+     */
+    private void updateDepartmentWebAddress() {
+        this.jRetrieveHTMLButton.setEnabled(true);
+        this.currentDepartment.setWebAddress(this.jWebAddressField.getText());
+        try {
+            Department.update(this.currentDepartment);
+        } catch (SQLException ex) {
+            AddressDiscoverer.reportException(ex);
+        }        
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -102,6 +202,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jOpenFileChooser = new javax.swing.JFileChooser();
         jHTMLRenderPanel = new javax.swing.JTabbedPane();
         jEmailSourcePanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -109,6 +210,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jRetrieveHTMLButton = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jBytesReceivedLabel = new javax.swing.JLabel();
+        jOpenFileButton = new javax.swing.JButton();
         jEmailDisplayPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jPageContentPanel = new javax.swing.JPanel();
@@ -117,13 +219,10 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jLabel1.setText("Web address:");
 
         jWebAddressField.setEnabled(false);
-        jWebAddressField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jWebAddressFieldActionPerformed(evt);
-            }
-        });
+        jWebAddressField.setMaximumSize(new java.awt.Dimension(6, 22));
 
         jRetrieveHTMLButton.setText("Retrieve HTML");
+        jRetrieveHTMLButton.setEnabled(false);
         jRetrieveHTMLButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jRetrieveHTMLButtonActionPerformed(evt);
@@ -136,6 +235,14 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jBytesReceivedLabel.setText("0");
         jBytesReceivedLabel.setEnabled(false);
 
+        jOpenFileButton.setText("Open file");
+        jOpenFileButton.setEnabled(false);
+        jOpenFileButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jOpenFileButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jEmailSourcePanelLayout = new javax.swing.GroupLayout(jEmailSourcePanel);
         jEmailSourcePanel.setLayout(jEmailSourcePanelLayout);
         jEmailSourcePanelLayout.setHorizontalGroup(
@@ -146,7 +253,9 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                     .addGroup(jEmailSourcePanelLayout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jWebAddressField))
+                        .addComponent(jWebAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jOpenFileButton))
                     .addGroup(jEmailSourcePanelLayout.createSequentialGroup()
                         .addComponent(jRetrieveHTMLButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -162,13 +271,14 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(jEmailSourcePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jWebAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jWebAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jOpenFileButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jEmailSourcePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jRetrieveHTMLButton)
                     .addComponent(jLabel2)
                     .addComponent(jBytesReceivedLabel))
-                .addContainerGap(439, Short.MAX_VALUE))
+                .addContainerGap(436, Short.MAX_VALUE))
         );
 
         jHTMLRenderPanel.addTab("Source Page", jEmailSourcePanel);
@@ -223,17 +333,18 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private void jRetrieveHTMLButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRetrieveHTMLButtonActionPerformed
         if (this.jWebAddressField.getText().isEmpty())
             return;
-        this.updateWebPageContents();
+        this.webAddressChanged();
     }//GEN-LAST:event_jRetrieveHTMLButtonActionPerformed
 
-    private void jWebAddressFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jWebAddressFieldActionPerformed
-        this.currentDepartment.setWebAddress(this.jWebAddressField.getText());
-        try {
-            Department.update(this.currentDepartment);
-        } catch (SQLException ex) {
-            AddressDiscoverer.reportException(ex);
+    private void jOpenFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jOpenFileButtonActionPerformed
+        int returnVal = this.jOpenFileChooser.showOpenDialog(this.parent);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = jOpenFileChooser.getSelectedFile();
+            this.jWebAddressField.setText(file.getAbsolutePath());
+            this.updateDepartmentWebAddress();
         }
-    }//GEN-LAST:event_jWebAddressFieldActionPerformed
+        
+    }//GEN-LAST:event_jOpenFileButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -244,6 +355,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private javax.swing.JTabbedPane jHTMLRenderPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JButton jOpenFileButton;
+    private javax.swing.JFileChooser jOpenFileChooser;
     private javax.swing.JPanel jPageContentPanel;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton jRetrieveHTMLButton;

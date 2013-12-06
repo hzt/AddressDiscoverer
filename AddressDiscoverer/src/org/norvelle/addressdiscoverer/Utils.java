@@ -47,7 +47,7 @@ public class Utils {
         asSortedList(Collection<T> c, int direction) 
     {
         List<T> list = new ArrayList<T>(c);
-        if (direction == Utils.ASCENDING_SORT)
+        if (direction == Utils.DESCENDING_SORT)
             Collections.sort(list, Collections.reverseOrder());
         else
             Collections.sort(list);

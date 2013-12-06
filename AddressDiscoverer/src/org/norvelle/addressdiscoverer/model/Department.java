@@ -19,6 +19,7 @@ import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
@@ -30,6 +31,9 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
 @DatabaseTable(tableName = "department")
 public class Department implements Comparable {
     
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+
     private final HashMap<String, Individual> individuals = new HashMap();
     private static Dao<Department, String> dao;
     
@@ -96,8 +100,15 @@ public class Department implements Comparable {
     public void setWebAddress(String webAddress) {
         this.webAddress = webAddress;
     }
-    
-    
+
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
+    }
+
     
     // ===================== Static Data Manipulation Methods =============================
     

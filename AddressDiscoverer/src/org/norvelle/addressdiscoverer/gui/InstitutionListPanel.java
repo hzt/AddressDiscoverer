@@ -11,11 +11,8 @@
 package org.norvelle.addressdiscoverer.gui;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
@@ -29,11 +26,14 @@ import org.norvelle.addressdiscoverer.model.Institution;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class InstitutionListPanel extends javax.swing.JPanel {
+public class InstitutionListPanel extends javax.swing.JPanel implements IListPanel {
+
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     private final GUIManagementPane parent;
-    private final HashMap<Integer, Institution> institutions;
-    private final DefaultListModel listModel;
+    private HashMap<Integer, Institution> institutions;
+    private DefaultListModel listModel;
     
     /**
      * Creates new form InstitutionListPanel
@@ -43,14 +43,77 @@ public class InstitutionListPanel extends javax.swing.JPanel {
     public InstitutionListPanel(GUIManagementPane parent) throws OrmObjectNotConfiguredException {
         this.parent = parent;
         initComponents();
+        this.jAddModifyDeleteButtonPanel.setParent(this);
+        this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
+        this.refreshList();
+    }
+
+    @Override
+    public void deleteSelected() {
+        int reply = JOptionPane.showConfirmDialog(null, "Are you sure?", "Confirm delete", 
+                JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.NO_OPTION) 
+            return;
+        int selectedInstitution = this.jInstitutionList.getSelectedIndex();
+        Institution institutionToDelete = (Institution) 
+                this.listModel.elementAt(selectedInstitution);
+        try {
+            Institution.delete(institutionToDelete);
+            this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
+            this.refreshList();
+            this.parent.setSelectedInstitution(null);
+        } catch (SQLException ex) {
+            AddressDiscoverer.reportException(ex);
+        }
+    }
+    
+    @Override
+    public void addNew() {
+        String name = JOptionPane.showInputDialog("Name: ");
+        Institution newInstitution;
+        try {
+            newInstitution = Institution.create(name);
+            this.listModel.addElement(newInstitution);
+        } catch (SQLException | OrmObjectNotConfiguredException ex) {
+            AddressDiscoverer.reportException(ex);
+        }
+
+        this.refreshList();
+        this.parent.setSelectedInstitution(null);
+    }
+    
+    @Override
+    public void modifySelected() {
+        String newName = JOptionPane.showInputDialog("New name: ");
+        if (newName == null) return;
+        int selectedInstitution = this.jInstitutionList.getSelectedIndex();
+        Institution institutionToModify = (Institution) 
+                this.listModel.elementAt(selectedInstitution);
+        try {
+            institutionToModify.setName(newName);
+            Institution.update(institutionToModify);
+            this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
+            this.refreshList();
+            this.parent.setSelectedInstitution(null);
+        } catch (SQLException ex) {
+            AddressDiscoverer.reportException(ex);
+        }        
         
-        // Load and display our Institution objects in the list
+    }
+    
+    private void refreshList() {
         this.listModel = new DefaultListModel();
-        this.institutions = Institution.getInstitutions();
-        List<Integer> sortedKeys = Utils.asSortedList(this.institutions.keySet(), Utils.ASCENDING_SORT);
-        for (Integer key : sortedKeys)
-            listModel.addElement(this.institutions.get(key));
-        this.jInstitutionList.setModel(listModel);
+        HashMap<Integer, Institution> institutions;
+        try {
+            institutions = Institution.getInstitutions();
+            List<Institution> sortedInstitutions = 
+                    Utils.asSortedList(institutions.values(), Utils.ASCENDING_SORT);
+            for (Institution i : sortedInstitutions)
+                this.listModel.addElement(i);
+            this.jInstitutionList.setModel(this.listModel);   
+        } catch (OrmObjectNotConfiguredException ex) {
+            AddressDiscoverer.reportException(ex);
+        }
     }
 
     /**
@@ -65,9 +128,7 @@ public class InstitutionListPanel extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jInstitutionList = new javax.swing.JList();
-        jPanel1 = new javax.swing.JPanel();
-        jAddInstitutionButton = new javax.swing.JButton();
-        jDeleteSelectedButton = new javax.swing.JButton();
+        jAddModifyDeleteButtonPanel = new org.norvelle.addressdiscoverer.gui.AddModifyDeleteButtonPanel();
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Institutions");
@@ -85,90 +146,44 @@ public class InstitutionListPanel extends javax.swing.JPanel {
         });
         jScrollPane2.setViewportView(jInstitutionList);
 
-        jPanel1.setLayout(new java.awt.BorderLayout());
-
-        jAddInstitutionButton.setText("Add Institution");
-        jAddInstitutionButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jAddInstitutionButtonActionPerformed(evt);
-            }
-        });
-        jPanel1.add(jAddInstitutionButton, java.awt.BorderLayout.WEST);
-
-        jDeleteSelectedButton.setText("Delete Selected");
-        jDeleteSelectedButton.setEnabled(false);
-        jDeleteSelectedButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jDeleteSelectedButtonActionPerformed(evt);
-            }
-        });
-        jPanel1.add(jDeleteSelectedButton, java.awt.BorderLayout.EAST);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jScrollPane2)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jAddModifyDeleteButtonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 471, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 463, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jAddModifyDeleteButtonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(8, 8, 8))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jAddInstitutionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jAddInstitutionButtonActionPerformed
-        String name = JOptionPane.showInputDialog("Name: ");
-        try {
-            Institution i = Institution.create(name);
-            this.listModel.addElement(i);
-        } catch (SQLException | OrmObjectNotConfiguredException ex) {
-            AddressDiscoverer.reportException(ex);
-        }
-
-        ArrayList<Institution> list = new ArrayList<>();
-        for (int i = 0; i < this.listModel.getSize(); i ++ )
-            list.add((Institution) this.listModel.getElementAt(i));
-        Collections.sort(list);
-        this.listModel.clear();
-        for (Institution i : list) {
-            this.listModel.addElement(i);
-        }
-    }//GEN-LAST:event_jAddInstitutionButtonActionPerformed
-
-    private void jDeleteSelectedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDeleteSelectedButtonActionPerformed
-        try {
-            int selection = this.jInstitutionList.getSelectedIndex();
-            Institution selectedInstitution = (Institution) this.listModel.get(selection);
-            Institution.delete(selectedInstitution);
-            this.listModel.remove(selection);
-            this.parent.setSelectedInstitution(null);
-        } catch (SQLException ex) {
-            AddressDiscoverer.reportException(ex);
-        }
-    }//GEN-LAST:event_jDeleteSelectedButtonActionPerformed
-
     private void jInstitutionListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jInstitutionListValueChanged
-        this.jDeleteSelectedButton.setEnabled(true);
+        this.jAddModifyDeleteButtonPanel.setObjectSelectedCondition();
         int selection = this.jInstitutionList.getSelectedIndex();
-        Institution selectedInstitution = (Institution) this.listModel.get(selection);
-        this.parent.setSelectedInstitution(selectedInstitution);
+        if (selection != -1) {
+            Institution selectedInstitution = (Institution) this.listModel.get(selection);
+            this.parent.setSelectedInstitution(selectedInstitution);
+            this.parent.setSelectedDepartment(null);
+        }
     }//GEN-LAST:event_jInstitutionListValueChanged
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jAddInstitutionButton;
-    private javax.swing.JButton jDeleteSelectedButton;
+    private org.norvelle.addressdiscoverer.gui.AddModifyDeleteButtonPanel jAddModifyDeleteButtonPanel;
     private javax.swing.JList jInstitutionList;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
 }
