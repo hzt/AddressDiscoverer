@@ -135,8 +135,9 @@ public class Department implements Comparable {
         Department.dao.update(i);
     }
     
-    public static void delete(Department i) throws SQLException {
-        Department.dao.delete(i);
+    public static void delete(Department d) throws SQLException, OrmObjectNotConfiguredException {
+        Individual.deleteIndividualsForDepartment(d);
+        Department.dao.delete(d);
     }
     
     private static void checkConfigured() throws OrmObjectNotConfiguredException {

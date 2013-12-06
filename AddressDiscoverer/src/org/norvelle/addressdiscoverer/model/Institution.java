@@ -97,7 +97,8 @@ public class Institution implements Comparable {
         Institution.dao.update(i);
     }
     
-    public static void delete(Institution i) throws SQLException {
+    public static void delete(Institution i) throws SQLException, OrmObjectNotConfiguredException {
+        Department.deleteDepartmentsForInstitution(i);
         Institution.dao.delete(i);
     }
     

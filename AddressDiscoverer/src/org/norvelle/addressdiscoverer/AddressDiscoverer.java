@@ -25,6 +25,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.gui.MainWindow;
 import org.norvelle.addressdiscoverer.model.Department;
+import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
 
 /**
@@ -118,6 +119,7 @@ public class AddressDiscoverer {
             new JdbcConnectionSource("jdbc:sqlite:" + dbFilename);
         Institution.initialize(connectionSource);
         Department.initialize(connectionSource);
+        Individual.initialize(connectionSource);
     }
     
     private void loadProperties() {
