@@ -11,13 +11,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 

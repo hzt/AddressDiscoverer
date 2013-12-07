@@ -6,11 +6,11 @@
 
 package regextester;
 
-import java.util.regex.MatchResult;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -29,6 +29,9 @@ public class MainWindow extends javax.swing.JFrame {
         String oldRegex = this.application.getProps().getProperty("regex");
         if (oldRegex != null)
             this.jRegexField.setText(oldRegex);
+        String oldText = this.application.getProps().getProperty("text");
+        if (oldText != null)
+            this.jTestTextArea.setText(oldText);
     }
 
     /**
@@ -55,12 +58,18 @@ public class MainWindow extends javax.swing.JFrame {
         jRegexField = new javax.swing.JTextField();
         jTestButton = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jMatchList = new javax.swing.JList();
         jLabel3 = new javax.swing.JLabel();
         jDoesMatchLabel = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTestTextArea = new javax.swing.JTextArea();
+        jMultilineCheckbox = new javax.swing.JCheckBox();
+        jLabel4 = new javax.swing.JLabel();
+        jCaseInsensitiveCheckbox = new javax.swing.JCheckBox();
+        jDotallCheckbox = new javax.swing.JCheckBox();
+        jLiteralCheckbox = new javax.swing.JCheckBox();
+        jCharacterClassesCheckbox = new javax.swing.JCheckBox();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jResultsTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -80,8 +89,6 @@ public class MainWindow extends javax.swing.JFrame {
 
         jLabel2.setText("Test text:");
 
-        jScrollPane2.setViewportView(jMatchList);
-
         jLabel3.setText("Matches:");
 
         jDoesMatchLabel.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
@@ -91,6 +98,36 @@ public class MainWindow extends javax.swing.JFrame {
         jTestTextArea.setRows(5);
         jScrollPane3.setViewportView(jTestTextArea);
 
+        jMultilineCheckbox.setText("Multiline");
+
+        jLabel4.setText("Flags:");
+
+        jCaseInsensitiveCheckbox.setText("Case insensitive");
+
+        jDotallCheckbox.setText("Dot matches newline");
+
+        jLiteralCheckbox.setText("Literal");
+
+        jCharacterClassesCheckbox.setText("Character classes");
+
+        jResultsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null}
+            },
+            new String [] {
+                "Match 1", "Match 2", "Match 3", "Match 4"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(jResultsTable);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -98,7 +135,6 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 633, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -106,14 +142,29 @@ public class MainWindow extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(jTestButton))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jDoesMatchLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane3)))
+                        .addComponent(jScrollPane3))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(18, 18, 18)
+                                .addComponent(jMultilineCheckbox)
+                                .addGap(18, 18, 18)
+                                .addComponent(jCaseInsensitiveCheckbox)
+                                .addGap(18, 18, 18)
+                                .addComponent(jDotallCheckbox)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLiteralCheckbox)
+                                .addGap(18, 18, 18)
+                                .addComponent(jCharacterClassesCheckbox))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jDoesMatchLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 47, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -124,18 +175,24 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jRegexField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTestButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jMultilineCheckbox)
+                    .addComponent(jLabel4)
+                    .addComponent(jCaseInsensitiveCheckbox)
+                    .addComponent(jDotallCheckbox)
+                    .addComponent(jLiteralCheckbox)
+                    .addComponent(jCharacterClassesCheckbox))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE))
+                    .addComponent(jLabel2)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jDoesMatchLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jDoesMatchLabel)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 204, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -145,41 +202,58 @@ public class MainWindow extends javax.swing.JFrame {
     private void jTestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTestButtonActionPerformed
         Pattern pattern;
         try {
-            pattern = Pattern.compile(this.jRegexField.getText(), Pattern.MULTILINE);
+            int flags = 0;
+            if (this.jMultilineCheckbox.isSelected()) flags = Pattern.MULTILINE;
+            if (this.jCaseInsensitiveCheckbox.isSelected()) flags = flags | Pattern.CASE_INSENSITIVE;
+            if (this.jDotallCheckbox.isSelected()) flags = flags | Pattern.DOTALL;
+            if (this.jLiteralCheckbox.isSelected()) flags = flags | Pattern.LITERAL;
+            if (this.jCharacterClassesCheckbox.isSelected())
+                flags = flags | Pattern.UNICODE_CHARACTER_CLASS;
+            pattern = Pattern.compile(this.jRegexField.getText(), flags);
         }
         catch (Exception e) {
             RegexTester.reportException(
                     new Exception("Could not compile regular expression: " + e.getMessage()));
             return;
         }
-        Matcher matcher;
-        matcher = pattern.matcher(this.jTestTextArea.getText());
-        if (matcher.matches()) {
-            this.jDoesMatchLabel.setText(Integer.toString(matcher.groupCount()));
-            DefaultListModel model = new DefaultListModel();
-            for (int i = 1 ; i <= matcher.groupCount(); i++) {
+        
+        String text = this.jTestTextArea.getText();
+        Matcher matcher = pattern.matcher(text);
+        int matchCount = 0;
+        DefaultTableModel model = new DefaultTableModel();
+        while (matcher.find()) {
+            matchCount ++;
+            Vector matchValues = new Vector();
+            for (int i = 0 ; i <= matcher.groupCount(); i++) {
                 String match = matcher.group(i);
-                model.addElement(match);
+                matchValues.add(match);
             }
-            this.jMatchList.setModel(model);
+            model.addColumn("Match " + Integer.toString(matchCount), matchValues);
         }
-        else {
-            this.jDoesMatchLabel.setText("0");
-        }
+        this.jResultsTable.setModel(model);
+        this.jDoesMatchLabel.setText(Integer.toString(matchCount));
     }//GEN-LAST:event_jTestButtonActionPerformed
 
     private void onWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_onWindowClosing
         this.application.getProps().setProperty("regex", this.jRegexField.getText());
+        this.application.getProps().setProperty("text", this.jTestTextArea.getText());
         this.application.shutdown();
     }//GEN-LAST:event_onWindowClosing
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox jCaseInsensitiveCheckbox;
+    private javax.swing.JCheckBox jCharacterClassesCheckbox;
     private javax.swing.JLabel jDoesMatchLabel;
+    private javax.swing.JCheckBox jDotallCheckbox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JList jMatchList;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JCheckBox jLiteralCheckbox;
+    private javax.swing.JCheckBox jMultilineCheckbox;
     private javax.swing.JTextField jRegexField;
+    private javax.swing.JTable jResultsTable;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JButton jTestButton;
