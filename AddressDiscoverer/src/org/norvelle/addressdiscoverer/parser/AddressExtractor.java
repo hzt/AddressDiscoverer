@@ -8,11 +8,13 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer;
+package org.norvelle.addressdiscoverer.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.gui.AddressListChangeListener;
 import org.norvelle.addressdiscoverer.model.Individual;
 
@@ -21,13 +23,13 @@ import org.norvelle.addressdiscoverer.model.Individual;
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class AddressParser {
+public class AddressExtractor {
     
     private String html;
     private AddressListChangeListener changeListener;
     private List<Individual> individuals;
     
-    public AddressParser() {
+    public AddressExtractor() {
         this.individuals = new ArrayList<>();
     }
     
@@ -55,7 +57,13 @@ public class AddressParser {
             return myIndividuals;
         
         // We use JSoup to do our parsing
-        Jsoup soup = new Jsoup(html);
+        Document soup = Jsoup.parse(html);
+        EmailElementFinder finder = new EmailElementFinder(soup);
+        List<Element> tableRows = finder.getRows();
+        for (Element row : tableRows) {
+            Individual in = Parser.getBestIndividual(row.text());
+            myIndividuals.add(in);
+        }
         
         return myIndividuals;
     }

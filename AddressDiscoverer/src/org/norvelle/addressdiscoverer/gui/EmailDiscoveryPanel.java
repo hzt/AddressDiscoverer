@@ -31,7 +31,7 @@ import org.lobobrowser.html.*;
 import org.lobobrowser.html.parser.*;
 import org.lobobrowser.html.test.*;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.AddressParser;
+import org.norvelle.addressdiscoverer.parser.AddressExtractor;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 
@@ -49,7 +49,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel implements AddressLi
     private final UserAgentContext ucontext;
     private final HtmlRendererContext rendererContext;
     private final DocumentBuilderImpl dbi;
-    private final AddressParser addressParser;
+    private final AddressExtractor addressParser;
     
     /**
      * Creates new form EmailDiscoveryPanel
@@ -58,7 +58,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel implements AddressLi
      */
     public EmailDiscoveryPanel(GUIManagementPane parent) {
         this.parent = parent;
-        this.addressParser = new AddressParser();
+        this.addressParser = new AddressExtractor();
         this.addressParser.registerChangeListener(this);
         initComponents();
         this.jWebAddressField.getDocument().addDocumentListener(
@@ -186,6 +186,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel implements AddressLi
             this.jBytesReceivedLabel.setText(Integer.toString(html.length()));
             this.jBytesReceivedLabel.setEnabled(true);
             this.addressParser.setHtml(html);
+            List<Individual> individuals = this.addressParser.getIndividuals();
+            this.jAddressDiscoveryPanel.setIndividuals(individuals);
             /* Reader reader = new StringReader(html);
             InputSource is = new InputSourceImpl(reader, this.jWebAddressField.getText());
             try {

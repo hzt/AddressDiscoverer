@@ -80,7 +80,7 @@ public class DepartmentListPanel extends javax.swing.JPanel implements IListPane
             this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
             this.refreshList();
             this.parent.setSelectedDepartment(null);
-        } catch (SQLException ex) {
+        } catch (SQLException | OrmObjectNotConfiguredException ex) {
             AddressDiscoverer.reportException(ex);
         }        
     }

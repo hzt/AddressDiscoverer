@@ -3,13 +3,17 @@
  */
 package org.norvelle.addressdiscoverer;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FileUtils;
 
 /**
  * The Utils class provides its methods as static so no instantiation is
@@ -62,5 +66,13 @@ public class Utils {
         } else {
                 throw new IllegalArgumentException("Can't parse " + url);
         }
+    }
+    
+    public static String loadStringFromResource(String path) throws IOException {
+        Object o = new Object();
+        URL htmlFileUrl = o.getClass().getResource(path);
+        String htmlFilePath = htmlFileUrl.getPath();
+        String html = FileUtils.readFileToString(new File(htmlFilePath), Charset.defaultCharset());
+        return html;        
     }
 }

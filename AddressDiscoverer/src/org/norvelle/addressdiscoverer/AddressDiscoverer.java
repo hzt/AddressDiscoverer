@@ -27,6 +27,7 @@ import org.norvelle.addressdiscoverer.gui.MainWindow;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
+import org.norvelle.addressdiscoverer.model.LastName;
 
 /**
  * 
@@ -120,6 +121,7 @@ public class AddressDiscoverer {
         Institution.initialize(connectionSource);
         Department.initialize(connectionSource);
         Individual.initialize(connectionSource);
+        LastName.initialize(connectionSource);
     }
     
     private void loadProperties() {

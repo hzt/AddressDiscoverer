@@ -19,10 +19,13 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
+import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
- *
+ * Represents an individual found to be associated with a Department; tracks
+ * his or her first and last names, email and title.
+ * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public class Individual implements Comparable {
@@ -39,10 +42,16 @@ public class Individual implements Comparable {
     private String lastName;
     
     @DatabaseField
+    private String fullName;
+    
+    @DatabaseField
     private String email;
     
     @DatabaseField
     private String title;
+
+    @DatabaseField
+    private String affiliation;
 
     @DatabaseField(generatedId = true)
     private int id;
@@ -55,12 +64,22 @@ public class Individual implements Comparable {
      */
     public Individual() {}
     
-    public Individual(String firstName, String lastName, String email, String title, Department department) {
+    public Individual(String firstName, String lastName, String fullName, String email, 
+            String title, String affiliation, Department department) 
+    {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.fullName = fullName;
         this.email = email;
         this.title = title;
         this.department = department;
+        this.affiliation = affiliation;
+    }
+
+    public Individual(String firstName, String lastName, String fullName,
+            String email, String title, String affiliation) 
+    {
+        this(firstName, lastName, fullName, email, title, affiliation, null);
     }
 
     @Override
@@ -73,7 +92,20 @@ public class Individual implements Comparable {
         String otherString = o.toString();
         return this.toString().compareTo(otherString);
     }
+    
+    public double getScore() {
+        double score = 0.0;
+        if (!this.firstName.isEmpty()) score += 2.0;
+        if (!this.lastName.isEmpty()) score += 3.0;
+        if (!this.email.isEmpty()) score += 5.0;
+        if (!this.affiliation.isEmpty()) score += 1.0;
+        if (!this.title.isEmpty()) score += 1.0;
 
+        return score / 5;
+    }
+
+    // ===================== Getters and setters =============================
+    
     public String getFirstName() {
         return firstName;
     }
@@ -132,13 +164,22 @@ public class Individual implements Comparable {
         return Individual.dao.queryForId(id);
     }
     
-    public static Individual create(String firstName, String lastName, 
-            String email, String title, Department department) 
-            throws SQLException, OrmObjectNotConfiguredException {
-        Individual.checkConfigured();
-        Individual i = new Individual(firstName, lastName, email, title, department);
+    public static Individual create(String firstName, String lastName, String fullName,
+            String email, String title, String affiliation, Department department) 
+            throws SQLException, OrmObjectNotConfiguredException 
+    {
+        Individual i = new Individual(firstName, lastName, fullName, email, title, affiliation, department);
         Individual.dao.create(i);
         return i;
+    }
+    
+    public static void store(Individual i) throws SQLException, 
+            OrmObjectNotConfiguredException, IndividualHasNoDepartmentException 
+    {
+        if (i.getDepartment() == null) 
+            throw new IndividualHasNoDepartmentException();
+        Individual.checkConfigured();
+        Individual.dao.create(i);
     }
     
     public static void update(Individual i) throws SQLException {
@@ -177,5 +218,6 @@ public class Individual implements Comparable {
             Individual.delete(i);
         }
     }
+    
 
 }

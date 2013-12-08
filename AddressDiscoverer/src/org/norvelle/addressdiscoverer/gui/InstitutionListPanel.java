@@ -62,9 +62,9 @@ public class InstitutionListPanel extends javax.swing.JPanel implements IListPan
             this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
             this.refreshList();
             this.parent.setSelectedInstitution(null);
-        } catch (SQLException ex) {
+        } catch (SQLException | OrmObjectNotConfiguredException ex) {
             AddressDiscoverer.reportException(ex);
-        }
+        } 
     }
     
     @Override
