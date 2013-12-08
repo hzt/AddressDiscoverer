@@ -24,8 +24,15 @@ import org.jsoup.select.Elements;
  */
 public class EmailElementFinder {
     
-    private List<Element> rows = new ArrayList<>();
+    private final List<Element> rows = new ArrayList<>();
     
+    /**
+     * Given a JSoup Document, parse it looking for TRs with emails in their
+     * content, either as a text node, or else as the value of an HREF attribute.
+     * The rows found by this object are available via the getRows() method.
+     * 
+     * @param soup A JSoup Document that is the root of a web page.
+     */
     public EmailElementFinder(Document soup) {
         Elements elementsWithEmails = soup.select(
                 String.format("tr:matches(%s)", Parser.emailRegex));
@@ -34,10 +41,20 @@ public class EmailElementFinder {
 
         Elements elementsWithEmailAttributes = soup.select(
                 String.format("[href~=(%s)]", Parser.emailRegex));
-        for (Element attrElement: elementsWithEmailAttributes)
-            this.addIfNotPresent(attrElement);
+        for (Element attrElement: elementsWithEmailAttributes) {
+            Element trElement = this.translateToTr(attrElement);
+            if (trElement != null)
+                this.addIfNotPresent(attrElement);
+        }
     }
 
+    /**
+     * We only want to add elements looked up by their attributes (i.e. if their
+     * HREF attribute contains an email) just in case that element wasn't
+     * found by the earlier sweep based on element content.
+     * 
+     * @param attrElement 
+     */
     private void addIfNotPresent(Element attrElement) {
         Element currElement = attrElement;
         while (currElement != null && !currElement.tagName().equals("tr")) {
@@ -50,8 +67,33 @@ public class EmailElementFinder {
                 this.rows.add(currElement);
     }
 
+    /**
+     * Get the rows found when this object was constructed.
+     * 
+     * @return List<Element> TRs found during parse
+     */
     public List<Element> getRows() {
         return rows;
+    }
+
+    /**
+     * Given an element found in a Jsoup with an attribute containing an email,
+     * move up the hierarchy to the nearest TR element and return that.
+     * 
+     * @param attrElement
+     * @return 
+     */
+    private Element translateToTr(Element attrElement) {
+        if (attrElement.tagName().equals("tr"))
+            return attrElement;
+        Element currElement = attrElement.parent();
+        while (currElement != null) {
+            if (currElement.tagName().equals("tr"))
+                return currElement;
+            currElement = currElement.parent();
+        }
+        return null;
+        
     }
     
     
