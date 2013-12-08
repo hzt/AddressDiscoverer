@@ -31,7 +31,7 @@ import org.lobobrowser.html.*;
 import org.lobobrowser.html.parser.*;
 import org.lobobrowser.html.test.*;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.parser.AddressExtractor;
+import org.norvelle.addressdiscoverer.parser.IndividualExtractor;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 
@@ -49,7 +49,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel implements AddressLi
     private final UserAgentContext ucontext;
     private final HtmlRendererContext rendererContext;
     private final DocumentBuilderImpl dbi;
-    private final AddressExtractor addressParser;
+    private final IndividualExtractor addressParser;
     
     /**
      * Creates new form EmailDiscoveryPanel
@@ -58,7 +58,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel implements AddressLi
      */
     public EmailDiscoveryPanel(GUIManagementPane parent) {
         this.parent = parent;
-        this.addressParser = new AddressExtractor();
+        this.addressParser = new IndividualExtractor();
         this.addressParser.registerChangeListener(this);
         initComponents();
         this.jWebAddressField.getDocument().addDocumentListener(

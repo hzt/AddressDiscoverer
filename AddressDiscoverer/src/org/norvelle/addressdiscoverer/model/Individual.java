@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
+import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
@@ -173,9 +174,21 @@ public class Individual implements Comparable {
         return i;
     }
     
+    /**
+     * Tell OrmLite to store this Individual as data in the SQLite backend
+     * 
+     * @param i The Individual to store
+     * @throws SQLException
+     * @throws OrmObjectNotConfiguredException
+     * @throws IndividualHasNoDepartmentException
+     * @throws CannotStoreNullIndividualException 
+     */
     public static void store(Individual i) throws SQLException, 
-            OrmObjectNotConfiguredException, IndividualHasNoDepartmentException 
+            OrmObjectNotConfiguredException, IndividualHasNoDepartmentException, 
+            CannotStoreNullIndividualException 
     {
+        if (i.getClass().equals(NullIndividual.class))
+            throw new CannotStoreNullIndividualException(i);
         if (i.getDepartment() == null) 
             throw new IndividualHasNoDepartmentException();
         Individual.checkConfigured();

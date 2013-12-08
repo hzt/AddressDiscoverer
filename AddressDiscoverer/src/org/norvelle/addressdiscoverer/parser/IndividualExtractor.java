@@ -10,26 +10,31 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.gui.AddressListChangeListener;
 import org.norvelle.addressdiscoverer.model.Individual;
+import org.norvelle.addressdiscoverer.model.NullIndividual;
 
 /**
  * Given some HTML, searches for a list (or lists) of Individuals (i.e. faculty members)
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class AddressExtractor {
+public class IndividualExtractor {
     
     private String html;
     private AddressListChangeListener changeListener;
     private List<Individual> individuals;
     
-    public AddressExtractor() {
+    public IndividualExtractor() {
         this.individuals = new ArrayList<>();
     }
     
@@ -61,7 +66,15 @@ public class AddressExtractor {
         EmailElementFinder finder = new EmailElementFinder(soup);
         List<Element> tableRows = finder.getRows();
         for (Element row : tableRows) {
-            Individual in = Parser.getBestIndividual(row.text());
+            Individual in;
+            try {
+                in = Parser.getBestIndividual(row);
+            } catch (CantParseIndividualException ex) {
+                in = new NullIndividual(row.text());
+            } catch (SQLException | OrmObjectNotConfiguredException ex) {
+                AddressDiscoverer.reportException(ex);
+                continue;
+            }
             myIndividuals.add(in);
         }
         

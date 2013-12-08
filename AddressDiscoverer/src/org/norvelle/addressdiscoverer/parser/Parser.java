@@ -10,8 +10,12 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.jsoup.nodes.Element;
+import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
 
 /**
@@ -26,7 +30,8 @@ public abstract class Parser {
     
     public Parser() { }
     
-    public abstract Individual getIndividual(String chunk);
+    public abstract Individual getIndividual(Element row) 
+            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException;
     
     // ===================== Static Methods =============================
 
@@ -38,17 +43,22 @@ public abstract class Parser {
      * Run all available parsers on the given chunk of text and choose the
      * resulting Individual with the highest completeness score.
      * 
-     * @param chunk
+     * @param row
      * @return Individual with most complete profile
+     * @throws org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException
+     * @throws java.sql.SQLException
+     * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      */
-    public static Individual getBestIndividual(String chunk) {
+    public static Individual getBestIndividual(Element row) 
+            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException
+    {
         if (Parser.parsers.isEmpty())
             Parser.initializeParsers();
         
         double topScore = 0.0; 
         Individual bestIndividual = null;
         for (Parser p : Parser.parsers) {
-            Individual currIndividual = p.getIndividual(chunk);
+            Individual currIndividual = p.getIndividual(row);
             if (currIndividual == null) continue;
             double currScore = currIndividual.getScore();
             if (currScore > topScore) {

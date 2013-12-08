@@ -10,8 +10,12 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
+import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jsoup.nodes.Element;
+import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
 
 /**
@@ -28,17 +32,36 @@ public class NameEmailPositionParser extends Parser {
         
     }
 
+    /**
+     * Given a JSoup TR element, try to create an Individual object based on
+     * the fragments of information we find.
+     * 
+     * @param row A JSoup Element object representing an HTML TR tag
+     * @return An Individual with appropriately filled in details
+     * @throws org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException
+     * @throws java.sql.SQLException
+     * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
+     */
     @Override
-    public Individual getIndividual(String chunk) {
+    public Individual getIndividual(Element row) 
+            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException
+    {
         String firstName = "", lastName = "", email = "", title = "";
         String fullName = "", affiliation = "";
+        String chunk = row.text();
+        
+        // Based on the text found in the current row, see if we can't
+        // extract a more or less complete Individual.
         Matcher matcher = this.splitByEmailPattern.matcher(chunk); 
-        if (!matcher.matches()) return null;
+        if (!matcher.matches()) 
+            throw new CantParseIndividualException(chunk);
         String nameChunk = matcher.group(1);
+        NameChunkParser np = new NameChunkParser(nameChunk);
         email = matcher.group(2);
         String rest = matcher.group(3);
         
-        Individual i = new Individual(firstName, lastName, fullName, email, title, affiliation);
+        Individual i = new Individual(np.getFirstName(), np.getLastName(), np.getFullName(), 
+                email, title, affiliation);
         return i;
     }
     

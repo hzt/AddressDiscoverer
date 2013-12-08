@@ -61,6 +61,7 @@ public class EmailElementFinder {
             currElement = currElement.parent();
         }
         
+        
         // Skip if the email-containing element is not in a TR, or the TR is already there
         if (currElement != null) 
             if (!this.rows.contains(currElement))

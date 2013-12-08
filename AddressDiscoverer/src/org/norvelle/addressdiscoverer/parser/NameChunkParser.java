@@ -41,7 +41,9 @@ public class NameChunkParser {
      * @throws SQLException
      * @throws OrmObjectNotConfiguredException 
      */
-    public NameChunkParser(String chunk) throws SQLException, OrmObjectNotConfiguredException {
+    public NameChunkParser(String chunk) 
+            throws SQLException, OrmObjectNotConfiguredException
+    {
         if (NameChunkParser.hasCommaPattern == null)
             NameChunkParser.hasCommaPattern = Pattern.compile(NameChunkParser.hasCommaRegex);
         
