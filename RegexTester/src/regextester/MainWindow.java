@@ -148,6 +148,11 @@ public class MainWindow extends javax.swing.JFrame {
         jMenu2.setText("Help");
 
         jMenuItem1.setText("About");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem1);
 
         jMenuBar1.add(jMenu2);
@@ -271,6 +276,12 @@ public class MainWindow extends javax.swing.JFrame {
         this.application.getProps().setProperty("text", this.jTestTextArea.getText());
         this.application.shutdown();
     }//GEN-LAST:event_jExitMenuItemActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        AboutMenuDialog dialog = new AboutMenuDialog(this, true);
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);        
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox jCaseInsensitiveCheckbox;
