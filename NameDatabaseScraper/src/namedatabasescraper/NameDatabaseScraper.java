@@ -37,7 +37,7 @@ public class NameDatabaseScraper {
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     // Our "singleton" application instance
-    private static NameDatabaseScraper application;
+    public static NameDatabaseScraper application;
     
     // Private variables for the application
     private final MainWindow window;
@@ -77,8 +77,15 @@ public class NameDatabaseScraper {
             this.saveProperties();
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null,
-                    Utils.wordWrapString("Could not store properties: " + ex.getMessage(), 30), 
+                    Utils.wordWrapString("Could not store properties: " + ex.getMessage(), 50), 
                     "Property storage failure", JOptionPane.ERROR_MESSAGE);
+        }
+        try {
+            this.connection.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,
+                    Utils.wordWrapString("Could not close the database: " + ex.getMessage(), 50), 
+                    "Database closing failure", JOptionPane.ERROR_MESSAGE);
         }
         logger.info("Exiting NameDatabaseScraper");
         System.exit(0);
@@ -108,11 +115,10 @@ public class NameDatabaseScraper {
             logger.log(Level.SEVERE, "Could not load SQLite JDBC driver: {0}", ex.getMessage());
             throw new CannotLoadJDBCDriverException();
         }
-        Connection connection;
         String dbFilename = this.settingsDirname + File.separator + "names.sqlite";
         File dbFile = new File(dbFilename);
-        connection = DriverManager.getConnection("jdbc:sqlite:" + dbFilename);
-        Statement statement = connection.createStatement();
+        this.connection = DriverManager.getConnection("jdbc:sqlite:" + dbFilename);
+        Statement statement = this.connection.createStatement();
 
         try {
             ResultSet rs = statement.executeQuery(
@@ -144,8 +150,6 @@ public class NameDatabaseScraper {
         }
     }
         
-    // ===================== Getters and setters =============================
-    
     public static void reportException(Exception e) {
         logger.log(Level.SEVERE, e.getMessage());
         logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));

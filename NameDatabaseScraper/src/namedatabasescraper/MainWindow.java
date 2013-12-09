@@ -7,9 +7,15 @@
 package namedatabasescraper;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import org.apache.commons.io.FileUtils;
 
@@ -21,6 +27,8 @@ public class MainWindow extends javax.swing.JFrame {
 
     NameDatabaseScraper parent;
     DefaultTableModel model;
+    Collection<File> htmlFiles;
+    List<PageScraper> scrapers;
     
     /**
      * Creates new form MainWindow
@@ -50,19 +58,42 @@ public class MainWindow extends javax.swing.JFrame {
     private void populateNamesColumn() {
         String[] extensions = {"html"};
         File dir = new File(this.jDirectoryNameTextField.getText());
-        Collection<File> htmlFiles = FileUtils.listFiles(dir, extensions, false);
+        this.htmlFiles = FileUtils.listFiles(dir, extensions, false);
         this.model = new DefaultTableModel();
         model.setNumRows(htmlFiles.size());
         model.setColumnCount(2);
         String[] columnNames = {"File Names", "Number of Words Extracted"};
         model.setColumnIdentifiers(columnNames);
         int rowCount = 0;
-        for (File htmlFile : htmlFiles) {
+        for (File htmlFile : this.htmlFiles) {
             model.setValueAt(htmlFile.getName(), rowCount, 0);
             model.setValueAt("0", rowCount, 1);
             rowCount ++;
         }
         this.jResultsTable.setModel(model);
+       
+    }
+    
+    private void runScraper() {
+        this.scrapers = new ArrayList<>();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                int rowCount = 0;
+                for (File htmlFile : htmlFiles) {
+                    try {
+                        PageScraper scraper = new PageScraper(htmlFile);
+                        model.setValueAt(scraper, rowCount, 1);
+                        scrapers.add(scraper);
+                    } catch (IOException ex) {
+                        scrapers.add(null);
+                        model.setValueAt(ex.getMessage(), rowCount, 1);
+                    }
+                    rowCount ++;
+                }
+                jStoreToDatabaseButton.setEnabled(true);
+            }
+        });
     }
     
     /**
@@ -81,6 +112,8 @@ public class MainWindow extends javax.swing.JFrame {
         jRunScraperButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jResultsTable = new javax.swing.JTable();
+        jStoreToDatabaseButton = new javax.swing.JButton();
+        jStoreToDbProgressBar = new javax.swing.JProgressBar();
 
         jFileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
@@ -101,6 +134,11 @@ public class MainWindow extends javax.swing.JFrame {
         });
 
         jRunScraperButton.setText("Run Scraper");
+        jRunScraperButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRunScraperButtonActionPerformed(evt);
+            }
+        });
 
         jResultsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -131,6 +169,14 @@ public class MainWindow extends javax.swing.JFrame {
             jResultsTable.getColumnModel().getColumn(1).setResizable(false);
         }
 
+        jStoreToDatabaseButton.setText("Store to Database");
+        jStoreToDatabaseButton.setEnabled(false);
+        jStoreToDatabaseButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jStoreToDatabaseButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -146,7 +192,10 @@ public class MainWindow extends javax.swing.JFrame {
                         .addComponent(jSelectDirectoryButton))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jRunScraperButton)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(47, 47, 47)
+                        .addComponent(jStoreToDatabaseButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jStoreToDbProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 712, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -158,9 +207,17 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jDirectoryNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jSelectDirectoryButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jRunScraperButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jRunScraperButton)
+                            .addComponent(jStoreToDatabaseButton))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jStoreToDbProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)))
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 425, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -187,6 +244,28 @@ public class MainWindow extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowClosing
 
+    private void jRunScraperButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRunScraperButtonActionPerformed
+        this.runScraper();
+    }//GEN-LAST:event_jRunScraperButtonActionPerformed
+
+    private void jStoreToDatabaseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jStoreToDatabaseButtonActionPerformed
+        this.jStoreToDbProgressBar.setMaximum(this.scrapers.size());
+        this.jStoreToDbProgressBar.setValue(0);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                int rowCount = 0;
+                for (PageScraper scraper : scrapers) {
+                    scraper.storeToDb();
+                    rowCount ++;
+                    jStoreToDbProgressBar.setValue(rowCount);
+                }
+                jStoreToDatabaseButton.setEnabled(false);
+                jStoreToDbProgressBar.setValue(jStoreToDbProgressBar.getMaximum());
+            }
+        });
+    }//GEN-LAST:event_jStoreToDatabaseButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField jDirectoryNameTextField;
@@ -196,6 +275,8 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton jRunScraperButton;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton jSelectDirectoryButton;
+    private javax.swing.JButton jStoreToDatabaseButton;
+    private javax.swing.JProgressBar jStoreToDbProgressBar;
     // End of variables declaration//GEN-END:variables
 
 
