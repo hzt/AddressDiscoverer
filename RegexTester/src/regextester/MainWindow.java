@@ -70,6 +70,11 @@ public class MainWindow extends javax.swing.JFrame {
         jCharacterClassesCheckbox = new javax.swing.JCheckBox();
         jScrollPane2 = new javax.swing.JScrollPane();
         jResultsTable = new javax.swing.JTable();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jExitMenuItem = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -128,6 +133,27 @@ public class MainWindow extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(jResultsTable);
 
+        jMenu1.setText("File");
+
+        jExitMenuItem.setText("Exit");
+        jExitMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jExitMenuItemActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jExitMenuItem);
+
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Help");
+
+        jMenuItem1.setText("About");
+        jMenu2.add(jMenuItem1);
+
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -163,7 +189,7 @@ public class MainWindow extends javax.swing.JFrame {
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jDoesMatchLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 47, Short.MAX_VALUE))
+                        .addGap(0, 144, Short.MAX_VALUE))
                     .addComponent(jScrollPane2))
                 .addContainerGap())
         );
@@ -188,11 +214,11 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(jLabel2)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jDoesMatchLabel)
                     .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 204, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -240,20 +266,30 @@ public class MainWindow extends javax.swing.JFrame {
         this.application.shutdown();
     }//GEN-LAST:event_onWindowClosing
 
+    private void jExitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jExitMenuItemActionPerformed
+        this.application.getProps().setProperty("regex", this.jRegexField.getText());
+        this.application.getProps().setProperty("text", this.jTestTextArea.getText());
+        this.application.shutdown();
+    }//GEN-LAST:event_jExitMenuItemActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox jCaseInsensitiveCheckbox;
     private javax.swing.JCheckBox jCharacterClassesCheckbox;
     private javax.swing.JLabel jDoesMatchLabel;
     private javax.swing.JCheckBox jDotallCheckbox;
+    private javax.swing.JMenuItem jExitMenuItem;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JCheckBox jLiteralCheckbox;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JCheckBox jMultilineCheckbox;
     private javax.swing.JTextField jRegexField;
     private javax.swing.JTable jResultsTable;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JButton jTestButton;
