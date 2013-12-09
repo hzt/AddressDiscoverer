@@ -25,11 +25,11 @@ import org.norvelle.addressdiscoverer.model.Individual;
 public class NameEmailPositionParser extends Parser {
     
     private final Pattern splitByEmailPattern;
+    private final String splitByEmailRegex;
     
     public NameEmailPositionParser() {
-        this.splitByEmailPattern = Pattern.compile(
-                String.format("(.*)%s(.*)", Parser.emailRegex));
-        
+        this.splitByEmailRegex = String.format("(.*) (%s) (.*)", Parser.emailRegex);
+        this.splitByEmailPattern = Pattern.compile(this.splitByEmailRegex);
     }
 
     /**
@@ -54,9 +54,11 @@ public class NameEmailPositionParser extends Parser {
         // extract a more or less complete Individual.
         Matcher matcher = this.splitByEmailPattern.matcher(chunk); 
         if (!matcher.matches()) 
-            throw new CantParseIndividualException(chunk);
+            throw new CantParseIndividualException(chunk + ": doesn't match regex");
         String nameChunk = matcher.group(1);
         NameChunkParser np = new NameChunkParser(nameChunk);
+        if (matcher.group(2) == null)
+            throw new CantParseIndividualException(chunk + ": No email");
         email = matcher.group(2);
         String rest = matcher.group(3);
         

@@ -16,6 +16,7 @@ import java.io.File;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
@@ -29,6 +30,9 @@ import org.norvelle.addressdiscoverer.model.LastName;
  */
 public class TestUtilities {
     
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+
     public static ConnectionSource getDBConnection(String dbName) 
             throws SQLException, CannotLoadJDBCDriverException 
     {
@@ -44,8 +48,16 @@ public class TestUtilities {
 
         // create a database connection and initialize our tables.
         // All object persistence is managed via ORMLite.
-        ConnectionSource connectionSource =
-            new JdbcConnectionSource("jdbc:sqlite:" + dbFilePath);
+        logger.log(Level.INFO, "Opening SQLite db at {0}", dbFilePath);
+        ConnectionSource connectionSource;
+        try {
+            connectionSource =
+                new JdbcConnectionSource("jdbc:sqlite:" + dbFilePath);
+        }
+        catch (Exception ex) {
+            logger.log(Level.SEVERE, "Could not connect to database: {0}", ex.getMessage());
+            throw ex;
+        }
         Institution.initialize(connectionSource);
         Department.initialize(connectionSource);
         Individual.initialize(connectionSource);

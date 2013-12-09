@@ -10,13 +10,16 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
+import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
+import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -26,6 +29,7 @@ import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.Utils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.model.Individual;
+import org.norvelle.addressdiscoverer.model.NullIndividual;
 
 /**
  *
@@ -33,11 +37,16 @@ import org.norvelle.addressdiscoverer.model.Individual;
  */
 public class IndividualExtractorTest {
     
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+
     public IndividualExtractorTest() {
     }
 
     @Test
-    public void testSomeMethod() {
+    public void testIndividualExtractor() {
+        logger.setLevel(Level.INFO);
+        System.setProperty(LocalLog.LOCAL_LOG_FILE_PROPERTY, "C:\\temp\\addressdiscoverer.ormlite.log");
         try {
             ConnectionSource connection = TestUtilities.getDBConnection("addresses.sqlite");
         } catch (SQLException | CannotLoadJDBCDriverException ex) {
@@ -60,10 +69,17 @@ public class IndividualExtractorTest {
         IndividualExtractor ext = new IndividualExtractor();
         ext.setHtml(html);
         List<Individual> individuals = ext.getIndividuals();
-        
+        try {
+            FileUtils.writeLines(new File("C:\\temp\\addressdiscoverer\\individuals.txt"), rows);
+        } catch (IOException ex) {
+            fail("Encountered IOException when writing individuals: " + ex.getMessage());
+        }
         Assert.assertEquals(String.format(
                 "There should be %d individuals, %d were found", rows.size(), individuals.size()), 
-                individuals.size(), 32);
+                individuals.size(), rows.size());
+        for (Individual i: individuals) 
+            Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
+                i.getClass().equals(NullIndividual.class));
     }
     
 }

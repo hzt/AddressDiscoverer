@@ -13,6 +13,8 @@ package org.norvelle.addressdiscoverer.parser;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -30,6 +32,9 @@ import org.norvelle.addressdiscoverer.model.NullIndividual;
  */
 public class IndividualExtractor {
     
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+
     private String html;
     private AddressListChangeListener changeListener;
     private List<Individual> individuals;
@@ -47,7 +52,8 @@ public class IndividualExtractor {
     public void setHtml(String html) {
         this.html = html;
         this.individuals = this.parse();
-        this.changeListener.notifyAddressListChanged();
+        if (this.changeListener != null)
+            this.changeListener.notifyAddressListChanged();
     }
     
     /**
@@ -70,11 +76,12 @@ public class IndividualExtractor {
             try {
                 in = Parser.getBestIndividual(row);
             } catch (CantParseIndividualException ex) {
-                in = new NullIndividual(row.text());
+                in = new NullIndividual(row.text() + ": " + ex.getMessage());
             } catch (SQLException | OrmObjectNotConfiguredException ex) {
                 AddressDiscoverer.reportException(ex);
                 continue;
             }
+            logger.log(Level.INFO, "Adding new Individual: " + in.toString());
             myIndividuals.add(in);
         }
         

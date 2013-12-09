@@ -74,8 +74,9 @@ public class LastName {
     
     public static boolean isLastName(String name) throws SQLException, OrmObjectNotConfiguredException {
         LastName.checkConfigured();
-        LastName nameObject = new LastName(name);
-        List<LastName> matches = LastName.dao.queryForMatching(nameObject);
+        name = name.replace("á", "a").replace("é", "e").replace("í", "i")
+                .replace("ó", "o").replace("ú", "u").replace("ü", "u");
+        List<LastName> matches = LastName.dao.queryForEq("name", name);
         return (!matches.isEmpty());
     }
     
