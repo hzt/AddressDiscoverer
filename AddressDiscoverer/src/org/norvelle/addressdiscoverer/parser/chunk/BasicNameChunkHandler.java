@@ -8,7 +8,7 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parser;
+package org.norvelle.addressdiscoverer.parser.chunk;
 
 import java.sql.SQLException;
 import java.util.regex.Matcher;
@@ -23,7 +23,7 @@ import org.norvelle.addressdiscoverer.model.LastName;
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class NameChunkParser {
+public class BasicNameChunkHandler {
     
     private static final String hasCommaRegex = "^(.*),(.*)$";
     private static Pattern hasCommaPattern;
@@ -41,15 +41,15 @@ public class NameChunkParser {
      * @throws SQLException
      * @throws OrmObjectNotConfiguredException 
      */
-    public NameChunkParser(String chunk) 
+    public BasicNameChunkHandler(String chunk) 
             throws SQLException, OrmObjectNotConfiguredException
     {
-        if (NameChunkParser.hasCommaPattern == null)
-            NameChunkParser.hasCommaPattern = Pattern.compile(NameChunkParser.hasCommaRegex);
+        if (BasicNameChunkHandler.hasCommaPattern == null)
+            BasicNameChunkHandler.hasCommaPattern = Pattern.compile(BasicNameChunkHandler.hasCommaRegex);
         
         // First see if we have a name divided by a comma
         chunk = chunk.trim();
-        Matcher hasCommaMatcher = NameChunkParser.hasCommaPattern.matcher(chunk);
+        Matcher hasCommaMatcher = BasicNameChunkHandler.hasCommaPattern.matcher(chunk);
         if (hasCommaMatcher.matches()) {
             this.firstName = hasCommaMatcher.group(2);
             this.lastName = hasCommaMatcher.group(1);

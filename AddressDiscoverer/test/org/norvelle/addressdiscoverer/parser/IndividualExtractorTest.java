@@ -10,6 +10,8 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
+import org.norvelle.addressdiscoverer.IndividualExtractor;
+import org.norvelle.addressdiscoverer.EmailElementFinder;
 import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.File;

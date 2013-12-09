@@ -8,8 +8,9 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parser;
+package org.norvelle.addressdiscoverer;
 
+import org.norvelle.addressdiscoverer.EmailElementFinder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
 import org.norvelle.addressdiscoverer.gui.AddressListChangeListener;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.NullIndividual;
+import org.norvelle.addressdiscoverer.parser.Parser;
 
 /**
  * Given some HTML, searches for a list (or lists) of Individuals (i.e. faculty members)

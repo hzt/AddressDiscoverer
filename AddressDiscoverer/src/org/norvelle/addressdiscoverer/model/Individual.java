@@ -53,6 +53,9 @@ public class Individual implements Comparable {
 
     @DatabaseField
     private String affiliation;
+    
+    @DatabaseField
+    private String parserName;
 
     @DatabaseField(generatedId = true)
     private int id;
@@ -66,7 +69,7 @@ public class Individual implements Comparable {
     public Individual() {}
     
     public Individual(String firstName, String lastName, String fullName, String email, 
-            String title, String affiliation, Department department) 
+            String title, String affiliation, String parserName, Department department) 
     {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -75,12 +78,13 @@ public class Individual implements Comparable {
         this.title = title;
         this.department = department;
         this.affiliation = affiliation;
+        this.parserName = parserName;
     }
 
     public Individual(String firstName, String lastName, String fullName,
-            String email, String title, String affiliation) 
+            String email, String title, String affiliation, String parserName) 
     {
-        this(firstName, lastName, fullName, email, title, affiliation, null);
+        this(firstName, lastName, fullName, email, title, affiliation, parserName, null);
     }
 
     @Override
@@ -166,10 +170,10 @@ public class Individual implements Comparable {
     }
     
     public static Individual create(String firstName, String lastName, String fullName,
-            String email, String title, String affiliation, Department department) 
+            String email, String title, String affiliation, String parserName, Department department) 
             throws SQLException, OrmObjectNotConfiguredException 
     {
-        Individual i = new Individual(firstName, lastName, fullName, email, title, affiliation, department);
+        Individual i = new Individual(firstName, lastName, fullName, email, title, affiliation, parserName, department);
         Individual.dao.create(i);
         return i;
     }

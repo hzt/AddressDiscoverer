@@ -31,7 +31,7 @@ import org.lobobrowser.html.*;
 import org.lobobrowser.html.parser.*;
 import org.lobobrowser.html.test.*;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.parser.IndividualExtractor;
+import org.norvelle.addressdiscoverer.IndividualExtractor;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 

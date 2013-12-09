@@ -10,11 +10,12 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
-import org.norvelle.addressdiscoverer.parser.chunk.BasicNameChunkHandler;
+import org.norvelle.addressdiscoverer.parser.chunk.LastLastNameChunkHandler;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
@@ -23,12 +24,12 @@ import org.norvelle.addressdiscoverer.model.Individual;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class NameEmailPositionParser extends Parser {
+public class EmailInAttributeParser extends Parser {
     
     private final Pattern splitByEmailPattern;
     private final String splitByEmailRegex;
     
-    public NameEmailPositionParser() {
+    public EmailInAttributeParser() {
         this.splitByEmailRegex = String.format("(.*) (%s) (.*)", Parser.emailRegex);
         this.splitByEmailPattern = Pattern.compile(this.splitByEmailRegex);
     }
@@ -50,21 +51,18 @@ public class NameEmailPositionParser extends Parser {
         String firstName = "", lastName = "", email = "", title = "";
         String fullName = "", affiliation = "";
         String chunk = row.text();
+        Elements emailAttrElements = row.select(
+                String.format("[href~=(%s)]", Parser.emailRegex));
+        Element elem = emailAttrElements.first();
+        email = elem.attr("href").replace("mailto:", "");
         
         // Based on the text found in the current row, see if we can't
         // extract a more or less complete Individual.
-        Matcher matcher = this.splitByEmailPattern.matcher(chunk); 
-        if (!matcher.matches()) 
-            throw new CantParseIndividualException(chunk + ": doesn't match regex");
-        String nameChunk = matcher.group(1);
-        BasicNameChunkHandler np = new BasicNameChunkHandler(nameChunk);
-        if (matcher.group(2) == null)
-            throw new CantParseIndividualException(chunk + ": No email");
-        email = matcher.group(2);
-        String rest = matcher.group(3);
+        LastLastNameChunkHandler np = new LastLastNameChunkHandler(chunk);
+        String rest = np.getRest();
         
         Individual i = new Individual(np.getFirstName(), np.getLastName(), np.getFullName(), 
-                email, title, affiliation, this.getClass().getSimpleName());
+                email, rest, "", this.getClass().getSimpleName());
         return i;
     }
     

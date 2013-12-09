@@ -13,6 +13,8 @@ package org.norvelle.addressdiscoverer.parser;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
@@ -25,9 +27,20 @@ import org.norvelle.addressdiscoverer.model.Individual;
  */
 public abstract class Parser {
     
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+
+    // Our list of parsers to be tried, in the order they should be applied
     private static List<Parser> parsers = new ArrayList<>();
+    
+    /**
+     * A regex string for finding emails
+     */
     public static final String emailRegex = "(\\w+\\.)*\\w+[@](\\w+\\.)+(\\w+)";
     
+    /**
+     * A constructor that should never be called
+     */
     public Parser() { }
     
     public abstract Individual getIndividual(Element row) 
@@ -37,6 +50,7 @@ public abstract class Parser {
 
     private static void initializeParsers() {
         Parser.parsers.add(new NameEmailPositionParser());
+        Parser.parsers.add(new EmailInAttributeParser());
     }
     
     /**
@@ -58,6 +72,8 @@ public abstract class Parser {
         double topScore = 0.0; 
         Individual bestIndividual = null;
         for (Parser p : Parser.parsers) {
+            logger.log(Level.INFO, String.format("Trying parser %s on text: '%s'",
+                p.getClass().getSimpleName(), row.toString()));
             Individual currIndividual = p.getIndividual(row);
             if (currIndividual == null) continue;
             double currScore = currIndividual.getScore();
