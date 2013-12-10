@@ -27,8 +27,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
-import org.norvelle.addressdiscoverer.Utils;
+import org.norvelle.utils.Utils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.NullIndividual;
@@ -41,44 +42,78 @@ public class IndividualExtractorTest {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+    private static ConnectionSource connection;
 
     public IndividualExtractorTest() {
     }
 
-    @Test
-    public void testIndividualExtractor() {
-        logger.setLevel(Level.INFO);
-        System.setProperty(LocalLog.LOCAL_LOG_FILE_PROPERTY, "C:\\temp\\addressdiscoverer.ormlite.log");
+    @BeforeClass
+    public static void setUpClass() {
+        TestUtilities.setupLogger();
         try {
-            ConnectionSource connection = TestUtilities.getDBConnection("addresses.sqlite");
+            connection = TestUtilities.getDBConnection("addresses.sqlite");
         } catch (SQLException | CannotLoadJDBCDriverException ex) {
             fail("Encountered problems connecting to database: " + ex.getMessage());
             return;
         }
+    }
+    
+    private static List<Individual> extractIndividuals(String htmlUri, String outputFile) {
         String html;
         try {
-            html = Utils.loadStringFromResource(
-                    "/org/norvelle/addressdiscoverer/resources/navarra_philology.html");
+            html = Utils.loadStringFromResource(htmlUri);
         } catch (IOException ex) {
             fail("Encountered IOException: " + ex.getMessage());
-            return;
+            return null;
         }
         Document soup = Jsoup.parse(html);
+        logger.info(String.format("JSoup parsed document as follows:\n" + soup.toString() ));
         EmailElementFinder finder = new EmailElementFinder(soup);
         List<Element> rows = finder.getRows();
+        logger.info(String.format("EmailElementFinder found %d TR tags", rows.size()));
 
         // Instantiate an AddressExtractor see how many addresses we get.
         IndividualExtractor ext = new IndividualExtractor();
         ext.setHtml(html);
         List<Individual> individuals = ext.getIndividuals();
         try {
-            FileUtils.writeLines(new File("C:\\temp\\addressdiscoverer\\individuals.txt"), rows);
+            FileUtils.writeLines(new File(outputFile), rows);
         } catch (IOException ex) {
             fail("Encountered IOException when writing individuals: " + ex.getMessage());
         }
-        Assert.assertEquals(String.format(
-                "There should be %d individuals, %d were found", rows.size(), individuals.size()), 
-                individuals.size(), rows.size());
+        return individuals;
+    }
+
+    @Test
+    public void testCmpasamar() {
+        List<Individual> individuals = extractIndividuals(
+            "/org/norvelle/addressdiscoverer/resources/cmpasamar.html",
+            TestUtilities.getTestOutputDirectory() + File.separator + "cmpasamar.txt"
+        );
+        Assert.assertEquals(
+                String.format("There should be 1 individual, %d were found", individuals.size()), 
+                individuals.size(), 1);
+        for (Individual i: individuals) 
+            Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
+                i.getClass().equals(NullIndividual.class));
+        Individual cmpasamar = individuals.get(0);
+        Assert.assertTrue("The individual's first name should be Dra. Concepción", 
+                cmpasamar.getFirstName().equals("Dra. Concepción"));
+        Assert.assertTrue("The individual's last name should be Martínez Pasamar", 
+                cmpasamar.getFirstName().equals("Martínez Pasamar"));
+        Assert.assertTrue("The individual's email should be cmpasamar@unav.es", 
+                cmpasamar.getFirstName().equals("cmpasamar@unav.es"));
+    }
+    
+    //@Test
+    public void testThreeColumnRecords() {
+        List<Individual> individuals = extractIndividuals(
+            "/org/norvelle/addressdiscoverer/resources/ThreeFieldsAcrossNames.html",
+            TestUtilities.getTestOutputDirectory() + File.separator + "individuals.txt"
+        );
+        Assert.assertEquals(
+                String.format("There should be 3 individuals, %d were found", individuals.size()), 
+                individuals.size() == 3);
         for (Individual i: individuals) 
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
                 i.getClass().equals(NullIndividual.class));

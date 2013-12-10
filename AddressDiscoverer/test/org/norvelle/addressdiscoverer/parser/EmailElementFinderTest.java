@@ -11,21 +11,15 @@
 package org.norvelle.addressdiscoverer.parser;
 
 import org.norvelle.addressdiscoverer.EmailElementFinder;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Assert;
-import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.norvelle.addressdiscoverer.Utils;
+import org.norvelle.utils.Utils;
 
 /**
  *

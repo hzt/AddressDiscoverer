@@ -65,6 +65,7 @@ public class IndividualExtractor {
      * @return List<Individual> The list of Individuals found, if any
      */
     private List<Individual> parse() {
+        logger.log(Level.INFO, "Entering IndividualExtractor.parse()");
         List<Individual> myIndividuals = new ArrayList<>();
         if (this.html.isEmpty())
             return myIndividuals;
@@ -87,6 +88,7 @@ public class IndividualExtractor {
             myIndividuals.add(in);
         }
         
+        logger.log(Level.INFO, "Exiting IndividualExtractor.parse()");
         return myIndividuals;
     }
     

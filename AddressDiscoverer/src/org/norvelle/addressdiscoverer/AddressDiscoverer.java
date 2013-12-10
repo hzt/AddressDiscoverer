@@ -6,6 +6,7 @@
 
 package org.norvelle.addressdiscoverer;
 
+import org.norvelle.utils.Utils;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.File;

@@ -77,7 +77,7 @@ public class LastName {
         name = name.replace("á", "a").replace("é", "e").replace("í", "i")
                 .replace("ó", "o").replace("ú", "u").replace("ü", "u")
                 .replace("ß", "ss").replace("ö", "o").replace("ü", "u")
-                .replace("ä", "a");
+                .replace("ä", "a").replace("ë", "e").replace("è", "e");
         List<LastName> matches = LastName.dao.queryForEq("name", name);
         return (!matches.isEmpty());
     }

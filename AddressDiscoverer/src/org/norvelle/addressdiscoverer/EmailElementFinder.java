@@ -12,6 +12,8 @@ package org.norvelle.addressdiscoverer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -24,6 +26,9 @@ import org.norvelle.addressdiscoverer.parser.Parser;
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public class EmailElementFinder {
+
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
     
     private final List<Element> rows = new ArrayList<>();
     
@@ -35,10 +40,15 @@ public class EmailElementFinder {
      * @param soup A JSoup Document that is the root of a web page.
      */
     public EmailElementFinder(Document soup) {
+        logger.log(Level.INFO, "Entering EmailElementFinder.new()");
         Elements elementsWithEmails = soup.select(
                 String.format("tr:matches(%s)", Parser.emailRegex));
         for (Element element: elementsWithEmails)
             this.rows.add(element);
+        logger.log(Level.INFO, 
+                String.format("Found %d Elements with an email in their content", 
+                        elementsWithEmails.size()));
+        int numFound = this.rows.size();
 
         Elements elementsWithEmailAttributes = soup.select(
                 String.format("[href~=(%s)]", Parser.emailRegex));
@@ -47,6 +57,13 @@ public class EmailElementFinder {
             if (trElement != null)
                 this.addIfNotPresent(attrElement);
         }
+        logger.log(Level.INFO, 
+                String.format("Found %d Elements with an email in a link HREF attribute", 
+                        elementsWithEmailAttributes.size()));
+        logger.log(Level.INFO, 
+                String.format("%d Elements with an email in a link HREF attribute were newly added", 
+                        this.rows.size() - numFound));
+        logger.log(Level.INFO, "Exiting EmailElementFinder.new()");
     }
 
     /**
