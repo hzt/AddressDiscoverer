@@ -67,13 +67,13 @@ public class IndividualExtractorTest {
             return null;
         }
         Document soup = Jsoup.parse(html);
-        logger.info(String.format("JSoup parsed document as follows:\n" + soup.toString() ));
+        logger.log(Level.FINE, String.format("JSoup parsed document as follows:\n" + soup.toString() ));
         EmailElementFinder finder = new EmailElementFinder(soup);
         List<Element> rows = finder.getRows();
-        logger.info(String.format("EmailElementFinder found %d TR tags", rows.size()));
+        logger.log(Level.FINE, String.format("EmailElementFinder found %d TR tags", rows.size()));
 
         // Instantiate an AddressExtractor see how many addresses we get.
-        IndividualExtractor ext = new IndividualExtractor();
+        IndividualExtractor ext = new IndividualExtractor(null);
         ext.setHtml(html);
         List<Individual> individuals = ext.getIndividuals();
         try {
@@ -97,12 +97,12 @@ public class IndividualExtractorTest {
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
                 i.getClass().equals(NullIndividual.class));
         Individual cmpasamar = individuals.get(0);
-        Assert.assertTrue("The individual's first name should be Dra. Concepción", 
-                cmpasamar.getFirstName().equals("Dra. Concepción"));
-        Assert.assertTrue("The individual's last name should be Martínez Pasamar", 
-                cmpasamar.getFirstName().equals("Martínez Pasamar"));
-        Assert.assertTrue("The individual's email should be cmpasamar@unav.es", 
-                cmpasamar.getFirstName().equals("cmpasamar@unav.es"));
+        Assert.assertEquals("The individual's first name should be Dra. Concepción", 
+                "Dra. Concepción", cmpasamar.getFirstName());
+        Assert.assertEquals("The individual's last name should be Martínez Pasamar", 
+                "Martínez Pasamar", cmpasamar.getLastName());
+        Assert.assertEquals("The individual's email should be cmpasamar@unav.es", 
+                "cmpasamar@unav.es", cmpasamar.getEmail());
     }
     
     //@Test

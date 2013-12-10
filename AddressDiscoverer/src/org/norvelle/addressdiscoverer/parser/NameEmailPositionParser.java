@@ -17,7 +17,9 @@ import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
+import org.norvelle.addressdiscoverer.model.Name;
 
 /**
  *
@@ -44,11 +46,9 @@ public class NameEmailPositionParser extends Parser {
      * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      */
     @Override
-    public Individual getIndividual(Element row) 
+    public Individual getIndividual(Element row, Department department) 
             throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException
     {
-        String firstName = "", lastName = "", email = "", title = "";
-        String fullName = "", affiliation = "";
         String chunk = row.text();
         
         // Based on the text found in the current row, see if we can't
@@ -57,14 +57,14 @@ public class NameEmailPositionParser extends Parser {
         if (!matcher.matches()) 
             throw new CantParseIndividualException(chunk + ": doesn't match regex");
         String nameChunk = matcher.group(1);
-        BasicNameChunkHandler np = new BasicNameChunkHandler(nameChunk);
+        BasicNameChunkHandler np = new BasicNameChunkHandler();
+        Name name = np.processChunkForName(nameChunk);
         if (matcher.group(2) == null)
             throw new CantParseIndividualException(chunk + ": No email");
-        email = matcher.group(2);
+        String email = matcher.group(2);
         String rest = matcher.group(3);
         
-        Individual i = new Individual(np.getFirstName(), np.getLastName(), np.getFullName(), 
-                email, title, affiliation, this.getClass().getSimpleName());
+        Individual i = new Individual(name, email, rest, this.getClass().getSimpleName(), department);
         return i;
     }
     

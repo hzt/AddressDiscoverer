@@ -10,7 +10,6 @@
  */
 package org.norvelle.addressdiscoverer;
 
-import org.norvelle.addressdiscoverer.EmailElementFinder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +18,10 @@ import java.util.logging.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.gui.AddressListChangeListener;
+import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.NullIndividual;
 import org.norvelle.addressdiscoverer.parser.Parser;
@@ -40,9 +39,11 @@ public class IndividualExtractor {
     private String html;
     private AddressListChangeListener changeListener;
     private List<Individual> individuals;
+    private final Department department;
     
-    public IndividualExtractor() {
+    public IndividualExtractor(Department department) {
         this.individuals = new ArrayList<>();
+        this.department = department;
     }
     
     /**
@@ -77,7 +78,7 @@ public class IndividualExtractor {
         for (Element row : tableRows) {
             Individual in;
             try {
-                in = Parser.getBestIndividual(row);
+                in = Parser.getBestIndividual(row, this.department);
             } catch (CantParseIndividualException ex) {
                 in = new NullIndividual(row.text() + ": " + ex.getMessage());
             } catch (SQLException | OrmObjectNotConfiguredException ex) {

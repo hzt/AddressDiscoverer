@@ -22,7 +22,7 @@ import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
-import org.norvelle.addressdiscoverer.model.LastName;
+import org.norvelle.addressdiscoverer.model.KnownLastName;
 
 /**
  * Provides routines useful in doing unit tests
@@ -78,7 +78,7 @@ public class TestUtilities {
         Institution.initialize(connectionSource);
         Department.initialize(connectionSource);
         Individual.initialize(connectionSource);
-        LastName.initialize(connectionSource);
+        KnownLastName.initialize(connectionSource);
         
         return connectionSource;
     }

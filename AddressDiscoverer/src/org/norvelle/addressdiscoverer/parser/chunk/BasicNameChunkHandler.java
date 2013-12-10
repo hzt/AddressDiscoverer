@@ -15,83 +15,61 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.model.LastName;
+import org.norvelle.addressdiscoverer.model.KnownLastName;
+import org.norvelle.addressdiscoverer.model.Name;
 
 /**
  * Handles a chunk of text thought to have a first and last name(s)
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class BasicNameChunkHandler {
+public class BasicNameChunkHandler implements IChunkHandler {
     
     private static final String hasCommaRegex = "^(.*),(.*)$";
     private static Pattern hasCommaPattern;
 
-    private final String firstName;
-    private final String lastName;
-    private final String fullName;
+    private String firstName;
+    private String lastName;
+    private String fullName;
+    private String rest;
+    
+    public BasicNameChunkHandler() {}
     
     /**
      * From a chunk of text representing an HTML table row, find, if possible,
      * the first and last names of the individual, plus his email and other info.
-     * 
-     * @see getFirstName(), etc. for methods to retrieve the results, if any
+     *
      * @param chunk A String containing HTML for a table row
+     * @see getFirstName(), etc. for methods to retrieve the results, if any
      * @throws SQLException
      * @throws OrmObjectNotConfiguredException 
      */
-    public BasicNameChunkHandler(String chunk) 
-            throws SQLException, OrmObjectNotConfiguredException
+    @Override
+    public Name processChunkForName(String chunk) 
+            throws SQLException, OrmObjectNotConfiguredException, CantParseIndividualException
     {
         if (BasicNameChunkHandler.hasCommaPattern == null)
             BasicNameChunkHandler.hasCommaPattern = Pattern.compile(BasicNameChunkHandler.hasCommaRegex);
         
         // First see if we have a name divided by a comma
         chunk = chunk.trim();
+        Name name;
         Matcher hasCommaMatcher = BasicNameChunkHandler.hasCommaPattern.matcher(chunk);
-        if (hasCommaMatcher.matches()) {
-            this.firstName = hasCommaMatcher.group(2);
-            this.lastName = hasCommaMatcher.group(1);
-            this.fullName = this.firstName + " " + this.lastName;
-        }
+        if (hasCommaMatcher.matches()) 
+            name = new Name(hasCommaMatcher.group(2), hasCommaMatcher.group(1));
         
-        // Otherwise, we try to split the string into first and last names as 
-        // best we can.
-        else {
-            String[] words = StringUtils.split(chunk);
-            String myFirstName = "";
-            String myLastName = "";
-            for (String word : words) {
-                if (LastName.isLastName(word) || !myLastName.isEmpty())
-                    myLastName += " " + word;
-                else myFirstName += " " + word;
-            }
-            
-            // Otherwise, we chop the thing in half and that's it.
-            if (myLastName.isEmpty()) {
-                int middle = (int) words.length / 2;
-                String first[] = ArrayUtils.subarray(words, 0, middle - 1);
-                String last[] = ArrayUtils.subarray(words, middle - 1, words.length);   
-                myFirstName = StringUtils.join(first, " ");
-                myLastName = StringUtils.join(last, " ");
-            }
-            this.firstName = myFirstName;
-            this.lastName = myLastName;
-            this.fullName = chunk;
-        }
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getFullName() {
-        return fullName;
+        // Otherwise, it's all one long string, so we do our best at splitting 
+        // it into first and last names. Our assumption will be that 
+        else 
+            name = new Name(chunk);
+        
+        // If we were unable to get a first name, consider this a failed parse
+        if (name.getScore() == 0.0)
+            throw new CantParseIndividualException(chunk);
+        
+        return name;
     }
     
 }

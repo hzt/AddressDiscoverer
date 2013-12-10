@@ -18,6 +18,8 @@ import com.j256.ormlite.table.DatabaseTable;
 import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
@@ -26,9 +28,12 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 @DatabaseTable(tableName = "last_names")
-public class LastName {
+public class KnownLastName {
     
-    private static Dao<LastName, String> dao;
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+    
+    private static Dao<KnownLastName, String> dao;
     
     @DatabaseField
     private String name;
@@ -39,7 +44,7 @@ public class LastName {
     /**
      * ORMLite needs a no-arg constructor
      */
-    public LastName() {
+    public KnownLastName() {
     }
     
     /**
@@ -47,7 +52,7 @@ public class LastName {
      * 
      * @param name 
      */
-    public LastName(String name) {
+    public KnownLastName(String name) {
         this.name = name;
     }
 
@@ -67,23 +72,33 @@ public class LastName {
     // ===================== Static Data Manipulation Methods =============================
     
     public static void initialize(ConnectionSource connectionSource) throws SQLException {
-        LastName.dao = 
-            DaoManager.createDao(connectionSource, LastName.class);
-        TableUtils.createTableIfNotExists(connectionSource, LastName.class);
+        KnownLastName.dao = 
+            DaoManager.createDao(connectionSource, KnownLastName.class);
+        TableUtils.createTableIfNotExists(connectionSource, KnownLastName.class);
     }
     
     public static boolean isLastName(String name) throws SQLException, OrmObjectNotConfiguredException {
-        LastName.checkConfigured();
+        KnownLastName.checkConfigured();
+        /* http://stackoverflow.com/questions/285228/how-to-convert-utf-8-to-us-ascii-in-java
+        String strippedName = 
+                java.text.Normalizer.normalize(name, java.text.Normalizer.Form.NFD)
+                        .replaceAll("\\p{InCombiningDiacriticalMarks}+",""); */
+        // Instead of using a standard charset translator, we translate only vowels
         name = name.replace("á", "a").replace("é", "e").replace("í", "i")
                 .replace("ó", "o").replace("ú", "u").replace("ü", "u")
                 .replace("ß", "ss").replace("ö", "o").replace("ü", "u")
                 .replace("ä", "a").replace("ë", "e").replace("è", "e");
-        List<LastName> matches = LastName.dao.queryForEq("name", name);
-        return (!matches.isEmpty());
+        List<KnownLastName> matches = KnownLastName.dao.queryForEq("name", name);
+        boolean isMatch = !matches.isEmpty();
+        if (isMatch)
+            logger.log(Level.FINE, String.format("%s is a last name", name));
+        else
+            logger.log(Level.FINE, String.format("%s is NOT a last name", name));
+        return isMatch;
     }
     
     private static void checkConfigured() throws OrmObjectNotConfiguredException {
-        if (LastName.dao == null)
+        if (KnownLastName.dao == null)
             throw new OrmObjectNotConfiguredException("LastName DAO not configured");
     }
     

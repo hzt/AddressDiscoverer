@@ -40,12 +40,12 @@ public class EmailElementFinder {
      * @param soup A JSoup Document that is the root of a web page.
      */
     public EmailElementFinder(Document soup) {
-        logger.log(Level.INFO, "Entering EmailElementFinder.new()");
+        logger.log(Level.FINE, "Entering EmailElementFinder.new()");
         Elements elementsWithEmails = soup.select(
                 String.format("tr:matches(%s)", Parser.emailRegex));
         for (Element element: elementsWithEmails)
             this.rows.add(element);
-        logger.log(Level.INFO, 
+        logger.log(Level.FINE, 
                 String.format("Found %d Elements with an email in their content", 
                         elementsWithEmails.size()));
         int numFound = this.rows.size();
@@ -57,13 +57,13 @@ public class EmailElementFinder {
             if (trElement != null)
                 this.addIfNotPresent(attrElement);
         }
-        logger.log(Level.INFO, 
+        logger.log(Level.FINE, 
                 String.format("Found %d Elements with an email in a link HREF attribute", 
                         elementsWithEmailAttributes.size()));
-        logger.log(Level.INFO, 
+        logger.log(Level.FINE, 
                 String.format("%d Elements with an email in a link HREF attribute were newly added", 
                         this.rows.size() - numFound));
-        logger.log(Level.INFO, "Exiting EmailElementFinder.new()");
+        logger.log(Level.FINE, "Exiting EmailElementFinder.new()");
     }
 
     /**

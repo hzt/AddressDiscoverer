@@ -8,7 +8,7 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parser;
+package org.norvelle.addressdiscoverer.parser.chunk;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -18,21 +18,21 @@ import java.util.logging.Logger;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
+import org.norvelle.addressdiscoverer.model.Name;
 
 /**
  * Base class for all parsers producing Individuals from text chunks.
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public abstract class Parser {
+public abstract class ChunkHandlers {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     // Our list of parsers to be tried, in the order they should be applied
-    private static List<Parser> parsers = new ArrayList<>();
+    private static List<IChunkHandler> handlers = new ArrayList<>();
     
     /**
      * A regex string for finding emails
@@ -42,16 +42,16 @@ public abstract class Parser {
     /**
      * A constructor that should never be called
      */
-    public Parser() { }
+    public ChunkHandlers() { }
     
-    public abstract Individual getIndividual(Element row, Department department) 
+    public abstract Individual getIndividual(Element row) 
             throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException;
     
     // ===================== Static Methods =============================
 
-    private static void initializeParsers() {
-        Parser.parsers.add(new NameEmailPositionParser());
-        Parser.parsers.add(new EmailInAttributeParser());
+    private static void initializeChunkHandlerss() {
+        ChunkHandlers.handlers.add(new BasicNameChunkHandler());
+        ChunkHandlers.handlers.add(new LastLastNameChunkHandler());
     }
     
     /**
@@ -59,43 +59,37 @@ public abstract class Parser {
      * resulting Individual with the highest completeness score.
      * 
      * @param row
-     * @return Individual with most complete profile
-     * @throws org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException
+     * @return Name with most complete profile
      * @throws java.sql.SQLException
      * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      */
-    public static Individual getBestIndividual(Element row, Department department) 
-            throws SQLException, OrmObjectNotConfiguredException, CantParseIndividualException
+    public static Name getBestName(Element row) 
+            throws SQLException, OrmObjectNotConfiguredException
     {
-        if (Parser.parsers.isEmpty())
-            Parser.initializeParsers();
+        if (ChunkHandlers.handlers.isEmpty())
+            ChunkHandlers.initializeChunkHandlerss();
         
         double topScore = 0.0; 
-        Individual bestIndividual = null;
-        for (Parser p : Parser.parsers) {
-            logger.log(Level.INFO, String.format("Trying parser %s on text: '%s'",
+        Name bestName = null;
+        for (IChunkHandler p : ChunkHandlers.handlers) {
+            logger.log(Level.INFO, String.format("Trying chunk handler %s on text: '%s'",
                 p.getClass().getSimpleName(), row.toString()));
-            Individual currIndividual;
+            Name currName;
             try {
-                currIndividual = p.getIndividual(row, department);
+                currName = p.processChunkForName(row.text());
             }
             catch (CantParseIndividualException ex) {
                 continue;
             }
-            if (currIndividual == null) 
+            if (currName == null) 
                 continue;
-            double currScore = currIndividual.getScore();
+            double currScore = currName.getScore();
             if (currScore > topScore) {
                 topScore = currScore;
-                bestIndividual = currIndividual;
+                bestName = currName;
             }
         }
-        
-        // If none of our parsers worked, declare failure
-        if (bestIndividual == null)
-            throw new CantParseIndividualException(row.text());
-        
-        return bestIndividual;
+        return bestName;
     }
     
 }

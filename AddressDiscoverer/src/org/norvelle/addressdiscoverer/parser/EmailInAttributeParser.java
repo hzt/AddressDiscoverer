@@ -10,15 +10,16 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
-import org.norvelle.addressdiscoverer.parser.chunk.LastLastNameChunkHandler;
 import java.sql.SQLException;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
+import org.norvelle.addressdiscoverer.model.Name;
+import org.norvelle.addressdiscoverer.parser.chunk.BasicNameChunkHandler;
 
 /**
  *
@@ -45,24 +46,21 @@ public class EmailInAttributeParser extends Parser {
      * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      */
     @Override
-    public Individual getIndividual(Element row) 
+    public Individual getIndividual(Element row, Department department) 
             throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException
     {
-        String firstName = "", lastName = "", email = "", title = "";
-        String fullName = "", affiliation = "";
-        String chunk = row.text();
         Elements emailAttrElements = row.select(
                 String.format("[href~=(%s)]", Parser.emailRegex));
         Element elem = emailAttrElements.first();
-        email = elem.attr("href").replace("mailto:", "");
+        String email = elem.attr("href").replace("mailto:", "");
         
         // Based on the text found in the current row, see if we can't
         // extract a more or less complete Individual.
-        LastLastNameChunkHandler np = new LastLastNameChunkHandler(chunk);
-        String rest = np.getRest();
+        BasicNameChunkHandler handler = new BasicNameChunkHandler();
+        Name name = handler.processChunkForName(row.text());
+        String rest = name.getRest();
         
-        Individual i = new Individual(np.getFirstName(), np.getLastName(), np.getFullName(), 
-                email, rest, "", this.getClass().getSimpleName());
+        Individual i = new Individual(name, email, rest, this.getClass().getSimpleName(), department);
         return i;
     }
     

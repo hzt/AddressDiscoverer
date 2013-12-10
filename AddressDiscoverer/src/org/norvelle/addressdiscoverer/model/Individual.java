@@ -68,6 +68,15 @@ public class Individual implements Comparable {
      */
     public Individual() {}
     
+    public Individual(Name name, String email, String affiliation, String parserName, Department department) {
+        this.firstName = name.getFirstName();
+        this.lastName = name.getLastName();
+        this.fullName = name.getFullName();
+        this.email = email;
+        this.title = name.getTitle();
+        this.department = department;
+    }
+    
     public Individual(String firstName, String lastName, String fullName, String email, 
             String title, String affiliation, String parserName, Department department) 
     {
@@ -167,15 +176,6 @@ public class Individual implements Comparable {
     public static Individual getById(String id) throws SQLException, OrmObjectNotConfiguredException {
         Individual.checkConfigured();
         return Individual.dao.queryForId(id);
-    }
-    
-    public static Individual create(String firstName, String lastName, String fullName,
-            String email, String title, String affiliation, String parserName, Department department) 
-            throws SQLException, OrmObjectNotConfiguredException 
-    {
-        Individual i = new Individual(firstName, lastName, fullName, email, title, affiliation, parserName, department);
-        Individual.dao.create(i);
-        return i;
     }
     
     /**

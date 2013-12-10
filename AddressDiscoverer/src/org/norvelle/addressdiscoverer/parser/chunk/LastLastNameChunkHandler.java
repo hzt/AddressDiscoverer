@@ -11,82 +11,42 @@
 package org.norvelle.addressdiscoverer.parser.chunk;
 
 import java.sql.SQLException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.apache.commons.lang3.ArrayUtils;
+import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.model.LastName;
+import org.norvelle.addressdiscoverer.model.KnownLastName;
+import org.norvelle.addressdiscoverer.model.Name;
 
 /**
  * Handles a chunk of text thought to have a first and last name(s)
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class LastLastNameChunkHandler {
+public class LastLastNameChunkHandler implements IChunkHandler {
     
-    private final String firstName;
-    private final String lastName;
-    private final String fullName;
-    private final String rest;
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+    
+    private String firstName;
+    private String lastName;
+    private String fullName;
+    private String rest;
+    
+    public LastLastNameChunkHandler() {}
     
     /**
      * From a chunk of text representing an HTML table row, find, if possible,
      * the first and last names of the individual, plus his email and other info.
-     * 
-     * @see getFirstName(), etc. for methods to retrieve the results, if any
+     *
      * @param chunk A String containing HTML for a table row
+     * @see getFirstName(), etc. for methods to retrieve the results, if any
      * @throws SQLException
      * @throws OrmObjectNotConfiguredException 
      */
-    public LastLastNameChunkHandler(String chunk) 
+    public Name processChunkForName(String chunk) 
             throws SQLException, OrmObjectNotConfiguredException, CantParseIndividualException
     {
-        // First see if we have a name divided by a comma
-        chunk = chunk.trim();
-        String[] words = StringUtils.split(chunk);
-        String myFirstName = "";
-        String myLastName = "";
-        String rest = "";
-        boolean haveFirstName = false;
-        for (String word : words) {
-            if (! LastName.isLastName(word) && !haveFirstName) 
-                myFirstName += " " + word;
-            else if (! LastName.isLastName(word)) {
-                rest += word + " ";
-            }
-            else {
-                myLastName += " " + word;
-                haveFirstName = true;
-            }
-        }
-
-        // Otherwise, we chop the thing in half and that's it.
-        if (myLastName.isEmpty()) {
-            throw new CantParseIndividualException("No last name found: " + chunk);
-        }
-        this.firstName = myFirstName;
-        this.lastName = myLastName;
-        this.fullName = myFirstName + " " + myLastName;
-        this.rest = rest.trim();
+        return new Name(chunk);
     }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public String getRest() {
-        return rest;
-    }
-    
-    
 }

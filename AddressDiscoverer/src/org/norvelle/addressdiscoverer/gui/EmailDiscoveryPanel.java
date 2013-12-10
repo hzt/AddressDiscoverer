@@ -58,7 +58,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel implements AddressLi
      */
     public EmailDiscoveryPanel(GUIManagementPane parent) {
         this.parent = parent;
-        this.addressParser = new IndividualExtractor();
+        this.addressParser = new IndividualExtractor(this.currentDepartment);
         this.addressParser.registerChangeListener(this);
         initComponents();
         this.jWebAddressField.getDocument().addDocumentListener(
