@@ -42,7 +42,7 @@ public class Name {
             String myFirstName = "";
             String myLastName = "";
             String myRest = "";
-            for (int i = words.length; i > 0; i --) {
+            for (int i = words.length - 1; i > 0; i --) {
                 boolean isLastName = KnownLastName.isLastName(words[i]);
                 if (isLastName) 
                     myLastName += (words[i] + " ").trim();

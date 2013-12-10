@@ -1,0 +1,754 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<title>A List of Portuguese Surnames- Sobrenomes portugueses- Apelidos</title>
+
+<meta name="author" content="Fernando Candido">
+<meta name="description" CONTENT="A list of Portuguese  family names and their meaning . Une liste de noms portugais. Lista de sobrenomes portugueses, apelidos.  Letter A- Lettre A- Letra A">
+<meta name="keywords" content="Names, surnames, Genealogy, sobrenomes,noms, portuguese, portugais, portugueses, letter c , Apelidos ">
+
+<body background="backgound image here">
+
+<center><font color="red" size="+10" face="Times">
+Portuguese Surnames </font> <br><font size="+3"> Noms portugais-Lista de sobrenomes portugueses</font><head>
+<script language="JavaScript1.2">
+
+<!--
+
+
+/*
+Typing Scroller
+Submitted by bengaliboy00@hotmail.com (hp: http://www.angelfire.com/nt/bengaliboy/)
+With modifications by Dynamicdrive.com
+For full source code, usage terms, and 100s more scripts, visit http://dynamicdrive.com
+*/
+
+//Secify scroller contents
+var line=new Array()
+line[1]="Hi my name is Fernando Santos Candido"
+line[2]="Bem vindos, bienvenue, welcome"
+line[3]="I hope you will find the help you need"
+line[4]=""
+line[5]=""
+
+//Specify font size for scoller
+var ts_fontsize="16px"
+
+//--Don't edit below this line
+
+var longestmessage=1
+for (i=2;i<line.length;i++){
+if (line[i].length>line[longestmessage].length)
+longestmessage=i
+}
+
+//Auto set scroller width
+var tscroller_width=line[longestmessage].length
+
+lines=line.length-1 //--Number of lines
+
+//if IE 4+ or NS6
+if (document.all||document.getElementById){
+document.write('<form name="bannerform">')
+document.write('<input type="text" name="banner" size="'+tscroller_width+'"')
+document.write('  style="background-color: '+document.bgColor+'; color: '+document.body.text+'; font-family: verdana; font-size: '+ts_fontsize+'; font-weight:bold; border: medium none" onfocus="blur()">')
+document.write('</form>')
+}
+
+temp=""
+nextchar=-1;
+nextline=1;
+cursor="\\"
+function animate(){
+if (temp==line[nextline] & temp.length==line[nextline].length & nextline!=lines){
+nextline++;
+nextchar=-1;
+document.bannerform.banner.value=temp;
+temp="";
+setTimeout("nextstep()",1000)}
+else if (nextline==lines & temp==line[nextline] & temp.length==line[nextline].length){
+nextline=1;
+nextchar=-1;
+document.bannerform.banner.value=temp;
+temp="";
+setTimeout("nextstep()",1000)}
+else{
+nextstep()}}
+
+function nextstep(){
+
+if (cursor=="\\"){
+cursor="|"}
+else if (cursor=="|"){
+cursor="/"}
+else if (cursor=="/"){
+cursor="-"}
+else if (cursor=="-"){
+cursor="\\"}
+
+
+nextchar++;
+temp+=line[nextline].charAt(nextchar);
+document.bannerform.banner.value=temp+cursor
+setTimeout("animate()",25)}
+
+//if IE 4+ or NS6
+if (document.all||document.getElementById)
+window.onload=animate
+// -->
+</script></h3><SCRIPT LANGUAGE="JavaScript">
+
+<!-- This script and many more are available free online at -->
+<!-- The JavaScript Source!! http://javascript.internet.com -->
+<!-- Original:  ScriptBreaker (admin@scriptbreaker.com) -->
+<!-- Web Site:  http://www.ScriptBreaker.com -->
+<!-- Begin
+function locktrueie(myform){myform.ie.checked=true;}
+function lockfalsenet(myform){myform.nets.checked=true;}
+function goToURL() { window.location = "http://www.javascriptsource.com"; }
+
+function nochange(mycheckbox)
+{
+   if (mycheckbox.checked == true){mycheckbox.checked = false;}else{mycheckbox.checked = true;}
+}
+
+//  End -->
+</script><SCRIPT LANGUAGE="JavaScript">
+
+<!-- This script and many more are available free online at -->
+<!-- The JavaScript Source!! http://javascript.internet.com -->
+<!-- Original:  ScriptBreaker (admin@scriptbreaker.com) -->
+<!-- Web Site:  http://www.ScriptBreaker.com -->
+<!-- Begin
+function locktrueie(myform){myform.ie.checked=true;}
+function lockfalsenet(myform){myform.nets.checked=true;}
+function goToURL() { window.location = "http://www.javascriptsource.com"; }
+
+function nochange(mycheckbox)
+{
+   if (mycheckbox.checked == true){mycheckbox.checked = false;}else{mycheckbox.checked = true;}
+}
+
+//  End -->
+</script></head>
+
+<table border="0" width="100%" cellpadding="10">
+<tr>
+
+<td width="14%" valign="top">
+<style>
+. tds
+ {
+  background-Color:silver;
+  width:100;
+  height:20;
+  text-align:center;
+  border:1px solid gray;
+  font-size:14;
+  filter:alpha(opacity=45);
+  -moz-opacity:45%;
+  cursor:crosshair;
+ }
+</style>
+
+<script language="javascript">
+nOpac = 50
+nPlus = 2
+nMin = 1
+speed = 30
+timer = null; 
+timer2 = null;
+
+var ie5=(document.all && document.getElementById);
+var ns6=(!document.all && document.getElementById);
+
+function fadeImg2(teller)
+{
+ apl[teller][1] = "Up";
+ changes();
+}
+
+function fadeImgend2(teller)
+{
+ apl[teller][1] = "Down";
+ setTimeout("changes()",50);
+}
+
+function changes()
+{
+ next_loop = true;
+ for (i=0;i<apl.length;i++)
+ {
+  obj = link_table.rows[i].cells[0];
+  opacity = apl[i][0]
+  if (apl[i][1] == "Up")
+  {
+     opacity += nPlus;
+     apl[i][0] = opacity;
+     if (apl[i][0] > 105) 
+      {apl[i][1] = "";}
+     else
+     {next_loop = false;}
+	 nOpac = opacity;
+  }
+  else
+  {
+  if (apl[i][1] == "Down")
+  {
+     opacity -= nMin;
+     apl[i][0] = opacity;
+     if (apl[i][0] < 45) 
+      {apl[i][1] = "";}
+     else
+     {next_loop = false;}
+	 nOpac = opacity;
+  }
+  }
+  if(ie5){ 
+	obj.style.filter="alpha(opacity="+opacity+")";
+    }
+  if(ns6){ 
+   	obj.style.MozOpacity = opacity + '%';
+   }
+ }
+ if (next_loop == false)
+  {
+   timer = setTimeout("changes()",speed);
+  }
+  else
+  {
+   clearTimeout(timer);
+  }
+}
+
+//for each link option you need to make a new Array;
+var apl = new Array();
+apl[0] = new Array(45,"");
+apl[1] = new Array(45,"");
+apl[2] = new Array(45,"");
+apl[3] = new Array(45,"");
+apl[4] = new Array(45,"");
+apl[5] = new Array(45,"");
+//expl: apl[6] = new Array(45,"");
+</script>
+
+<body>
+<table style="border:1px groove blue; width:130;height:180" cellspacing=0 cellpadding=0>
+<tr><td align=center bgcolor=red>
+<font color=green><u>Portuguese Links</u></font><br>
+</td></tr>
+<tr><td align=center border=2>
+<table cellpadding=0 cellspacing=0 name=link_table id=link_table>
+<tr>
+<td class="tds" onmouseover="fadeImg2(0)" onmouseout="fadeImgend2(0)" onclick="window.location='#';" style="border:1px solid gray;background-color:silver;width:100;text-align:center"><a href=http://www.fernandocandido.com/portgen/portuguesegen.html>Home</a></td>
+</tr>
+<tr><td class="tds" onmouseover="fadeImg2(1)" onmouseout="fadeImgend2(1)" onclick="window.location='#';" style="border:1px solid gray;background-color:silver;width:100;text-align:center"><a href=http://www.fernandocandido.com/index.html>Travel Page</a></td>
+</tr>
+<tr>
+<td class="tds" onmouseover="fadeImg2(2)" onmouseout="fadeImgend2(2)" onclick="window.location='#';" style="border:1px solid gray;background-color:silver;width:100;text-align:center"><a href=http://www.fernandocandido.com/portgen/porthelper.html>Post Message </a></td>
+</tr>
+<tr>
+<td class="tds" onmouseover="fadeImg2(3)" onmouseout="fadeImgend2(3)" onclick="window.location='#';" style="border:1px solid gray;background-color:silver;width:100;text-align:center"><A HREF="mailto:fcandido7@hotmail.com">Contact me</a></td>
+</td></tr>
+
+<tr>
+<td class="tds" onmouseover="fadeImg2(4)" onmouseout="fadeImgend2(4)" onclick="window.location='#';" style="border:1px solid gray;background-color:silver;width:100;text-align:center"><a href=http://www.fernandocandido.com/portgen/surnamelist.html>Surname Lists</a></td>
+</tr>
+<tr>
+<td class="tds" onmouseover="fadeImg2(5)" onmouseout="fadeImgend2(5)" onclick="window.location='#';" style="border:1px solid gray;background-color:silver;width:100;text-align:center"><a href="mailto:fcandido7@hotmail.com">Add your name</a></td>
+</tr>
+</table>
+</td></tr></table>
+<p><center>
+<a href="mailto:fcandido7@hotmail.com">
+<b>Add your genealogy information</b></a><br><br>
+<!-- Script Size:  4.59 KB -->
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0138118814326603";
+google_ad_width = 120;
+google_ad_height = 600;
+google_ad_format = "120x600_as";
+google_ad_type = "text_image";
+google_ad_channel ="";
+google_color_border = "FFFFFF";
+google_color_bg = "FFFFFF";
+google_color_link = "0000FF";
+google_color_url = "0033FF";
+google_color_text = "000000";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script><br><br><br><script type="text/javascript"><!--
+google_ad_client = "pub-0138118814326603";
+google_ad_width = 120;
+google_ad_height = 600;
+google_ad_format = "120x600_as";
+google_ad_type = "text_image";
+google_ad_channel ="";
+google_color_border = "FFFFFF";
+google_color_bg = "FFFFFF";
+google_color_link = "0000FF";
+google_color_url = "0033FF";
+google_color_text = "000000";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script><br><br>
+
+<br><script type="text/javascript"><!--
+google_ad_client = "pub-0138118814326603";
+google_ad_width = 120;
+google_ad_height = 600;
+google_ad_format = "120x600_as";
+google_ad_type = "text_image";
+google_ad_channel ="";
+google_color_border = "FFFFFF";
+google_color_bg = "FFFFFF";
+google_color_link = "0000FF";
+google_color_url = "0033FF";
+google_color_text = "000000";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script><br><br>
+
+</td>
+
+<td width="36%" valign="top">
+If you know the origins of your name contact me, I will add the information <br><br><li>Abade:  means abbot, meaning father,  head of a monastery 
+<li>Abadesso: probably from the word abadessa which is a mother superior for some religious groups
+<li>Abadito
+<li>Abalada: broken
+<li>Abalroado
+<li>Abdula
+<li>Abecassis
+<br>Abeleira
+<li>Abelho: Abelha means a bee, Abelho may be a masculine form 
+<li>Abilhão
+<li>Abilio
+<li>Abito
+<li>Abranches
+<li>Abrantes
+<li>Abraul
+<li>Abrega
+<li>Abreu: insect
+<li>Abrino
+<li>Abronheiro: See below, probably Abrunheiro mispelled
+<li>Abrunheiro: A plum tree that produces small blue or purple plums
+<li>Abrunhosa
+<li>Abudo
+<li>Acacio: Caracter in a novel of Eca de Queiroz, o Primo Basilio
+<li>Acafrão: saffron
+<li>Achada: feminine of found
+<li>Achando: finding
+<li>Achas: To find, present second person of singular
+<li>Acúrcio
+<li>Adaes
+<li>Adaixo
+
+<li>Adão
+<li>Adelia
+<li>Adelina
+<li>Adelino
+<li>Adem: sheldrake: boa, coat, sweater, wrap
+<li>Adevides
+<li>Adevinha: probably from the verb adivinhar, to guess, to foresee
+<li>Adolfo
+<li>Adones: see Adonis
+<li>Adonis: Nice and humble young man
+<li>Adrega
+<li>Adriano
+<li>Adrião
+<li>Adro: Section of a church
+<li>Adubeir
+<li>Afecto: affection, attachement, fondness, love, tenderness
+<li>Afonso
+<li>Afra
+<li>Africana: An African woman
+<li>Africano: An African man
+<li>Agante
+<li>Agapito 
+<li>Agasalho: boa, coat, sweater, wrap
+<li>Agatão
+<li>Agnelo
+<li>Agnoli
+<li>Agonia: agony, death struggle, throe 
+<li>Agostinha: feminine variant of Agostinho
+<li>Agostinho: Portuguese for Augustine, given name or surname
+<li>Agreira: a type of tree
+<li>Agrela: small field
+<li>Agria
+<li>Agra: piece of land who can be use for agriculture
+<li>Agro: sour, 
+<li>Agua: Water, aqua: 
+<li>Aguas: Waters
+<li>Aguiar: Ancient Spanish name from the region of Castile
+<li>Aguilar: see Aguiar 
+<li>Aguinha: water
+<li>Agulha: needle
+<li>Aibéo
+<li>Aidos
+<li>Aio: Tutor hired by wealthy families to educate their children
+<li>Aires
+<li>Airoso: graceful, elegant, smart
+<li>Ajuda: from the verb ajudar,  to help
+<li>Ala: Allah, row, aisle, wing, flank, side
+<li>Alago: from the verb alagar, to cover with water, to sink, to be flooded
+<li>Alavedra
+<li>Alarcão
+<li>Albano: Albanian
+<li>Albarinho
+<li>Albarino
+<li>Albarran
+<li>Albazini
+<li>Albergaria: lodging house, shelter, town in Portugal called Albergaria-a-velha
+<li>Albernas
+<li>Albernaz
+<li>Albertina
+<li>Albertino
+<li>Alberto
+<li>Alberty
+<li>Albino: albino
+<li>Albreto
+<li>Albuquerque
+<li>Alçada: juridisdiction, competence, competency, verge
+<li>Alcaide: Arab word for captain, governor
+<li>Alcaire
+<li>Alcantara: Spanish military order
+<li>Alcaso
+<li>Alceo
+<li>Alceu
+<li>Alcide
+<li>Alcides
+<li>Alcino
+<li>Alcobaça
+<li>Alcobia
+<li>Alcoforado
+<li>Alda: ancient measurement slightly over a meter
+<li>Aldeão: rural, villager, peasant, cottager
+<li>Aldegalega
+<li>Aldeia: village
+<li>Alecrim: rosemary
+<li>Alegre: joyful
+<li>Alegrete: from the word alegre
+<li>Alegria: joy
+
+
+<br><br>
+
+<!-- begin htmlcommentbox.com -->
+ <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">HTML Comment Box</a> is loading comments...</div>
+ <link rel="stylesheet" type="text/css" href="http://www.htmlcommentbox.com/static/skins/simple/skin.css" />
+ <script type="text/javascript" language="javascript" id="hcb"> /*<!--*/ (function(){s=document.createElement("script");s.setAttribute("type","text/javascript");s.setAttribute("src", "http://www.htmlcommentbox.com/jread?page="+escape((typeof hcb_user !== "undefined" && hcb_user.PAGE)||(""+window.location)).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24sRUHXm2H7El5HIqeHJ46W."+"&opts=414&num=10");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
+<!-- end htmlcommentbox.com -->
+
+
+
+
+<td width="36%" valign="top">
+
+
+
+<li>Alegrio
+<li>Aleixo
+<li>Aleluia
+<li>Alemão: German in English
+<li>Alençoão
+<li>Alendouro: word from above the Douro 
+<li>Alentisca
+<li>Alexadre
+<li>Alexandre
+<li>Alexandrina
+<li>Alexandrino
+<li>Alface: Lettuce
+<li>Alfafar
+<li>Alfaiataria: tailor store or shop
+<li>Alfaiate: A tailor
+<li>Alfar
+<li>Alfarela
+<li>Alfaro
+<li>Alferes: squire, chevalier, esquire, armour-bearer, henchman
+<li>Alfredo
+<li>Alfoto
+<li>Algarvio: from the Algarve
+<li>Alhau
+<li>Alho: Garlic
+<li>Alice
+<li>Alipia
+<li>Alipio
+<li>Almaral
+<li>Almas: singular is soul, spirit, mind or the dead
+<li>Almeida
+<li>Almeirão: plant
+<li>Alonso: silly, goof
+<li>Alpande
+<li>Alpendre: shed, porch, gallery, terrace, marquise
+<li>Alpoim
+<li>Alquim
+<li>Alto: high, tall, elevated, loudly, loud, aloud
+<li>Aluminios: plural of aluminium
+<li>Alvadia
+<li>Alvares
+<li>Alvarez
+<li>Alvaro
+<li>Alvarinhas
+<li>Alvarinho
+<li>Alvelos
+<li>Alvéolos: small hole where the bees lay their honey, honeycomb
+<li>Alverca: tank, place where the fish live
+<li>Alves
+<li>Alvim
+<li>Alvito
+<li>Alvoeiro
+<li>Alvorge
+<li>Alzira
+<li>Amada: sweetheart, ladylove, loved?
+<li>Amado: beloved, darling
+<li>Amador: unprofessional, amateur
+<li>Amante: lover, concubine, mistress
+<li>Amara
+
+
+<li>Amaral
+<li>Amaro: sour
+<li>Ambrósio: Ambrosia meas type of plant
+<li>Ameal
+<li>Ameixa: plum, prune
+<li>Ameixoeira: plum tree, prune tree
+<li>Ameixoeiro; probably a masculine variant of Ameixoeira
+<li>Amelia
+<li>Amial
+<li>Amieira
+<li>Amieiro: alder
+<li>Amilcar
+<li>Amimo: to give affection to someone or an animal
+<li>Amoedo: to make money
+<li>Amora: mulberry, raspberry
+<li>Amoreira: mulberry, raspberry bush
+<li>Amores
+<li>Amorim: type of pear
+<li>Amoroso: loving, amorous, fond, loverlike
+<li>Amorouco
+<li>Amorousso
+<li>Amparo: supporter, support, defence, defense, protection, patronage, fostering, refuge, rock, anchorage
+<li>Amuedo
+<li>Ana
+
+<li>Anacleto
+<li>Anadio
+<li>Anaquim
+<li>Anastasio
+<li>Anaya
+<li>Anca: Thigh
+<li>Ancelmo
+<li>Anceris
+<li>Anceriz
+<li>Anciaes
+<li>Andorinha: swallow
+<li>Andrade: tree from Brasil
+<li>André
+<li>Andrino: color from the wings of a swallow, possibly variant of André 
+<li>Anes
+
+<li>Angelo: from the word angel
+<li>Angelica: from the word angelic
+<li>Anguelova
+<li>Anibal
+<li>Anica
+<li>Aniceto
+<li>Anjos: angels, cherubs
+<li>Anselmo
+<li>Antão
+<li>Antas: tapirs, dolmens,
+<li>Antões
+<li>Antónia
+<li>Antoninho: member of the religious order of Saint Antonio
+<li>António
+<li>Antunes
+
+
+
+
+
+
+</td>
+
+
+
+<td width="14%" valign="top" bgcolor="">
+
+
+<li>Anunciação: anunciation
+<li>Aparicio
+<li>Aperta: from the verb apertar, to press, to hug
+<li>Apolinario
+<li>Apóstolo: apostle
+<li>Aqueu: from the Greece region of Achaea
+<li>Aquino
+<li>Aradeiras
+<li>Aragão
+<li>Aranha: spider
+<li>Araujo
+<li>Arcanjo: archangel
+<li>Arcão: parte of a saddle
+<li>Arcos: plural of: archway, arch, arc, bow, hoop, rim, round
+<li>Arcozelo
+<li>Arderios
+<li>Ardérius
+<li>Arede
+<li>Areia: sand
+<li>Areias: plural of sand
+<li>Arelo
+<li>Arenga: harangue, patter, screed, quarrel
+<li>Areosa: sandy 
+<li>Aresta: edge, rib, groin, gable, awn
+<li>Areu
+<li>Arezes
+
+<li>Argel: type of horse
+<li>Argentino: Argentine
+<li>Arias
+<li>Arif
+<li>Arinto
+<li>Arlindo
+<li>Armando
+<li>Armeiro: gunsmith, armourer, armorer, armoury, armory, gunman
+<li>Armelão
+<li>Arminda
+<li>Armindo
+<li>Arnaldo
+<li>Arnaud
+<li>Arnaut
+<li>Arneiro: sandy land, dry and unproductive
+<li>Aroso
+<li>Arouca
+<li>Arraiolos
+<li>Arrais: skipper
+<li>Arraiano: who lives close to the border of another country
+<li>Arreiano: possibly Arraiano mispelled
+<li>Arrenegado: mad, impatient shows hate towrds others
+<li>Arriaga
+<li>Arribanca
+<li>Arriegas
+<li>Arrifano: probably a person who fabricated linen
+<li>Arrimar: to get close to
+<li>Arrobas; ancient weight measure (plural)
+<li>Arrojado: audacious, bold, dashing, dauntless, venturesome, venturous, cool
+<li>Arromba: to break through, to force open something that is unlock
+<li>Arroteia: land newly cultivated after the land was being left uncultivated for renewal 
+<li>Arroz: rice
+<li>Arruda: rue
+<li>Arrulo
+<li>Arsenio
+<li>Artiaga
+<li>Artilheiro: artillerist, artillery man, cannoneer, gunner, bombardier, striker
+<li>Artur
+<li>Arvelos
+<li>Arzileiro
+<li>Asenco
+<li>Ascencão: Ascencion day, when Christ went up to Heaven 
+<li>Ascenço
+<li>Aspeçada
+<li>Assafrão: Assafrão mispelled?? açafrão, meaning saffron
+<li>Assalino
+<li>Asseiro
+<li>Assena
+<li>Assis
+<li>Assoreia; from the verb assorear, to block water, to dam, to obstruct the flow of water
+<li>Assuncão: to assume something, ascencion of the Virgen Mary to Heaven
+<li>Atafona
+<li>Ataide
+<li>Atanásio
+<li>Augusta: femenine variante of Augusto
+<li>Augusto: August, kingly
+<li>Aureliano
+<li>Aurélio
+<li>Aveiro: City in Portugal
+<li>Avelar: to age well, to dry
+<li>Avelãs: see Avelar
+<li>Aveleira: nut-tree, nutwood, hazel
+<li>Aveleiro
+<li>Avelez
+<li>Avelino
+<li>Avidago
+<li>Avila
+<li>Avilo
+<li>Avis
+<li>Avões
+<li>Azedo: acid, sour, vinegary, acetous
+<li>Azeiteiro: people who produces or sells olive oil
+<li>Azeitona: olive
+<li>Azeje
+<li>Azenha: water-mill
+<li>Azevedo
+<li>Azevo
+<li>Aziago: sinister, ominous
+<li>Azinhaga: small trail the width of a chariot or between two high walls
+<li>Azinhais: lands planted with holm oak trees
+<li>Azinheira: holm oak tree
+<li>Azinheiro: holm oak tree
+<li>Azóla: seaweed from South America and from the river Guadiana, near Mertolo, Portugal
+<li>Azóia
+<li>Azul: blue, azure<br><br>
+
+<a href=http://fernandocandido.com/portgen/portuguese-names/letter-b.html> NEXT LETTER B </a><br><b>
+
+<a href="http://www.kindredtrails.com" target="_blank">Kindred Trails™ Worldwide Genealogy Resources</a> - Linking the World Together with Roots</a>
+
+
+</td>
+
+</tr>
+</table><TABLE WIDTH="90%" BGCOLOR="white" CELLSPACING="1" CELLPADDING="4" BORDER="1">
+<TR>
+<TD>Main source: old phone directory from central Portugal<br>
+If you want to add your name or make changes (some names may not be Portuguese)<A HREF="mailto:fcandido7@hotmail.com"> Please contact me</a><br><br><center> <font size="+1">More names, choose a letter</font></center>
+<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-a.html>letter A </a>-- <a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-b.html>letter B - </a>--<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-c.html>letter C </a>-- <a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-d.html>letter D - </a>--<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-e.html>letter E </a>-- <a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-f.html>letter F - </a>--<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-g.html>letter G </a>-- <a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-h.html>letter H - </a>-<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-i.html>letter I </a>-- <a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-j.html>letter J - </a>--<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-l.html>letter L - </a>--<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-m.html>letter M </a>-- <a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-n.html>letter N - </a>--<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-o.html>letter O </a>-- <a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-p.html>letter P - </a>-<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-q.html>letter Q </a>-- <a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-r.html>letter R- </a>--<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-s.html>letter S </a>-- <a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-t.html>letter T - </a>--<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-u.html>letter U </a>-- <a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-v.html>letter V - </a>--<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-x.html>letter X - </a>--<a href=http://www.fernandocandido.com/portgen/portuguese-names/letter-z.html>letter Z - </a> <br><br></TD>
+
+
+</TR>
+</TABLE>
+
+<TABLE WIDTH="90%" BGCOLOR="red" CELLSPACING="1" CELLPADDING="4" BORDER="1">
+<TR>
+<TD><br><!-- Search Google --><center>
+<form method="get" action="http://www.google.com/custom" target="_top">
+<table bgcolor="#ffffff">
+<tr><td nowrap="nowrap" valign="top" align="left" height="32">
+<a href="http://www.google.com/">
+<img src="http://www.google.com/logos/Logo_25wht.gif" border="0" alt="Google" align="middle"></img></a>
+<label for="sbi" style="display: none">Enter your search terms</label>
+<input type="text" name="q" size="31" maxlength="255" value="" id="sbi"></input>
+<label for="sbb" style="display: none">Submit search form</label>
+<input type="submit" name="sa" value="Search" id="sbb"></input>
+<input type="hidden" name="client" value="pub-0138118814326603"></input>
+<input type="hidden" name="forid" value="1"></input>
+<input type="hidden" name="ie" value="ISO-8859-1"></input>
+<input type="hidden" name="oe" value="ISO-8859-1"></input>
+<input type="hidden" name="cof" value="GALT:#008000;GL:1;DIV:#336699;VLC:663399;AH:center;BGC:FFFFFF;LBGC:336699;ALC:0000FF;LC:0000FF;T:000000;GFNT:0000FF;GIMP:0000FF;FORID:1"></input>
+<input type="hidden" name="hl" value="en"></input>
+</td></tr></table>
+</form>
+</center>
+<!-- Search Google -->
+
+
+
+
+
+</TD>
+</TR>
+</TABLE>
+</body>
+</html>
+
+<br><br>
+
+<!-- begin htmlcommentbox.com -->
+ <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">HTML Comment Box</a> is loading comments...</div>
+ <link rel="stylesheet" type="text/css" href="http://www.htmlcommentbox.com/static/skins/simple/skin.css" />
+ <script type="text/javascript" language="javascript" id="hcb"> /*<!--*/ (function(){s=document.createElement("script");s.setAttribute("type","text/javascript");s.setAttribute("src", "http://www.htmlcommentbox.com/jread?page="+escape((typeof hcb_user !== "undefined" && hcb_user.PAGE)||(""+window.location)).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24sRUHXm2H7El5HIqeHJ46W."+"&opts=414&num=10");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); /*-->*/ </script>
+<!-- end htmlcommentbox.com -->
+
+<!-- text below generated by server. PLEASE REMOVE --><!-- Counter/Statistics data collection code --><script language="JavaScript" src="http://l.yimg.com/d/lib/smb/js/hosting/cp/js_source/whv2_001.js"></script><script language="javascript">geovisit();</script><noscript><img src="http://visit.webhosting.yahoo.com/visit.gif?us1386713129" alt="setstats" border="0" width="1" height="1"></noscript><script type="text/javascript">(function (d, w) {var x = d.getElementsByTagName('SCRIPT')[0];var f = function () {var s = d.createElement('SCRIPT');s.type = 'text/javascript';s.async = true;s.src = "//np.lexity.com/embed/YW/6322f3a5972aa0f2c388c27af40582b9?id=dadcadec0698";x.parentNode.insertBefore(s, x);};w.attachEvent ? w.attachEvent('onload',f) :w.addEventListener('load',f,false);}(document, window));</script>
