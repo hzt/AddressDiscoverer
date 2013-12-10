@@ -3,11 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package namedatabasescraper;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,13 +27,16 @@ import org.apache.commons.io.FileUtils;
  */
 public class MainWindow extends javax.swing.JFrame {
 
-    NameDatabaseScraper parent;
-    DefaultTableModel model;
-    Collection<File> htmlFiles;
-    List<PageScraper> scrapers;
-    
+    private NameDatabaseScraper parent;
+    private DefaultTableModel model;
+    private Collection<File> htmlFiles;
+    private List<PageScraper> scrapers;
+    private int totalNames;
+    private String dirname;
+
     /**
      * Creates new form MainWindow
+     *
      * @param parent
      */
     public MainWindow(NameDatabaseScraper parent) {
@@ -42,21 +47,25 @@ public class MainWindow extends javax.swing.JFrame {
             this.jDirectoryNameTextField.setText(oldDir);
             this.populateNamesColumn();
         }
+        String oldSelector = this.parent.getProps().getProperty("selector");
+        if (oldSelector != null) {
+            this.jSelectorField.setText(oldSelector);
+        }
     }
 
     /**
      * A single-access point for reporting exceptions to the user.
-     * 
+     *
      * @param message
      */
     public void reportException(String message) {
         JOptionPane.showMessageDialog(this,
-            Utils.wordWrapString(message, 50),
-            "Program error", JOptionPane.ERROR_MESSAGE);
+                Utils.wordWrapString(message, 50),
+                "Program error", JOptionPane.ERROR_MESSAGE);
     }
 
     private void populateNamesColumn() {
-        String[] extensions = {"html"};
+        String[] extensions = {"html", "htm"};
         File dir = new File(this.jDirectoryNameTextField.getText());
         this.htmlFiles = FileUtils.listFiles(dir, extensions, false);
         this.model = new DefaultTableModel();
@@ -68,34 +77,55 @@ public class MainWindow extends javax.swing.JFrame {
         for (File htmlFile : this.htmlFiles) {
             model.setValueAt(htmlFile.getName(), rowCount, 0);
             model.setValueAt("0", rowCount, 1);
-            rowCount ++;
+            rowCount++;
         }
         this.jResultsTable.setModel(model);
-       
+        this.dirname = dir.getName();
     }
-    
+
     private void runScraper() {
         this.scrapers = new ArrayList<>();
+        final String selector = this.jSelectorField.getText();
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 int rowCount = 0;
                 for (File htmlFile : htmlFiles) {
                     try {
-                        PageScraper scraper = new PageScraper(htmlFile);
+                        PageScraper scraper = new PageScraper(htmlFile, dirname, selector);
                         model.setValueAt(scraper, rowCount, 1);
                         scrapers.add(scraper);
+                        totalNames += scraper.getNames().size();
                     } catch (IOException ex) {
                         scrapers.add(null);
                         model.setValueAt(ex.getMessage(), rowCount, 1);
                     }
-                    rowCount ++;
+                    rowCount++;
                 }
                 jStoreToDatabaseButton.setEnabled(true);
             }
         });
     }
-    
+
+    private void saveToDb() {
+        StringBuilder builder = new StringBuilder();
+        final File csvFile = new File(
+                this.jDirectoryNameTextField.getText() + File.separator + "names.txt");
+
+        for (PageScraper scraper : scrapers) {
+            builder.append(scraper.storeToCsv());
+        }
+        try {
+            FileUtils.writeStringToFile(csvFile, builder.toString());
+        } catch (IOException ex) {
+            NameDatabaseScraper.reportException(ex);
+            return;
+        }
+        jStoreToDatabaseButton.setEnabled(false);
+        this.jStatusBar.setText(String.format(
+                "Wrote %d names to %s", this.totalNames, csvFile.getAbsolutePath()));
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -113,7 +143,9 @@ public class MainWindow extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jResultsTable = new javax.swing.JTable();
         jStoreToDatabaseButton = new javax.swing.JButton();
-        jStoreToDbProgressBar = new javax.swing.JProgressBar();
+        jSelectorField = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jStatusBar = new javax.swing.JLabel();
 
         jFileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
@@ -169,13 +201,18 @@ public class MainWindow extends javax.swing.JFrame {
             jResultsTable.getColumnModel().getColumn(1).setResizable(false);
         }
 
-        jStoreToDatabaseButton.setText("Store to Database");
+        jStoreToDatabaseButton.setText("Write to CSV");
         jStoreToDatabaseButton.setEnabled(false);
         jStoreToDatabaseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jStoreToDatabaseButtonActionPerformed(evt);
             }
         });
+
+        jLabel2.setText("Selector");
+
+        jStatusBar.setText("Nothing saved");
+        jStatusBar.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -184,20 +221,25 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jDirectoryNameTextField)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jSelectDirectoryButton))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jRunScraperButton)
-                        .addGap(47, 47, 47)
-                        .addComponent(jStoreToDatabaseButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jStoreToDbProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 712, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jSelectorField, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jRunScraperButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 305, Short.MAX_VALUE)
+                                .addComponent(jStoreToDatabaseButton))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jDirectoryNameTextField)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jSelectDirectoryButton)))))
                 .addContainerGap())
+            .addComponent(jStatusBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -207,19 +249,16 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jDirectoryNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jSelectDirectoryButton))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jRunScraperButton)
-                            .addComponent(jStoreToDatabaseButton))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jStoreToDbProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jRunScraperButton)
+                    .addComponent(jStoreToDatabaseButton)
+                    .addComponent(jSelectorField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 26, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 425, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jStatusBar))
         );
 
         pack();
@@ -230,8 +269,7 @@ public class MainWindow extends javax.swing.JFrame {
         int returnVal = this.jFileChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             file = this.jFileChooser.getSelectedFile();
-        } 
-        else {
+        } else {
             return;
         }
         this.jDirectoryNameTextField.setText(file.getAbsolutePath());
@@ -240,6 +278,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         this.parent.getProps().setProperty("last_directory", this.jDirectoryNameTextField.getText());
+        this.parent.getProps().setProperty("selector", this.jSelectorField.getText());
         this.parent.shutdown();
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowClosing
@@ -249,21 +288,7 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jRunScraperButtonActionPerformed
 
     private void jStoreToDatabaseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jStoreToDatabaseButtonActionPerformed
-        this.jStoreToDbProgressBar.setMaximum(this.scrapers.size());
-        this.jStoreToDbProgressBar.setValue(0);
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                int rowCount = 0;
-                for (PageScraper scraper : scrapers) {
-                    scraper.storeToDb();
-                    rowCount ++;
-                    jStoreToDbProgressBar.setValue(rowCount);
-                }
-                jStoreToDatabaseButton.setEnabled(false);
-                jStoreToDbProgressBar.setValue(jStoreToDbProgressBar.getMaximum());
-            }
-        });
+        this.saveToDb();
     }//GEN-LAST:event_jStoreToDatabaseButtonActionPerformed
 
 
@@ -271,13 +296,14 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField jDirectoryNameTextField;
     private javax.swing.JFileChooser jFileChooser;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JTable jResultsTable;
     private javax.swing.JButton jRunScraperButton;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton jSelectDirectoryButton;
+    private javax.swing.JTextField jSelectorField;
+    private javax.swing.JLabel jStatusBar;
     private javax.swing.JButton jStoreToDatabaseButton;
-    private javax.swing.JProgressBar jStoreToDbProgressBar;
     // End of variables declaration//GEN-END:variables
-
 
 }

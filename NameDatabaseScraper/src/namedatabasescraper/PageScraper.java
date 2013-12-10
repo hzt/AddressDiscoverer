@@ -16,6 +16,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -28,21 +30,30 @@ import org.jsoup.select.Elements;
  */
 public class PageScraper {
     
-    List<String> names;
-    String filename;
-    String id;
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+
+    private final List<String> names;
+    private final String filename;
+    private final String id;
+    private final String dirname;
     
-    public PageScraper(File file) throws IOException {
+    @SuppressWarnings("OverridableMethodCallInConstructor")
+    public PageScraper(File file, String dirname, String selector) throws IOException {
         filename = file.getAbsolutePath();
+        this.dirname = dirname;
         this.id = this.createScraperId();
         String html = FileUtils.readFileToString(file);
         this.names = new ArrayList<>();
         Document soup = Jsoup.parse(html);
-        Elements nameElements = soup.select("a.nom");
+        //Elements nameElements = soup.select("a.nom");
+        //Elements nameElements = soup.select("div > a:not(.n1)");
+        Elements nameElements = soup.select(selector);
         for (Element nameElement : nameElements) {
             String name = nameElement.ownText();
             names.add(name);
         }
+        logger.log(Level.INFO, "Scraped " + this.names.size() + " names from page {0}", file.getName());
     }
     
     public List<String> getNames() {
@@ -76,18 +87,26 @@ public class PageScraper {
     public String toString() {
         return String.format("%d names extracted", this.names.size());
     }
+  
+    public String storeToCsv()  {
+        StringBuilder builder = new StringBuilder();
+        for (String name : this.names) 
+            builder.append(name).append("\n");
+        return builder.toString();
+    }
     
-    public void storeToDb() throws SQLException {
+    public void storeToDb(MainWindow parent) throws SQLException {
+        logger.log(Level.INFO, "Started storing names for scraper id {0}", this.dirname);
         Connection conn = NameDatabaseScraper.application.getConnection();
-        PreparedStatement stmt = conn.prepareStatement("DELETE FROM names WHERE id = ?");
-        stmt.setString(0, this.id);
-        stmt.execute();
-        
         PreparedStatement stmt2 = conn.prepareStatement("INSERT INTO names VALUES (?, ?)");
-        stmt2.setString(1, this.id);
+        stmt2.setString(2, this.dirname);
+        conn.setAutoCommit(false);
         for (String name : this.names) {
-            stmt2.setString(0, name);
-            stmt2.execute();
+            stmt2.setString(1, name);
+            stmt2.addBatch();
         }
+        stmt2.executeBatch();
+        conn.setAutoCommit(true);
+        logger.log(Level.INFO, "Stored " + this.names.size() + " names for scraper id {0}", this.dirname);
     }
 }

@@ -36,24 +36,32 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jScrollPane1" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jDirectoryNameTextField" max="32767" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jSelectDirectoryButton" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="jSelectorField" min="-2" pref="231" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="jRunScraperButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace pref="305" max="32767" attributes="0"/>
+                              <Component id="jStoreToDatabaseButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="jDirectoryNameTextField" max="32767" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="jSelectDirectoryButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
                   </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="jRunScraperButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="47" max="-2" attributes="0"/>
-                      <Component id="jStoreToDatabaseButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jStoreToDbProgressBar" max="32767" attributes="0"/>
-                  </Group>
-                  <Component id="jScrollPane1" pref="712" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
+          <Component id="jStatusBar" alignment="0" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -65,23 +73,17 @@
                   <Component id="jDirectoryNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jSelectDirectoryButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jRunScraperButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jStoreToDatabaseButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace type="unrelated" max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace max="32767" attributes="0"/>
-                      <Component id="jStoreToDbProgressBar" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                  </Group>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jRunScraperButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jStoreToDatabaseButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jSelectorField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace type="unrelated" pref="26" max="32767" attributes="0"/>
               <Component id="jScrollPane1" min="-2" pref="425" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
+              <Component id="jStatusBar" min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -148,14 +150,29 @@
     </Container>
     <Component class="javax.swing.JButton" name="jStoreToDatabaseButton">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Store to Database"/>
+        <Property name="text" type="java.lang.String" value="Write to CSV"/>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jStoreToDatabaseButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JProgressBar" name="jStoreToDbProgressBar">
+    <Component class="javax.swing.JTextField" name="jSelectorField">
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel2">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Selector"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jStatusBar">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Nothing saved"/>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

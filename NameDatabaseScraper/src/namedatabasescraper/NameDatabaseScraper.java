@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,12 +52,12 @@ public class NameDatabaseScraper {
         
         // First setup our logger
         this.checkSettingsDirExists();
-        logger.setLevel(Level.SEVERE);
+        logger.setLevel(Level.INFO);
         FileHandler fh = new FileHandler(this.settingsDirname + File.separator + "debug.log", 
-                8096, 1, true);  
+                8096, 1, false);  
         logger.addHandler(fh);
         SimpleFormatter formatter = new SimpleFormatter();  
-        fh.setFormatter(formatter); 
+        fh.setFormatter(formatter);
         logger.info("Starting NameDatabaseScraper");
         
         // Load our properties and attach the database, creating it if it doesn't exist
@@ -128,7 +129,7 @@ public class NameDatabaseScraper {
             }
         } catch (SQLException e) {
             logger.log(Level.INFO, "Creating new name table");
-            statement.execute("CREATE TABLE names (name TEXT)");
+            statement.execute("CREATE TABLE names (name TEXT, scraper_id TEXT)");
         } 
     }
     
