@@ -62,5 +62,22 @@ public class NameTest {
         Assert.assertEquals("Last name should be Martínez Pasamar", "Martínez Pasamar", name.getLastName());
         Assert.assertEquals("Title should be Dra.", "Dra.", name.getTitle());
     }
+
+    @Test
+    public void testCommaSeparated() {
+        String chunk = "Martínez Pasamar, Dra. Concepción";
+        Name name;
+        try {
+            name = new Name(chunk);
+        } catch (SQLException | OrmObjectNotConfiguredException ex) {
+            fail("Encountered problems connecting to database: " + ex.getMessage());
+            return;
+        } 
+        
+        Assert.assertFalse("The Name object should not have a score of 0", name.getScore() == 0.0);
+        Assert.assertEquals("First name should be Concepción", "Concepción", name.getFirstName());
+        Assert.assertEquals("Last name should be Martínez Pasamar", "Martínez Pasamar", name.getLastName());
+        Assert.assertEquals("Title should be Dra.", "Dra.", name.getTitle());
+    }
     
 }

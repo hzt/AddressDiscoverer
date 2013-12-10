@@ -28,33 +28,34 @@ public class Name {
     private String title = "";
     private String suffix = "";
     
-    private final String[] possibleTitles = {
-        "Dr.", "Dra.", "Ing.", "Lic.", "D.", "Dña.", "Prof."
-    };
+    /**
+     * A short list of likely titles
+     */
+    private final ArrayList<String> possibleTitles = new ArrayList<String>() {{
+        add("Dr."); add("Dra."); add("Ing."); add("Lic.");
+        add("D."); add("Dña."); add("Prof."); 
+    }};
     
-    private final ArrayList<String> list = new ArrayList<String>() {{
+    /**
+     * A short list of some common suffixes
+     */
+    private final ArrayList<String> suffixes = new ArrayList<String>() {{
         add("Jr."); add("II"); add("III"); add("IV");
         add("Esq"); add("SJ"); add("OP"); add("OFM");
     }};
     
-    public Name(String oneLongChunk) throws SQLException, OrmObjectNotConfiguredException {
-            String[] words = StringUtils.split(oneLongChunk);
-            String myFirstName = "";
-            String myLastName = "";
-            String myRest = "";
-            for (int i = words.length - 1; i > 0; i --) {
-                boolean isLastName = KnownLastName.isLastName(words[i]);
-                if (isLastName) 
-                    myLastName += (words[i] + " ").trim();
-                else if (myLastName.isEmpty())
-                    myRest += (words[i] + " ").trim();
-                else 
-                    myFirstName += (words[i] + " ").trim();
-            }
-            this.firstName = myFirstName;
-            this.lastName = myLastName;    
-            this.rest = myRest;
-            this.extractTitle();
+    /**
+     * Our primary constructor... tries to apply intelligence to parsing the name
+     * 
+     * @param textChunk A chunk of text that supposedly contains a name
+     * @throws SQLException
+     * @throws OrmObjectNotConfiguredException 
+     */
+    public Name(String textChunk) throws SQLException, OrmObjectNotConfiguredException {
+        if (textChunk.contains(","))
+            this.parseCommaSeparatedChunk(textChunk);
+        else
+            this.parseOneLongChunk(textChunk);
     }
     
     public Name(String first, String last) throws SQLException, OrmObjectNotConfiguredException {
@@ -89,26 +90,89 @@ public class Name {
         return score / 3;
     }
 
-    public String getFirstName() {
-        return firstName;
+    /**
+     * Given a chunk divided by a comma, assume that the first portion contains
+     * the last name and possible suffix, and the second chunk is the first name
+     * and title(s)
+     * 
+     * @param textChunk 
+     */
+    private void parseCommaSeparatedChunk(String textChunk) throws SQLException, OrmObjectNotConfiguredException {
+        String[] parts = textChunk.split(",");
+        String myFirstName = parts[1];
+        String myLastName = parts[0];
+        String myTitle = "";
+        String mySuffix = "";
+        String myRest = "";
+        
+        // First see if we can pull out anything from the first name that
+        // is a title
+        for (String word : StringUtils.split(myFirstName)) 
+            if (this.possibleTitles.contains(word)) {
+                myFirstName = myFirstName.replace(word, "");
+                myTitle += word + " ";
+            }
+        this.firstName = myFirstName.trim();
+        this.title = myTitle.trim();
+        
+        // Next, divide the "last name" into last names, suffix and "rest"
+        boolean restHasBegun = false;
+        for (String word : StringUtils.split(myLastName)) {
+            if (this.suffixes.contains(word)) {
+                myLastName = myLastName.replace(word, "");
+                mySuffix += word + " ";
+            }
+            else if (!KnownLastName.isLastName(word) || restHasBegun) {
+                restHasBegun = true;
+                myRest += myRest + " ";
+                myLastName = myLastName.replace(word, "");
+            }
+        }
+        this.lastName = myLastName.trim();
+        this.suffix = mySuffix.trim();
+        this.rest = myRest.trim();
     }
 
-    public String getLastName() {
-        return lastName;
+    /**
+     * Given a chunk with no comma, parses into a name, where the first words are
+     * considered titles or first names, and the later words are candidates for
+     * last names or "rest" chunk. Uses our last name database to detect when the
+     * last name portion starts.
+     * 
+     * @param oneLongChunk
+     * @throws SQLException
+     * @throws OrmObjectNotConfiguredException 
+     */
+    private void parseOneLongChunk(String oneLongChunk) throws SQLException, OrmObjectNotConfiguredException {
+        String[] words = StringUtils.split(oneLongChunk);
+        String myFirstName = "";
+        String myLastName = "";
+        String myRest = "";
+        String myTitle = "";
+        for (String word : words) {
+            // First order of business is to see if we have a title
+            if (this.possibleTitles.contains(word))
+                myTitle += word + " ";
+            // If not, but we are at the first word, we always put it as a first name
+            else if (myFirstName.isEmpty())
+                myFirstName = word + " ";
+            // Otherwise, if it is a known last name we add it to our last names
+            else if (KnownLastName.isLastName(word))
+                myLastName += word + " ";
+            // Otherwise, it's not a last name and we haven't seen any last 
+            // names yet: it's a firstn name
+            else if (myLastName.isEmpty())
+                myFirstName += word + " ";
+            // Otherwise, we're past the last names and this should go into our "rest" pile
+            else
+                myRest += word + " ";
+        }
+        this.firstName = myFirstName.trim();
+        this.lastName = myLastName.trim();    
+        this.rest = myRest.trim();
+        this.title = myTitle.trim();        
     }
-
-    public String getFullName() {
-        return (this.title + " " + this.firstName + " " + this.lastName).trim();
-    }
-
-    public String getRest() {
-        return rest;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
+    
     /**
      * Attempt to find words relating to a professional title, eg. "Prof." or 
      * "Dr." and put them in the Title field, and subtracting them from the First Name
@@ -146,7 +210,7 @@ public class Name {
                 possibleRest = possibleRest.replace(word, "").trim();
             }
             else {
-                if (this.list.contains(word)) {
+                if (this.suffixes.contains(word)) {
                     possibleSuffix += word + " ";
                     possibleRest = possibleRest.replace(word, "").trim();
                 }
@@ -156,6 +220,28 @@ public class Name {
         this.lastName = possibleLast;
         this.suffix = possibleSuffix;
         this.rest = possibleRest;
+    }
+
+    // ===================== Getters =============================
+    
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getFullName() {
+        return (this.title + " " + this.firstName + " " + this.lastName).trim();
+    }
+
+    public String getRest() {
+        return rest;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     
