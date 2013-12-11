@@ -39,18 +39,18 @@ public class PageScraper {
     private final String dirname;
     
     @SuppressWarnings("OverridableMethodCallInConstructor")
-    public PageScraper(File file, String dirname, String selector) throws IOException {
+    public PageScraper(File file, String dirname, String selector, String charset) throws IOException {
         filename = file.getAbsolutePath();
         this.dirname = dirname;
         this.id = this.createScraperId();
-        String html = FileUtils.readFileToString(file);
+        String html = FileUtils.readFileToString(file, charset);
         this.names = new ArrayList<>();
         Document soup = Jsoup.parse(html);
         //Elements nameElements = soup.select("a.nom");
         //Elements nameElements = soup.select("div > a:not(.n1)");
         Elements nameElements = soup.select(selector);
         for (Element nameElement : nameElements) {
-            String name = nameElement.ownText();
+            String name = nameElement.text();
             names.add(name);
         }
         logger.log(Level.INFO, "Scraped " + this.names.size() + " names from page {0}", file.getName());

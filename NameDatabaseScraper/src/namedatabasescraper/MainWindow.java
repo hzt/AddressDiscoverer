@@ -51,6 +51,10 @@ public class MainWindow extends javax.swing.JFrame {
         if (oldSelector != null) {
             this.jSelectorField.setText(oldSelector);
         }
+        String oldCharset = this.parent.getProps().getProperty("charset", "UTF-8");
+        if (oldCharset != null) {
+            this.jCharsetField.setText(oldCharset);
+        }
     }
 
     /**
@@ -67,32 +71,35 @@ public class MainWindow extends javax.swing.JFrame {
     private void populateNamesColumn() {
         String[] extensions = {"html", "htm"};
         File dir = new File(this.jDirectoryNameTextField.getText());
-        this.htmlFiles = FileUtils.listFiles(dir, extensions, false);
-        this.model = new DefaultTableModel();
-        model.setNumRows(htmlFiles.size());
-        model.setColumnCount(2);
-        String[] columnNames = {"File Names", "Number of Words Extracted"};
-        model.setColumnIdentifiers(columnNames);
-        int rowCount = 0;
-        for (File htmlFile : this.htmlFiles) {
-            model.setValueAt(htmlFile.getName(), rowCount, 0);
-            model.setValueAt("0", rowCount, 1);
-            rowCount++;
+        if (dir.exists()) {
+            this.htmlFiles = FileUtils.listFiles(dir, extensions, false);
+            this.model = new DefaultTableModel();
+            model.setNumRows(htmlFiles.size());
+            model.setColumnCount(2);
+            String[] columnNames = {"File Names", "Number of Words Extracted"};
+            model.setColumnIdentifiers(columnNames);
+            int rowCount = 0;
+            for (File htmlFile : this.htmlFiles) {
+                model.setValueAt(htmlFile.getName(), rowCount, 0);
+                model.setValueAt("0", rowCount, 1);
+                rowCount++;
+            }
+            this.jResultsTable.setModel(model);
+            this.dirname = dir.getName();
         }
-        this.jResultsTable.setModel(model);
-        this.dirname = dir.getName();
     }
 
     private void runScraper() {
         this.scrapers = new ArrayList<>();
         final String selector = this.jSelectorField.getText();
+        final String charset = this.jCharsetField.getText();
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 int rowCount = 0;
                 for (File htmlFile : htmlFiles) {
                     try {
-                        PageScraper scraper = new PageScraper(htmlFile, dirname, selector);
+                        PageScraper scraper = new PageScraper(htmlFile, dirname, selector, charset);
                         model.setValueAt(scraper, rowCount, 1);
                         scrapers.add(scraper);
                         totalNames += scraper.getNames().size();
@@ -146,6 +153,8 @@ public class MainWindow extends javax.swing.JFrame {
         jSelectorField = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jStatusBar = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jCharsetField = new javax.swing.JTextField();
 
         jFileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
@@ -214,6 +223,8 @@ public class MainWindow extends javax.swing.JFrame {
         jStatusBar.setText("Nothing saved");
         jStatusBar.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        jLabel3.setText("Charset");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -232,7 +243,11 @@ public class MainWindow extends javax.swing.JFrame {
                                 .addComponent(jSelectorField, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jRunScraperButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 305, Short.MAX_VALUE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jCharsetField, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 134, Short.MAX_VALUE)
                                 .addComponent(jStoreToDatabaseButton))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jDirectoryNameTextField)
@@ -254,9 +269,11 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(jRunScraperButton)
                     .addComponent(jStoreToDatabaseButton)
                     .addComponent(jSelectorField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 26, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 425, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3)
+                    .addComponent(jCharsetField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jStatusBar))
         );
@@ -279,6 +296,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         this.parent.getProps().setProperty("last_directory", this.jDirectoryNameTextField.getText());
         this.parent.getProps().setProperty("selector", this.jSelectorField.getText());
+        this.parent.getProps().setProperty("charset", this.jCharsetField.getText());
         this.parent.shutdown();
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowClosing
@@ -293,10 +311,12 @@ public class MainWindow extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField jCharsetField;
     private javax.swing.JTextField jDirectoryNameTextField;
     private javax.swing.JFileChooser jFileChooser;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JTable jResultsTable;
     private javax.swing.JButton jRunScraperButton;
     private javax.swing.JScrollPane jScrollPane1;
