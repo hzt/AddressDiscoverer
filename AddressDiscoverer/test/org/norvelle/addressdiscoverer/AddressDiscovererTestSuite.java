@@ -16,15 +16,22 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.norvelle.addressdiscoverer.model.NameTest;
 import org.norvelle.addressdiscoverer.parser.NameChunkTest;
 import org.norvelle.addressdiscoverer.parser.EmailElementFinderTest;
+import org.norvelle.addressdiscoverer.parser.JSoupTest;
 
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({EmailElementFinderTest.class, NameChunkTest.class})
+@Suite.SuiteClasses({
+    EmailElementFinderTest.class, 
+    NameChunkTest.class,
+    NameTest.class,
+    JSoupTest.class
+})
 
 public class AddressDiscovererTestSuite {
 

@@ -14,15 +14,22 @@ import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
 import org.norvelle.addressdiscoverer.model.KnownLastName;
+import org.norvelle.utils.Utils;
 
 /**
  * Provides routines useful in doing unit tests
@@ -81,6 +88,21 @@ public class TestUtilities {
         KnownLastName.initialize(connectionSource);
         
         return connectionSource;
+    }
+
+    public static List extractIndividuals(String htmlUri, String outputFile) throws IOException {
+        String html;
+        html = Utils.loadStringFromResource(htmlUri);
+        Document soup = Jsoup.parse(html);
+        logger.log(Level.FINE, String.format("JSoup parsed document as follows:\n" + soup.toString()));
+        EmailElementFinder finder = new EmailElementFinder(soup);
+        List<Element> rows = finder.getRows();
+        logger.log(Level.FINE, String.format("EmailElementFinder found %d TR tags", rows.size()));
+        IndividualExtractor ext = new IndividualExtractor(null);
+        ext.setHtml(html);
+        List<Individual> individuals = ext.getIndividuals();
+        FileUtils.writeLines(new File(outputFile), rows);
+        return individuals;
     }
     
 }

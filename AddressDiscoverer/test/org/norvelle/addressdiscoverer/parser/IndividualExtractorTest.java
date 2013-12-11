@@ -57,42 +57,21 @@ public class IndividualExtractorTest {
             return;
         }
     }
-    
-    private static List<Individual> extractIndividuals(String htmlUri, String outputFile) {
-        String html;
-        try {
-            html = Utils.loadStringFromResource(htmlUri);
-        } catch (IOException ex) {
-            fail("Encountered IOException: " + ex.getMessage());
-            return null;
-        }
-        Document soup = Jsoup.parse(html);
-        logger.log(Level.FINE, String.format("JSoup parsed document as follows:\n" + soup.toString() ));
-        EmailElementFinder finder = new EmailElementFinder(soup);
-        List<Element> rows = finder.getRows();
-        logger.log(Level.FINE, String.format("EmailElementFinder found %d TR tags", rows.size()));
-
-        // Instantiate an AddressExtractor see how many addresses we get.
-        IndividualExtractor ext = new IndividualExtractor(null);
-        ext.setHtml(html);
-        List<Individual> individuals = ext.getIndividuals();
-        try {
-            FileUtils.writeLines(new File(outputFile), rows);
-        } catch (IOException ex) {
-            fail("Encountered IOException when writing individuals: " + ex.getMessage());
-        }
-        return individuals;
-    }
 
     @Test
     public void testCmpasamar() {
-        List<Individual> individuals = extractIndividuals(
-            "/org/norvelle/addressdiscoverer/resources/cmpasamar.html",
-            TestUtilities.getTestOutputDirectory() + File.separator + "cmpasamar.txt"
-        );
+        List<Individual> individuals;
+        try {
+            individuals = TestUtilities.extractIndividuals(
+                    "/org/norvelle/addressdiscoverer/resources/cmpasamar.html",
+                    TestUtilities.getTestOutputDirectory() + File.separator + "cmpasamar.txt"
+            );
+        } catch (IOException ex) {
+            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+            return;
+        }
         Assert.assertEquals(
-                String.format("There should be 1 individual, %d were found", individuals.size()), 
-                individuals.size(), 1);
+                String.format("There should be 1 individual, %d were found", individuals.size()), 1, individuals.size());
         for (Individual i: individuals) 
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
                 i.getClass().equals(NullIndividual.class));
@@ -105,12 +84,46 @@ public class IndividualExtractorTest {
                 "cmpasamar@unav.es", cmpasamar.getEmail());
     }
     
+    @Test
+    public void testMzugasti() {
+        List<Individual> individuals;
+        try {
+            individuals = TestUtilities.extractIndividuals(
+                    "/org/norvelle/addressdiscoverer/resources/mzugasti.html",
+                    TestUtilities.getTestOutputDirectory() + File.separator + "mzugasti.txt"
+            );
+        } catch (IOException ex) {
+            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+            return;
+        }
+        Assert.assertEquals(
+                String.format("There should be 1 individual, %d were found", individuals.size()), 1, individuals.size());
+        for (Individual i: individuals) 
+            Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
+                i.getClass().equals(NullIndividual.class));
+        Individual mzugasti = individuals.get(0);
+        Assert.assertEquals("The individual's first name should be Dr. Miguel", 
+                "Dr. Miguel", mzugasti.getFirstName());
+        Assert.assertEquals("The individual's last name should be Zugasti Zugasti", 
+                "Zugasti Zugasti", mzugasti.getLastName());
+        Assert.assertEquals("The individual's email should be cmpasamar@unav.es", 
+                "mzugasti@unav.es", mzugasti.getEmail());
+        Assert.assertEquals("The remaining text should be 'Literatura Hispánica y Teoría de la Literatura'", 
+                "Literatura Hispánica y Teoría de la Literatura", mzugasti.getEmail());
+    }
+    
     //@Test
     public void testThreeColumnRecords() {
-        List<Individual> individuals = extractIndividuals(
-            "/org/norvelle/addressdiscoverer/resources/ThreeFieldsAcrossNames.html",
-            TestUtilities.getTestOutputDirectory() + File.separator + "individuals.txt"
-        );
+        List<Individual> individuals;
+        try {
+            individuals = TestUtilities.extractIndividuals(
+                    "/org/norvelle/addressdiscoverer/resources/ThreeFieldsAcrossNames.html",
+                    TestUtilities.getTestOutputDirectory() + File.separator + "individuals.txt"
+            );
+        } catch (IOException ex) {
+            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+            return;
+        }
         Assert.assertEquals(
                 String.format("There should be 3 individuals, %d were found", individuals.size()), 
                 individuals.size() == 3);
