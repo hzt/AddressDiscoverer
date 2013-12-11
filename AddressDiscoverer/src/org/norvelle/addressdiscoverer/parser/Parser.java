@@ -50,6 +50,7 @@ public abstract class Parser {
     // ===================== Static Methods =============================
 
     private static void initializeParsers() {
+        Parser.parsers.add(new TdContainerParser());
         Parser.parsers.add(new NameEmailPositionParser());
         Parser.parsers.add(new EmailInAttributeParser());
     }

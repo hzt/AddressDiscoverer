@@ -83,6 +83,7 @@ public class Individual implements Comparable {
         this.department = department;
         this.affiliation = "";
         this.unprocessed = unprocessed;
+        this.parserName = parserName;
     }
     
     public Individual(String firstName, String lastName, String fullName, String email, 
@@ -183,6 +184,10 @@ public class Individual implements Comparable {
 
     public void setOriginalText(String originalText) {
         this.originalText = originalText;
+    }
+
+    public String getParserName() {
+        return parserName;
     }
     
 

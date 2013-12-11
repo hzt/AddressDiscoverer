@@ -12,30 +12,19 @@ package org.norvelle.addressdiscoverer.gui;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
-import javax.swing.SwingUtilities;
+import javax.swing.JProgressBar;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 import org.lobobrowser.html.*;
 import org.lobobrowser.html.parser.*;
 import org.lobobrowser.html.test.*;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.IndividualExtractor;
-import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
-import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
@@ -54,6 +43,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private final UserAgentContext ucontext;
     private final HtmlRendererContext rendererContext;
     private final DocumentBuilderImpl dbi;
+    private AbstractExtractIndividualWorker worker;
     
     /**
      * Creates new form EmailDiscoveryPanel
@@ -147,64 +137,21 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             
             // If the user has specified a local file, we use that to fetch HTML
             if (file.exists()) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            String html = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
-                            updateDepartmentHTML(html);
-                            setHTMLPanelContents(html);
-                            extractIndividuals(html);
-                            jRetrieveHTMLButton.setEnabled(true);
-                        } catch (IOException ex) {
-                            AddressDiscoverer.reportException(ex);
-                        } // try
-                    } // run()
-                }); // invokeLater
+                this.worker = new ParseLocalHtmlFileWorker(this.currentDepartment, 
+                    file, this) ;
+                this.worker.execute();
             } // if file.exists()
             
             // Otherwise we fetch the HTML from the website via HTTP
             else {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            URL url = new URL(myURI);
-                            URLConnection connection = url.openConnection();
-                            InputStream in = connection.getInputStream();
-                            StringWriter writer = new StringWriter();
-                            IOUtils.copy(in, writer, Charset.forName("UTF-8"));
-                            String html = writer.toString();
-                            jBytesReceivedLabel.setText(Integer.toString(html.length()));
-                            jRetrieveHTMLButton.setEnabled(true);
-                            updateDepartmentHTML(html);
-                            setHTMLPanelContents(html);
-                            extractIndividuals(html);
-                        } catch (IOException ex) {
-                            AddressDiscoverer.reportException(ex);
-                        }
-                    } // run()
-                }); // invokeLater()
+                this.worker = new ParseRemoteWebsiteWorker(this.currentDepartment, 
+                    myURI, this) ;
+                this.worker.execute();
             } // else
         } // if (!myURI
     }
     
-    private void extractIndividuals(String html) {
-        try {
-            Individual.deleteIndividualsForDepartment(this.currentDepartment);
-            IndividualExtractor addressParser = new IndividualExtractor(this.currentDepartment);
-            List<Individual> individuals = addressParser.parse(html);
-            for (Individual i : individuals) {
-                Individual.store(i);
-            }
-            this.populateResultsTable(individuals);
-        } catch (OrmObjectNotConfiguredException | SQLException | 
-                IndividualHasNoDepartmentException | CannotStoreNullIndividualException ex) {
-            AddressDiscoverer.reportException(ex);
-        }
-    }
-    
-    private void populateResultsTable(List<Individual> individuals) {
+    public void populateResultsTable(List<Individual> individuals) {
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("Title");
         model.addColumn("First");
@@ -230,7 +177,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
      * 
      * @param html 
      */
-    private void setHTMLPanelContents(String html) {
+    void setHTMLPanelContents(String html) {
+        jRetrieveHTMLButton.setEnabled(true);
         if (html.isEmpty()) {
             this.jHTMLPanel.setEnabled(false);
             this.jHTMLPanel.clearDocument();
@@ -253,21 +201,6 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     }
     
     /**
-     * Given new HTML that has been retrieved, update the Department object to
-     * store it.
-     * 
-     * @param html 
-     */
-    private void updateDepartmentHTML(String html) {
-        this.currentDepartment.setHtml(html);
-        try {
-            Department.update(this.currentDepartment);
-        } catch (SQLException ex) {
-            AddressDiscoverer.reportException(ex);
-        }                
-    }
-
-    /**
      * Gets called when the user changes the value for the web address field.
      */
     private void updateDepartmentWebAddress() {
@@ -282,6 +215,11 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             }        
         }
     }
+
+    public JProgressBar getjParsingProgressBar() {
+        return jParsingProgressBar;
+    }
+
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -304,6 +242,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jAddressesFoundTable = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
+        jParsingProgressBar = new javax.swing.JProgressBar();
+        jLabel4 = new javax.swing.JLabel();
         jPageContentTab = new javax.swing.JPanel();
         jPageContentPanel = new javax.swing.JPanel();
         jHTMLPanel = new org.lobobrowser.html.gui.HtmlPanel();
@@ -355,6 +295,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
 
         jLabel3.setText("Addresses found:");
 
+        jLabel4.setText("Parsing progress:");
+
         javax.swing.GroupLayout jEmailSourceTabLayout = new javax.swing.GroupLayout(jEmailSourceTab);
         jEmailSourceTab.setLayout(jEmailSourceTabLayout);
         jEmailSourceTabLayout.setHorizontalGroup(
@@ -378,7 +320,11 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jBytesReceivedLabel))
                             .addComponent(jLabel3))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jEmailSourceTabLayout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addGap(26, 26, 26)
+                        .addComponent(jParsingProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jEmailSourceTabLayout.setVerticalGroup(
@@ -394,10 +340,14 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                     .addComponent(jRetrieveHTMLButton)
                     .addComponent(jLabel2)
                     .addComponent(jBytesReceivedLabel))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jParsingProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -462,10 +412,12 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JButton jOpenFileButton;
     private javax.swing.JFileChooser jOpenFileChooser;
     private javax.swing.JPanel jPageContentPanel;
     private javax.swing.JPanel jPageContentTab;
+    private javax.swing.JProgressBar jParsingProgressBar;
     private javax.swing.JButton jRetrieveHTMLButton;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jWebAddressField;

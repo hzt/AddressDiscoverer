@@ -79,10 +79,9 @@ public class KnownLastName {
     
     public static boolean isLastName(String name) throws SQLException, OrmObjectNotConfiguredException {
         KnownLastName.checkConfigured();
-        /* http://stackoverflow.com/questions/285228/how-to-convert-utf-8-to-us-ascii-in-java
-        String strippedName = 
-                java.text.Normalizer.normalize(name, java.text.Normalizer.Form.NFD)
-                        .replaceAll("\\p{InCombiningDiacriticalMarks}+",""); */
+        // First, check something easy... if the name has a hyphen, it's a last name
+        if (name.contains("-")) return true;
+        
         // Instead of using a standard charset translator, we translate only vowels
         name = name.replace("á", "a").replace("é", "e").replace("í", "i")
                 .replace("ó", "o").replace("ú", "u").replace("ü", "u")
