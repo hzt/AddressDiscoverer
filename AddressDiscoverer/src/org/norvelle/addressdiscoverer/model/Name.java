@@ -12,6 +12,7 @@ package org.norvelle.addressdiscoverer.model;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
@@ -27,6 +28,11 @@ public class Name {
     private String rest;
     private String title = "";
     private String suffix = "";
+    
+    /**
+     * A regex for detecting numbers
+     */
+    private final Pattern numberPattern = Pattern.compile("\\b\\d+\\b");
     
     /**
      * A short list of likely titles
@@ -98,6 +104,7 @@ public class Name {
      * @param textChunk 
      */
     private void parseCommaSeparatedChunk(String textChunk) throws SQLException, OrmObjectNotConfiguredException {
+        // Split things into two parts
         String[] parts = textChunk.split(",");
         String myFirstName = parts[1];
         String myLastName = parts[0];
@@ -217,9 +224,9 @@ public class Name {
                 else break;
             }
         }
-        this.lastName = possibleLast;
-        this.suffix = possibleSuffix;
-        this.rest = possibleRest;
+        this.lastName = possibleLast.trim();
+        this.suffix = possibleSuffix.trim();
+        this.rest = possibleRest.trim();
     }
 
     // ===================== Getters =============================

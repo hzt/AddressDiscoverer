@@ -19,7 +19,6 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
-import org.norvelle.addressdiscoverer.parser.chunk.BasicNameChunkHandler;
 
 /**
  *
@@ -51,6 +50,8 @@ public class EmailInAttributeParser extends Parser {
     {
         Elements emailAttrElements = row.select(
                 String.format("[href~=(%s)]", Parser.emailRegex));
+        if (emailAttrElements.isEmpty())
+            throw new CantParseIndividualException("No email in attributes");
         Element elem = emailAttrElements.first();
         String email = elem.attr("href").replace("mailto:", "");
         

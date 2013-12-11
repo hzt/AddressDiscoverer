@@ -47,28 +47,15 @@ public class IndividualExtractor {
     }
     
     /**
-     * Lets the AddressParser be notified of a change in the HTML...
-     * calls the parser to derive a new list of Individuals from the HTML given.
-     * 
-     * @param html 
-     */
-    public void setHtml(String html) {
-        this.html = html;
-        this.individuals = this.parse();
-        if (this.changeListener != null)
-            this.changeListener.notifyAddressListChanged();
-    }
-    
-    /**
      * Given some HTML, attempt to scrape a list of Individuals from the
      * tables found in the HTML
      * 
      * @return List<Individual> The list of Individuals found, if any
      */
-    private List<Individual> parse() {
+    public List<Individual> parse(String html) {
         logger.log(Level.INFO, "Entering IndividualExtractor.parse()");
         List<Individual> myIndividuals = new ArrayList<>();
-        if (this.html.isEmpty())
+        if (html.isEmpty())
             return myIndividuals;
         
         // We use JSoup to do our parsing
@@ -89,6 +76,9 @@ public class IndividualExtractor {
             myIndividuals.add(in);
         }
         
+        this.individuals = myIndividuals;
+        if (this.changeListener != null)
+            this.changeListener.notifyAddressListChanged();
         logger.log(Level.INFO, "Exiting IndividualExtractor.parse()");
         return myIndividuals;
     }

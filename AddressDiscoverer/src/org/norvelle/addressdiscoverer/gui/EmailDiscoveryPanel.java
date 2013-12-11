@@ -185,8 +185,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel implements AddressLi
         else {
             this.jBytesReceivedLabel.setText(Integer.toString(html.length()));
             this.jBytesReceivedLabel.setEnabled(true);
-            this.addressParser.setHtml(html);
-            List<Individual> individuals = this.addressParser.getIndividuals();
+            List<Individual> individuals = this.addressParser.parse(html);
             this.jAddressDiscoveryPanel.setIndividuals(individuals);
             /* Reader reader = new StringReader(html);
             InputSource is = new InputSourceImpl(reader, this.jWebAddressField.getText());

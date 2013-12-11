@@ -65,10 +65,7 @@ public class TestUtilities {
         } catch (ClassNotFoundException ex) {
             throw new CannotLoadJDBCDriverException(ex.getMessage());
         }
-        Object o = new Object();
-        URL dbUrl = o.getClass().getResource(
-                "/org/norvelle/addressdiscoverer/resources/" + dbName);
-        String dbFilePath = dbUrl.getPath();
+        String dbFilePath = TestUtilities.getTestOutputDirectory() + File.separator + dbName;
 
         // create a database connection and initialize our tables.
         // All object persistence is managed via ORMLite.
@@ -94,13 +91,12 @@ public class TestUtilities {
         String html;
         html = Utils.loadStringFromResource(htmlUri);
         Document soup = Jsoup.parse(html);
-        logger.log(Level.FINE, String.format("JSoup parsed document as follows:\n" + soup.toString()));
+        logger.log(Level.FINE, String.format("JSoup parsed document as follows:\n%s", soup.toString()));
         EmailElementFinder finder = new EmailElementFinder(soup);
         List<Element> rows = finder.getRows();
         logger.log(Level.FINE, String.format("EmailElementFinder found %d TR tags", rows.size()));
         IndividualExtractor ext = new IndividualExtractor(null);
-        ext.setHtml(html);
-        List<Individual> individuals = ext.getIndividuals();
+        List<Individual> individuals = ext.parse(html);
         FileUtils.writeLines(new File(outputFile), rows);
         return individuals;
     }

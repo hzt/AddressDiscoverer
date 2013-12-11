@@ -10,7 +10,6 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
-import org.norvelle.addressdiscoverer.parser.chunk.BasicNameChunkHandler;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,11 +27,13 @@ import org.norvelle.addressdiscoverer.model.Name;
 public class NameEmailPositionParser extends Parser {
     
     private final Pattern splitByEmailPattern;
-    private final String splitByEmailRegex;
+    private final Pattern splitByEmailPattern2;
     
     public NameEmailPositionParser() {
-        this.splitByEmailRegex = String.format("^(.*) (%s) (.*)$", Parser.emailRegex);
-        this.splitByEmailPattern = Pattern.compile(this.splitByEmailRegex);
+        this.splitByEmailPattern = Pattern.compile(
+                String.format("^(.*) (%s) (.*)$", Parser.emailRegex));
+        this.splitByEmailPattern2 = Pattern.compile(
+                String.format("^(.*) (%s)$", Parser.emailRegex));
     }
 
     /**
@@ -52,18 +53,33 @@ public class NameEmailPositionParser extends Parser {
         String chunk = row.text();
         
         // Based on the text found in the current row, see if we can't
-        // extract a more or less complete Individual.
+        // extract a more or less complete Individual. We try it first with a regex
+        // that matches an email address that is in the middle, and then with 
+        // one that looks for a final email address.
+        String nameChunk;
+        String email;
+        String rest;
         Matcher matcher = this.splitByEmailPattern.matcher(chunk); 
-        if (!matcher.matches()) 
-            throw new CantParseIndividualException(chunk + ": doesn't match regex");
-        String nameChunk = matcher.group(1);
+        if (!matcher.matches()) {
+            Matcher matcher2 = this.splitByEmailPattern2.matcher(chunk); 
+            if (!matcher2.matches())
+                throw new CantParseIndividualException(chunk + ": doesn't match regex");
+            nameChunk = matcher2.group(1);
+            email = matcher2.group(2);
+            rest = "";
+        }
+        else {
+            nameChunk = matcher.group(1);
+            email = matcher.group(2);
+            rest = matcher.group(matcher.groupCount());
+        }
+        if (email == null)
+            throw new CantParseIndividualException(chunk + ": No email");
+        
+        // Now that we have a chunk of text with a name, parse it into its parts
+        // and create an Individual out of it.
         BasicNameChunkHandler np = new BasicNameChunkHandler();
         Name name = np.processChunkForName(nameChunk);
-        if (matcher.group(2) == null)
-            throw new CantParseIndividualException(chunk + ": No email");
-        String email = matcher.group(2);
-        String rest = matcher.group(matcher.groupCount());
-        
         Individual i = new Individual(name, email, "", rest, this.getClass().getSimpleName(), department);
         return i;
     }

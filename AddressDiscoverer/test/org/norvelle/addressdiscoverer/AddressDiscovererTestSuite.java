@@ -19,6 +19,8 @@ import org.junit.runners.Suite;
 import org.norvelle.addressdiscoverer.model.NameTest;
 import org.norvelle.addressdiscoverer.parser.NameChunkTest;
 import org.norvelle.addressdiscoverer.parser.EmailElementFinderTest;
+import org.norvelle.addressdiscoverer.parser.ExtractFromFilesTest;
+import org.norvelle.addressdiscoverer.parser.IndividualExtractorTest;
 import org.norvelle.addressdiscoverer.parser.JSoupTest;
 
 /**
@@ -27,6 +29,8 @@ import org.norvelle.addressdiscoverer.parser.JSoupTest;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+    ExtractFromFilesTest.class,
+    IndividualExtractorTest.class,
     EmailElementFinderTest.class, 
     NameChunkTest.class,
     NameTest.class,

@@ -10,26 +10,17 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
-import org.norvelle.addressdiscoverer.IndividualExtractor;
-import org.norvelle.addressdiscoverer.EmailElementFinder;
-import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
-import org.apache.commons.io.FileUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
-import org.norvelle.utils.Utils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.NullIndividual;
@@ -51,7 +42,7 @@ public class IndividualExtractorTest {
     public static void setUpClass() {
         TestUtilities.setupLogger();
         try {
-            connection = TestUtilities.getDBConnection("addresses.sqlite");
+            connection = TestUtilities.getDBConnection("addresses.test.sqlite");
         } catch (SQLException | CannotLoadJDBCDriverException ex) {
             fail("Encountered problems connecting to database: " + ex.getMessage());
             return;
@@ -114,6 +105,36 @@ public class IndividualExtractorTest {
                 "mzugasti@unav.es", mzugasti.getEmail());
         Assert.assertEquals("The remaining text should be 'Literatura Hispánica y Teoría de la Literatura'", 
                 "Literatura Hispánica y Teoría de la Literatura", mzugasti.getUnprocessed());
+    }
+    
+    @Test
+    public void testLmflamarique() {
+        List<Individual> individuals;
+        try {
+            individuals = TestUtilities.extractIndividuals(
+                    "/org/norvelle/addressdiscoverer/resources/lflamarique.html",
+                    TestUtilities.getTestOutputDirectory() + File.separator + "lflamarique.txt"
+            );
+        } catch (IOException ex) {
+            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+            return;
+        }
+        Assert.assertEquals(
+                String.format("There should be 1 individual, %d were found", individuals.size()), 1, individuals.size());
+        for (Individual i: individuals) 
+            Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
+                i.getClass().equals(NullIndividual.class));
+        Individual lmflamarique = individuals.get(0);
+        Assert.assertEquals("The individual's first name should be Lourdes", 
+                "Lourdes", lmflamarique.getFirstName());
+        Assert.assertEquals("The individual's title should be Dr.", 
+                "", lmflamarique.getTitle());
+        Assert.assertEquals("The individual's last name should be Flamarique", 
+                "Flamarique", lmflamarique.getLastName());
+        Assert.assertEquals("The individual's email should be lflamarique@unav.es", 
+                "lflamarique@unav.es", lmflamarique.getEmail());
+        Assert.assertEquals("The remaining text should be ''", 
+                "", lmflamarique.getUnprocessed());
     }
     
     //@Test
