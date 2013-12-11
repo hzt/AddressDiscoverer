@@ -78,11 +78,8 @@ public class AddressDiscoverer {
         UIManager.setLookAndFeel(
             UIManager.getSystemLookAndFeelClassName());
         window = new MainWindow(this);
-        Toolkit tk = Toolkit.getDefaultToolkit();  
-        int xSize = ((int) tk.getScreenSize().getWidth());  
-        int ySize = ((int) tk.getScreenSize().getHeight());  
-        window.setSize(xSize,ySize);  
-        window.setTitle("AddressDiscoverer");
+        window.setTitle("AddressDiscoverer"); 
+        window.setExtendedState( window.getExtendedState() | java.awt.Frame.MAXIMIZED_BOTH );
         window.setVisible(true);
     }
 

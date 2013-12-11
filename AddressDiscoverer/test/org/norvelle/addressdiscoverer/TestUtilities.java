@@ -87,9 +87,11 @@ public class TestUtilities {
         return connectionSource;
     }
 
-    public static List extractIndividuals(String htmlUri, String outputFile) throws IOException {
+    public static List extractIndividuals(String htmlUri, String outputFile, String encoding) 
+            throws IOException 
+    {
         String html;
-        html = Utils.loadStringFromResource(htmlUri);
+        html = Utils.loadStringFromResource(htmlUri, encoding);
         Document soup = Jsoup.parse(html);
         logger.log(Level.FINE, String.format("JSoup parsed document as follows:\n%s", soup.toString()));
         EmailElementFinder finder = new EmailElementFinder(soup);
@@ -97,8 +99,14 @@ public class TestUtilities {
         logger.log(Level.FINE, String.format("EmailElementFinder found %d TR tags", rows.size()));
         IndividualExtractor ext = new IndividualExtractor(null, null);
         List<Individual> individuals = ext.parse(html);
-        FileUtils.writeLines(new File(outputFile), rows);
+        if (!outputFile.isEmpty())
+            FileUtils.writeLines(new File(outputFile), rows);
         return individuals;
     }
     
+    public static List extractIndividuals(String htmlUri, String outputFile) 
+            throws IOException 
+    {
+        return extractIndividuals(htmlUri, outputFile, "UTF-8");
+    }
 }

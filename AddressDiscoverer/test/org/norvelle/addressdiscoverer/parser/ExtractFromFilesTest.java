@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -75,7 +76,8 @@ public class ExtractFromFilesTest {
         try {
             individuals = TestUtilities.extractIndividuals(
                     "/org/norvelle/addressdiscoverer/resources/navarra_philology.html",
-                    TestUtilities.getTestOutputDirectory() + File.separator + "filologia.txt"
+                    TestUtilities.getTestOutputDirectory() + File.separator + "filologia.txt",
+                    "windows-1252"
             );
         } catch (IOException ex) {
             fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
@@ -84,8 +86,15 @@ public class ExtractFromFilesTest {
         Assert.assertEquals(
                 String.format("There should be 47 individuals, %d were found", individuals.size()), 
                 47, individuals.size());
+        int numNulls = 0;
+        for (Individual i: individuals) {
+            if (i.getClass().equals(NullIndividual.class))
+                numNulls ++;
+        }
+        logger.log(Level.INFO, String.format("%d NullIndividuals were found", numNulls));
+            
         for (Individual i: individuals) 
-            Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
+            Assert.assertFalse("There should be no NullIndividuals, returned: " + i.toString(), 
                 i.getClass().equals(NullIndividual.class));
     }
     

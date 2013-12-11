@@ -37,7 +37,7 @@ public class JSoupTest {
         String html;
         try {
             html = Utils.loadStringFromResource(
-                    "/org/norvelle/addressdiscoverer/resources/fgolle.html");
+                "/org/norvelle/addressdiscoverer/resources/fgolle.html", "");
         } catch (IOException ex) {
             fail("Encountered IOException: " + ex.getMessage());
             return;

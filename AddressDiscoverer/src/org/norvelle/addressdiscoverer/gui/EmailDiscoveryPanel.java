@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JProgressBar;
@@ -25,9 +26,11 @@ import org.lobobrowser.html.*;
 import org.lobobrowser.html.parser.*;
 import org.lobobrowser.html.test.*;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.IndividualExporter;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
+import org.norvelle.addressdiscoverer.model.NullIndividual;
 
 /**
  *
@@ -44,6 +47,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private final HtmlRendererContext rendererContext;
     private final DocumentBuilderImpl dbi;
     private AbstractExtractIndividualWorker worker;
+    private List<Individual> individuals;
     
     /**
      * Creates new form EmailDiscoveryPanel
@@ -92,6 +96,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
      */
     public void setDepartment(Department department) throws IOException, SAXException {
         this.currentDepartment = department;
+        this.jParsingProgressBar.setValue(0);
         if (department == null) {
             this.jWebAddressField.setText("");
             this.jWebAddressField.setEnabled(false);
@@ -118,6 +123,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             try {
                 individuals = Individual.getIndividualsForDepartment(department);
                 this.populateResultsTable(individuals);
+                this.jSaveResultsButton.setEnabled(true);
             } catch (OrmObjectNotConfiguredException | SQLException ex) {
                 AddressDiscoverer.reportException(ex);
             }
@@ -131,7 +137,9 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
      */
     private void webAddressChanged() {
         this.jRetrieveHTMLButton.setEnabled(false);
+        this.jSaveResultsButton.setEnabled(false);
         final String myURI = this.jWebAddressField.getText();
+        this.populateResultsTable(null);
         if (!myURI.isEmpty()) {
             final File file = new File(myURI);
             
@@ -158,17 +166,32 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         model.addColumn("Last");
         model.addColumn("Email");
         model.addColumn("Other");
-        model.setRowCount(individuals.size());
-        int rowCount = 0;
-        for (Individual i : individuals) {
-            model.setValueAt(i.getTitle(), rowCount, 0);
-            model.setValueAt(i.getFirstName(), rowCount, 1);
-            model.setValueAt(i.getLastName(), rowCount, 2);
-            model.setValueAt(i.getEmail(), rowCount, 3);
-            model.setValueAt(i.getUnprocessed(), rowCount, 4);
-            rowCount ++;
+        if (individuals == null) {
+            model.setRowCount(0);
+        }
+        else {
+            model.setRowCount(individuals.size());
+            int rowCount = 0;
+            for (Individual i : individuals) {
+                if (!i.getClass().equals(NullIndividual.class)) {
+                    model.setValueAt(i.getTitle(), rowCount, 0);
+                    model.setValueAt(i.getFirstName(), rowCount, 1);
+                    model.setValueAt(i.getLastName(), rowCount, 2);
+                    model.setValueAt(i.getEmail(), rowCount, 3);
+                    model.setValueAt(i.getUnprocessed(), rowCount, 4);
+                }
+                else {
+                    model.setValueAt("NULL", rowCount, 0);
+                    model.setValueAt("NULL", rowCount, 1);
+                    model.setValueAt("NULL", rowCount, 2);
+                    model.setValueAt("NULL", rowCount, 3);
+                    model.setValueAt(i.toString(), rowCount, 4);
+                }
+                rowCount ++;
+            }
         }
         this.jAddressesFoundTable.setModel(model);
+        this.individuals = individuals;
     }
     
     /**
@@ -178,7 +201,6 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
      * @param html 
      */
     void setHTMLPanelContents(String html) {
-        jRetrieveHTMLButton.setEnabled(true);
         if (html.isEmpty()) {
             this.jHTMLPanel.setEnabled(false);
             this.jHTMLPanel.clearDocument();
@@ -220,6 +242,10 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         return jParsingProgressBar;
     }
 
+    public void notifyParsingFinished() {
+        jRetrieveHTMLButton.setEnabled(true);
+        this.jSaveResultsButton.setEnabled(true);
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -231,6 +257,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         jOpenFileChooser = new javax.swing.JFileChooser();
+        jSaveFileChooser = new javax.swing.JFileChooser();
         jHTMLRenderPanel = new javax.swing.JTabbedPane();
         jEmailSourceTab = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -244,6 +271,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jParsingProgressBar = new javax.swing.JProgressBar();
         jLabel4 = new javax.swing.JLabel();
+        jSaveResultsButton = new javax.swing.JButton();
         jPageContentTab = new javax.swing.JPanel();
         jPageContentPanel = new javax.swing.JPanel();
         jHTMLPanel = new org.lobobrowser.html.gui.HtmlPanel();
@@ -297,6 +325,14 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
 
         jLabel4.setText("Parsing progress:");
 
+        jSaveResultsButton.setText("Save Results");
+        jSaveResultsButton.setEnabled(false);
+        jSaveResultsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jSaveResultsButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jEmailSourceTabLayout = new javax.swing.GroupLayout(jEmailSourceTab);
         jEmailSourceTab.setLayout(jEmailSourceTabLayout);
         jEmailSourceTabLayout.setHorizontalGroup(
@@ -304,14 +340,12 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             .addGroup(jEmailSourceTabLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jEmailSourceTabLayout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jWebAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jOpenFileButton))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
                     .addGroup(jEmailSourceTabLayout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addGap(26, 26, 26)
+                        .addComponent(jParsingProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jEmailSourceTabLayout.createSequentialGroup()
                         .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jEmailSourceTabLayout.createSequentialGroup()
                                 .addComponent(jRetrieveHTMLButton)
@@ -320,11 +354,14 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jBytesReceivedLabel))
                             .addComponent(jLabel3))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jEmailSourceTabLayout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addGap(26, 26, 26)
-                        .addComponent(jParsingProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 203, Short.MAX_VALUE)
+                        .addComponent(jSaveResultsButton))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jEmailSourceTabLayout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jWebAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jOpenFileButton)))
                 .addContainerGap())
         );
         jEmailSourceTabLayout.setVerticalGroup(
@@ -339,7 +376,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jRetrieveHTMLButton)
                     .addComponent(jLabel2)
-                    .addComponent(jBytesReceivedLabel))
+                    .addComponent(jBytesReceivedLabel)
+                    .addComponent(jSaveResultsButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jParsingProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -402,6 +440,20 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         
     }//GEN-LAST:event_jOpenFileButtonActionPerformed
 
+    private void jSaveResultsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jSaveResultsButtonActionPerformed
+        int returnVal = this.jSaveFileChooser.showOpenDialog(this.parent);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = jSaveFileChooser.getSelectedFile();
+            IndividualExporter exporter = new IndividualExporter(file, this.individuals);
+            try {
+                exporter.export();
+            } catch (IOException ex) {
+                AddressDiscoverer.reportException(ex);
+            }
+        }
+        
+    }//GEN-LAST:event_jSaveResultsButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable jAddressesFoundTable;
@@ -419,6 +471,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPageContentTab;
     private javax.swing.JProgressBar jParsingProgressBar;
     private javax.swing.JButton jRetrieveHTMLButton;
+    private javax.swing.JFileChooser jSaveFileChooser;
+    private javax.swing.JButton jSaveResultsButton;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jWebAddressField;
     // End of variables declaration//GEN-END:variables

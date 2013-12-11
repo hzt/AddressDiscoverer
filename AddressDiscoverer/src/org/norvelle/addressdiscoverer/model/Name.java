@@ -68,6 +68,7 @@ public class Name {
         else
             this.parseOneLongChunk(textChunk);
         this.moveParens();
+        this.stealFromFirst();
     }
     
     public Name(String first, String last) throws SQLException, OrmObjectNotConfiguredException {
@@ -75,6 +76,7 @@ public class Name {
         this.lastName = last;
         this.extractRest();
         this.moveParens();
+        this.stealFromFirst();
     }
     
     public Name(String first, String last, String rest) {
@@ -82,12 +84,12 @@ public class Name {
         this.lastName = last;
         this.rest = rest;
         this.moveParens();
+        this.stealFromFirst();
     }
     
     public Name(String first, String last, String title, String rest) {
         this(first, last, rest);
         this.extractTitle();
-        this.moveParens();
     }
     /**
      * We calculate a rough score for name quality, emphasizing that a good
@@ -251,6 +253,14 @@ public class Name {
             String foundParens = matcherLast.group();
             this.lastName = this.lastName.replace(foundParens, "").trim();
             this.rest = (this.rest + " " + foundParens).trim();
+        }
+    }
+    
+    private void stealFromFirst() {
+        if (this.lastName.isEmpty() && !this.firstName.isEmpty()) {
+            String[] words = StringUtils.split(this.firstName);
+            this.lastName = words[words.length - 1];
+            this.firstName = this.firstName.replace(this.lastName, "");
         }
     }
 

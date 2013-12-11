@@ -38,7 +38,7 @@ public class EmailElementFinderTest {
         String html;
         try {
             html = Utils.loadStringFromResource(
-                    "/org/norvelle/addressdiscoverer/resources/navarra_philology.html");
+                    "/org/norvelle/addressdiscoverer/resources/navarra_philology.html", "");
         } catch (IOException ex) {
             fail("Encountered IOException: " + ex.getMessage());
             return;

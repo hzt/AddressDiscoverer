@@ -1,6 +1,0 @@
-* Fix name parser so a blank last name will always pull the last word of the first name
-* Modify NameEmailPositionParser to better respect TD boundaries in name derivation, or 
-    even better, creater a new, higher priority parser that will specifically detect
-    TDs and pull info from them.
-* When parsing for last names, handle names that have hyphens in them. In fact, any
-    name with a hyphen in it is a last name.

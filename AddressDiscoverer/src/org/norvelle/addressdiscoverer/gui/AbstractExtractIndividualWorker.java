@@ -25,9 +25,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.SwingWorker;
 import org.apache.commons.io.IOUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.IndividualExtractor;
 import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
@@ -35,6 +32,7 @@ import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentExcept
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
+import org.norvelle.addressdiscoverer.model.NullIndividual;
 
 /**
  *
@@ -78,9 +76,11 @@ public abstract class AbstractExtractIndividualWorker
             IndividualExtractor addressParser = new IndividualExtractor(this.department, this);
             List<Individual> individuals = addressParser.parse(html);
             for (Individual i : individuals) {
-                Individual.store(i);
+                if (!i.getClass().equals(NullIndividual.class))
+                    Individual.store(i);
             }
             this.panel.populateResultsTable(individuals);
+            this.panel.notifyParsingFinished();
         } catch (OrmObjectNotConfiguredException | SQLException | IndividualHasNoDepartmentException | CannotStoreNullIndividualException ex) {
             AddressDiscoverer.reportException(ex);
         }

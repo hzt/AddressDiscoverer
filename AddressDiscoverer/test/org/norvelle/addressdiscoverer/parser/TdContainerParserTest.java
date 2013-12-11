@@ -61,7 +61,7 @@ public class TdContainerParserTest {
         String html;
         try {
             html = Utils.loadStringFromResource(
-                    "/org/norvelle/addressdiscoverer/resources/lfmugica.html");
+                    "/org/norvelle/addressdiscoverer/resources/lfmugica.html", "");
         } catch (IOException ex) {
             fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
             return;
