@@ -95,7 +95,7 @@ public class TestUtilities {
         EmailElementFinder finder = new EmailElementFinder(soup);
         List<Element> rows = finder.getRows();
         logger.log(Level.FINE, String.format("EmailElementFinder found %d TR tags", rows.size()));
-        IndividualExtractor ext = new IndividualExtractor(null);
+        IndividualExtractor ext = new IndividualExtractor(null, null);
         List<Individual> individuals = ext.parse(html);
         FileUtils.writeLines(new File(outputFile), rows);
         return individuals;

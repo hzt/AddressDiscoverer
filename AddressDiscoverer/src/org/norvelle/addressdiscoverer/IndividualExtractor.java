@@ -20,6 +20,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.gui.IProgressConsumer;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.NullIndividual;
@@ -38,10 +39,12 @@ public class IndividualExtractor {
     private String html;
     private List<Individual> individuals;
     private final Department department;
+    private final IProgressConsumer progressConsumer;
     
-    public IndividualExtractor(Department department) {
+    public IndividualExtractor(Department department, IProgressConsumer progressConsumer) {
         this.individuals = new ArrayList<>();
         this.department = department;
+        this.progressConsumer = progressConsumer;
     }
     
     /**
@@ -61,6 +64,9 @@ public class IndividualExtractor {
         Document soup = Jsoup.parse(html);
         EmailElementFinder finder = new EmailElementFinder(soup);
         List<Element> tableRows = finder.getRows();
+        if (this.progressConsumer != null)
+            this.progressConsumer.setTotalElementsToProcess(tableRows.size());
+        int rowCount = 0;
         for (Element row : tableRows) {
             Individual in;
             try {
@@ -74,6 +80,9 @@ public class IndividualExtractor {
             logger.log(Level.INFO, "Adding new Individual: {0}", in.toString());
             in.setOriginalText(row.text());
             myIndividuals.add(in);
+            rowCount ++;
+            if (this.progressConsumer != null)
+                this.progressConsumer.publishProgress(rowCount);
         }
         
         this.individuals = myIndividuals;

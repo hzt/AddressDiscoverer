@@ -40,7 +40,9 @@ import org.norvelle.addressdiscoverer.model.Individual;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public abstract class AbstractExtractIndividualWorker extends SwingWorker<Integer, Integer> {
+public abstract class AbstractExtractIndividualWorker 
+    extends SwingWorker<Integer, Integer> implements IProgressConsumer 
+{
     static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     protected final HashMap<String, Integer> programProgress = new HashMap<>();
     protected List<ProcessListener> listeners = new ArrayList<>();
@@ -71,16 +73,9 @@ public abstract class AbstractExtractIndividualWorker extends SwingWorker<Intege
     }
 
     protected void extractIndividuals(String html) {
-        // Before we do any extracting, we figure out how many Individuals
-        // there are going to be, approximately, and set the progress bar up.
-        Document soup = Jsoup.parse(html);
-        Elements trs = soup.select("tr");
-        this.panel.getjParsingProgressBar().setMaximum(trs.size());
-        this.panel.getjParsingProgressBar().setValue(0);
-        
         try {
             Individual.deleteIndividualsForDepartment(this.department);
-            IndividualExtractor addressParser = new IndividualExtractor(this.department);
+            IndividualExtractor addressParser = new IndividualExtractor(this.department, this);
             List<Individual> individuals = addressParser.parse(html);
             for (Individual i : individuals) {
                 Individual.store(i);
@@ -135,8 +130,14 @@ public abstract class AbstractExtractIndividualWorker extends SwingWorker<Intege
         }
     }
 
+    @Override
     public void publishProgress(int progress) {
         publish(progress);
+    }
+    
+    @Override
+    public void setTotalElementsToProcess(int size) {
+        this.panel.getjParsingProgressBar().setMaximum(size);
     }
 
     /**
