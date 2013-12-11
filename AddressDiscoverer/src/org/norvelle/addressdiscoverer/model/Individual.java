@@ -59,6 +59,9 @@ public class Individual implements Comparable {
     
     @DatabaseField
     private String parserName;
+    
+    @DatabaseField
+    private String originalText;
 
     @DatabaseField(generatedId = true)
     private int id;
@@ -173,6 +176,14 @@ public class Individual implements Comparable {
     public String getUnprocessed() {
         return unprocessed;
     }
+
+    public String getOriginalText() {
+        return originalText;
+    }
+
+    public void setOriginalText(String originalText) {
+        this.originalText = originalText;
+    }
     
 
     // ===================== Static Data Manipulation Methods =============================
@@ -222,17 +233,13 @@ public class Individual implements Comparable {
             throw new OrmObjectNotConfiguredException("Individual DAO not configured");
     }
     
-    public static HashMap<Integer, Individual> getIndividualsForDepartment(
+    public static List<Individual> getIndividualsForDepartment(
             Department department) throws OrmObjectNotConfiguredException, SQLException {
         Individual.checkConfigured();
         List<Individual> results =
             Individual.dao.queryBuilder().where().
               eq("department_id", department).query();
-        HashMap<Integer, Individual> individuals = new HashMap();
-        for (Individual i : results) {
-            individuals.put(i.getId(), i);
-        }
-        return individuals;
+        return results;
     }
 
     public static void deleteIndividualsForDepartment(

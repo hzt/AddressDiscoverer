@@ -8,6 +8,7 @@ package org.norvelle.addressdiscoverer;
 
 import org.norvelle.utils.Utils;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -55,7 +56,10 @@ public class AddressDiscoverer {
     public AddressDiscoverer() throws Exception {
         AddressDiscoverer.application = this;
         
-        // First setup our logger
+        // First setup our logger. The ORMLite logger is prolix and useless,
+        // so we redirect it to a temp file.
+        System.setProperty(LocalLog.LOCAL_LOG_FILE_PROPERTY, System.getProperty("java.io.tmpdir") 
+                + File.separator + "addressdiscoverer.ormlite.log");        
         this.checkSettingsDirExists();
         logger.setLevel(Level.SEVERE);
         FileHandler fh = new FileHandler(this.settingsDirname + File.separator + "debug.log", 

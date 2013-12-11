@@ -12,8 +12,8 @@ package org.norvelle.addressdiscoverer.model;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
@@ -33,6 +33,11 @@ public class Name {
      * A regex for detecting numbers
      */
     private final Pattern numberPattern = Pattern.compile("\\b\\d+\\b");
+    
+    /**
+     * A regex for detecting parentheses
+     */
+    private final Pattern parensPattern = Pattern.compile("(\\(.*\\))");
     
     /**
      * A short list of likely titles
@@ -62,23 +67,27 @@ public class Name {
             this.parseCommaSeparatedChunk(textChunk);
         else
             this.parseOneLongChunk(textChunk);
+        this.moveParens();
     }
     
     public Name(String first, String last) throws SQLException, OrmObjectNotConfiguredException {
         this.firstName = first;
         this.lastName = last;
         this.extractRest();
+        this.moveParens();
     }
     
     public Name(String first, String last, String rest) {
         this.firstName = first;
         this.lastName = last;
         this.rest = rest;
+        this.moveParens();
     }
     
     public Name(String first, String last, String title, String rest) {
         this(first, last, rest);
         this.extractTitle();
+        this.moveParens();
     }
     /**
      * We calculate a rough score for name quality, emphasizing that a good
@@ -197,7 +206,7 @@ public class Name {
     }
 
     /**
-     * Seeks to eliminate any garbage from the last name and place it in a "rest"
+     * Seeks to eliminate any garbage from the first and last names and place it in a "rest"
      * field, that can be processed later for additional information about the
      * person's post, etc.
      * 
@@ -227,6 +236,22 @@ public class Name {
         this.lastName = possibleLast.trim();
         this.suffix = possibleSuffix.trim();
         this.rest = possibleRest.trim();
+    }
+
+    private void moveParens() {
+        Pattern pp = Pattern.compile("\\(.*\\)");
+        Matcher matcherFirst = pp.matcher(this.firstName);
+        while (matcherFirst.find())  {
+            String foundParens = matcherFirst.group();
+            this.firstName = this.firstName.replace(foundParens, "").trim();
+            this.rest = (this.rest + " " + foundParens).trim();
+        }
+        Matcher matcherLast = this.parensPattern.matcher(this.lastName);
+        if (matcherLast.find())  {
+            String foundParens = matcherLast.group();
+            this.lastName = this.lastName.replace(foundParens, "").trim();
+            this.rest = (this.rest + " " + foundParens).trim();
+        }
     }
 
     // ===================== Getters =============================

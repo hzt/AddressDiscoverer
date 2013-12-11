@@ -51,13 +51,15 @@ public class BasicNameChunkHandler {
     public Name processChunkForName(String chunk) 
             throws SQLException, OrmObjectNotConfiguredException, CantParseIndividualException
     {
+        logger.log(Level.INFO, "Processing chunk for name: {0}", chunk);
+
         if (BasicNameChunkHandler.hasCommaPattern == null)
             BasicNameChunkHandler.hasCommaPattern = Pattern.compile(BasicNameChunkHandler.hasCommaRegex);
         
-        // First see if we have a name divided by a comma
+        // Eliminate numbers... no use for them.
         chunk = chunk.replaceAll("\\b\\d+\\b", "").trim();
         
-        logger.log(Level.INFO, "Processing chunk for name: {0}", chunk);
+        // First see if we have a name divided by a comma
         Name name;
         Matcher hasCommaMatcher = BasicNameChunkHandler.hasCommaPattern.matcher(chunk);
         if (hasCommaMatcher.matches()) 

@@ -20,7 +20,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.gui.AddressListChangeListener;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.NullIndividual;
@@ -37,7 +36,6 @@ public class IndividualExtractor {
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     private String html;
-    private AddressListChangeListener changeListener;
     private List<Individual> individuals;
     private final Department department;
     
@@ -50,6 +48,7 @@ public class IndividualExtractor {
      * Given some HTML, attempt to scrape a list of Individuals from the
      * tables found in the HTML
      * 
+     * @param html The HTML for the page that is to be scraped.
      * @return List<Individual> The list of Individuals found, if any
      */
     public List<Individual> parse(String html) {
@@ -72,13 +71,12 @@ public class IndividualExtractor {
                 AddressDiscoverer.reportException(ex);
                 continue;
             }
-            logger.log(Level.INFO, "Adding new Individual: " + in.toString());
+            logger.log(Level.INFO, "Adding new Individual: {0}", in.toString());
+            in.setOriginalText(row.text());
             myIndividuals.add(in);
         }
         
         this.individuals = myIndividuals;
-        if (this.changeListener != null)
-            this.changeListener.notifyAddressListChanged();
         logger.log(Level.INFO, "Exiting IndividualExtractor.parse()");
         return myIndividuals;
     }
@@ -87,8 +85,5 @@ public class IndividualExtractor {
         return this.individuals;
     }
     
-    public void registerChangeListener(AddressListChangeListener l) {
-        this.changeListener = l;
-    }
     
 }
