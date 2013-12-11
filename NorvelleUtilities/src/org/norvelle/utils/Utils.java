@@ -68,11 +68,16 @@ public class Utils {
         }
     }
     
-    public static String loadStringFromResource(String path) throws IOException {
+    public static String loadStringFromResource(String path, String encoding) throws IOException {
         Object o = new Object();
         URL htmlFileUrl = o.getClass().getResource(path);
-        String htmlFilePath = htmlFileUrl.getPath();
-        String html = FileUtils.readFileToString(new File(htmlFilePath), Charset.forName("UTF-8"));
-        return html;        
+        if (htmlFileUrl != null) {
+            String htmlFilePath = htmlFileUrl.getPath();
+            String html = FileUtils.readFileToString(new File(htmlFilePath), 
+                    Charset.forName(encoding));
+            return html;        
+        }
+        else
+            throw new IOException(String.format("File %s does not exist", path));
     }
 }
