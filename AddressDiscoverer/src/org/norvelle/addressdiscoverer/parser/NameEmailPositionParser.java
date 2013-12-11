@@ -31,7 +31,7 @@ public class NameEmailPositionParser extends Parser {
     private final String splitByEmailRegex;
     
     public NameEmailPositionParser() {
-        this.splitByEmailRegex = String.format("(.*) (%s) (.*)", Parser.emailRegex);
+        this.splitByEmailRegex = String.format("^(.*) (%s) (.*)$", Parser.emailRegex);
         this.splitByEmailPattern = Pattern.compile(this.splitByEmailRegex);
     }
 
@@ -62,9 +62,9 @@ public class NameEmailPositionParser extends Parser {
         if (matcher.group(2) == null)
             throw new CantParseIndividualException(chunk + ": No email");
         String email = matcher.group(2);
-        String rest = matcher.group(3);
+        String rest = matcher.group(matcher.groupCount());
         
-        Individual i = new Individual(name, email, rest, this.getClass().getSimpleName(), department);
+        Individual i = new Individual(name, email, "", rest, this.getClass().getSimpleName(), department);
         return i;
     }
     

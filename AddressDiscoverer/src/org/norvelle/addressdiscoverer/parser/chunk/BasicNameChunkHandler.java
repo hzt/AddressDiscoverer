@@ -11,13 +11,12 @@
 package org.norvelle.addressdiscoverer.parser.chunk;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.model.KnownLastName;
 import org.norvelle.addressdiscoverer.model.Name;
 
 /**
@@ -27,6 +26,9 @@ import org.norvelle.addressdiscoverer.model.Name;
  */
 public class BasicNameChunkHandler implements IChunkHandler {
     
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+
     private static final String hasCommaRegex = "^(.*),(.*)$";
     private static Pattern hasCommaPattern;
 
@@ -55,6 +57,7 @@ public class BasicNameChunkHandler implements IChunkHandler {
         
         // First see if we have a name divided by a comma
         chunk = chunk.trim();
+        logger.log(Level.INFO, "Processing chunk for name: " + chunk);
         Name name;
         Matcher hasCommaMatcher = BasicNameChunkHandler.hasCommaPattern.matcher(chunk);
         if (hasCommaMatcher.matches()) 

@@ -60,7 +60,7 @@ public class EmailInAttributeParser extends Parser {
         Name name = handler.processChunkForName(row.text());
         String rest = name.getRest();
         
-        Individual i = new Individual(name, email, rest, this.getClass().getSimpleName(), department);
+        Individual i = new Individual(name, email, "", rest, this.getClass().getSimpleName(), department);
         return i;
     }
     

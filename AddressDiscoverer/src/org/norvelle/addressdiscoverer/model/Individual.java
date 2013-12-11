@@ -55,6 +55,9 @@ public class Individual implements Comparable {
     private String affiliation;
     
     @DatabaseField
+    private String unprocessed;
+    
+    @DatabaseField
     private String parserName;
 
     @DatabaseField(generatedId = true)
@@ -68,17 +71,19 @@ public class Individual implements Comparable {
      */
     public Individual() {}
     
-    public Individual(Name name, String email, String affiliation, String parserName, Department department) {
+    public Individual(Name name, String email, String affiliation, String unprocessed, String parserName, Department department) {
         this.firstName = name.getFirstName();
         this.lastName = name.getLastName();
         this.fullName = name.getFullName();
         this.email = email;
         this.title = name.getTitle();
         this.department = department;
+        this.affiliation = "";
+        this.unprocessed = unprocessed;
     }
     
     public Individual(String firstName, String lastName, String fullName, String email, 
-            String title, String affiliation, String parserName, Department department) 
+            String title, String affiliation, String unprocessed, String parserName, Department department) 
     {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -87,13 +92,14 @@ public class Individual implements Comparable {
         this.title = title;
         this.department = department;
         this.affiliation = affiliation;
+        this.unprocessed = unprocessed;
         this.parserName = parserName;
     }
 
     public Individual(String firstName, String lastName, String fullName,
-            String email, String title, String affiliation, String parserName) 
+            String email, String title, String affiliation, String unprocessed, String parserName) 
     {
-        this(firstName, lastName, fullName, email, title, affiliation, parserName, null);
+        this(firstName, lastName, fullName, email, title, affiliation, unprocessed, parserName, null);
     }
 
     @Override
@@ -162,6 +168,10 @@ public class Individual implements Comparable {
 
     public int getId() {
         return id;
+    }
+
+    public String getUnprocessed() {
+        return unprocessed;
     }
     
 

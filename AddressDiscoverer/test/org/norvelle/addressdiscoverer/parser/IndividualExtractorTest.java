@@ -76,8 +76,10 @@ public class IndividualExtractorTest {
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
                 i.getClass().equals(NullIndividual.class));
         Individual cmpasamar = individuals.get(0);
-        Assert.assertEquals("The individual's first name should be Dra. Concepción", 
-                "Dra. Concepción", cmpasamar.getFirstName());
+        Assert.assertEquals("The individual's first name should be Concepción", 
+                "Concepción", cmpasamar.getFirstName());
+        Assert.assertEquals("The individual's first name should be Dra.", 
+                "Dra.", cmpasamar.getTitle());
         Assert.assertEquals("The individual's last name should be Martínez Pasamar", 
                 "Martínez Pasamar", cmpasamar.getLastName());
         Assert.assertEquals("The individual's email should be cmpasamar@unav.es", 
@@ -102,14 +104,16 @@ public class IndividualExtractorTest {
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
                 i.getClass().equals(NullIndividual.class));
         Individual mzugasti = individuals.get(0);
-        Assert.assertEquals("The individual's first name should be Dr. Miguel", 
-                "Dr. Miguel", mzugasti.getFirstName());
+        Assert.assertEquals("The individual's first name should be Miguel", 
+                "Miguel", mzugasti.getFirstName());
+        Assert.assertEquals("The individual's title should be Dr.", 
+                "Dr.", mzugasti.getTitle());
         Assert.assertEquals("The individual's last name should be Zugasti Zugasti", 
                 "Zugasti Zugasti", mzugasti.getLastName());
         Assert.assertEquals("The individual's email should be cmpasamar@unav.es", 
                 "mzugasti@unav.es", mzugasti.getEmail());
         Assert.assertEquals("The remaining text should be 'Literatura Hispánica y Teoría de la Literatura'", 
-                "Literatura Hispánica y Teoría de la Literatura", mzugasti.getEmail());
+                "Literatura Hispánica y Teoría de la Literatura", mzugasti.getUnprocessed());
     }
     
     //@Test
