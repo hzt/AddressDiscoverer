@@ -8,17 +8,19 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parser;
+package org.norvelle.addressdiscoverer.parse.parser;
 
 import java.sql.SQLException;
 import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
+import org.norvelle.addressdiscoverer.parse.BasicNameChunkHandler;
 
 /**
  *
@@ -39,14 +41,17 @@ public class EmailInAttributeParser extends Parser {
      * the fragments of information we find.
      * 
      * @param row A JSoup Element object representing an HTML TR tag
+     * @param department
      * @return An Individual with appropriately filled in details
      * @throws org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException
      * @throws java.sql.SQLException
      * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
+     * @throws org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException
      */
     @Override
     public Individual getIndividual(Element row, Department department) 
-            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException
+            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException, 
+            MultipleRecordsInTrException
     {
         Elements emailAttrElements = row.select(
                 String.format("[href~=(%s)]", Parser.emailRegex));

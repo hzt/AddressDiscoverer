@@ -10,6 +10,7 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
+import org.norvelle.addressdiscoverer.parse.BasicNameChunkHandler;
 import com.j256.ormlite.support.ConnectionSource;
 import java.sql.SQLException;
 import java.util.logging.Logger;

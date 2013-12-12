@@ -8,8 +8,9 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer;
+package org.norvelle.addressdiscoverer.parse;
 
+import org.norvelle.addressdiscoverer.parse.EmailElementFinder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +19,15 @@ import java.util.logging.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.gui.IProgressConsumer;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.NullIndividual;
-import org.norvelle.addressdiscoverer.parser.Parser;
+import org.norvelle.addressdiscoverer.parse.parser.Parser;
 
 /**
  * Given some HTML, searches for a list (or lists) of Individuals (i.e. faculty members)
@@ -67,6 +70,29 @@ public class IndividualExtractor {
         if (this.progressConsumer != null)
             this.progressConsumer.setTotalElementsToProcess(tableRows.size());
         int rowCount = 0;
+        try {
+            myIndividuals = this.getSingleIndividualsFromTrs(tableRows);
+        } catch (MultipleRecordsInTrException ex) {
+            myIndividuals = this.getMultipleIndividualsFromTrs(tableRows);
+        }
+        
+        this.individuals = myIndividuals;
+        logger.log(Level.INFO, "Exiting IndividualExtractor.parse()");
+        return myIndividuals;
+    }
+
+    /**
+     * If the page being parsed has single records per TR, this routine encapsulates
+     * the logic for dealing with that case
+     * 
+     * @param tableRows
+     * @return List<Individual> A List of all the individuals found in the page
+     */
+    private List<Individual> getSingleIndividualsFromTrs(List<Element> tableRows) 
+            throws MultipleRecordsInTrException 
+    {
+        List<Individual> myIndividuals = new ArrayList<Individual>();
+        int rowCount = 0;
         for (Element row : tableRows) {
             Individual in;
             try {
@@ -84,12 +110,39 @@ public class IndividualExtractor {
             if (this.progressConsumer != null)
                 this.progressConsumer.publishProgress(rowCount);
         }
-        
-        this.individuals = myIndividuals;
-        logger.log(Level.INFO, "Exiting IndividualExtractor.parse()");
         return myIndividuals;
     }
     
+    /**
+     * If the page being parsed has multiple records per TR, this routine encapsulates
+     * the logic for dealing with that case
+     * 
+     * @param tableRows
+     * @return List<Individual> A List of all the individuals found in the page
+     */
+    private List<Individual> getMultipleIndividualsFromTrs(List<Element> tableRows) {
+        List<Individual> myIndividuals = new ArrayList<>();
+        int rowCount = 0;
+        for (Element row : tableRows) {
+            try {
+                myIndividuals.addAll(
+                        Parser.getMultipleIndividualsFromRow(row, this.department));
+            } catch (CantParseIndividualException ex) {
+                for (Element r : tableRows) 
+                    myIndividuals.add(new NullIndividual(r.text() + ": " + ex.getMessage()));
+                break;
+            } catch (SQLException | OrmObjectNotConfiguredException ex) {
+                AddressDiscoverer.reportException(ex);
+                continue;
+            }
+            logger.log(Level.INFO, String.format("Adding %d new Individuals", myIndividuals.size()));
+            rowCount ++;
+            if (this.progressConsumer != null)
+                this.progressConsumer.publishProgress(rowCount);
+        }
+        return myIndividuals;
+    }
+
     public List<Individual> getIndividuals() {
         return this.individuals;
     }

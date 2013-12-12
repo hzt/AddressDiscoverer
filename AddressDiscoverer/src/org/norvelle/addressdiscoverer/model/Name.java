@@ -272,24 +272,29 @@ public class Name {
         }
         return result.trim();
     }
+    
+    private String escapeSingleQuotes(String chunk) {
+        String result = chunk.replaceAll("'", "ʼ");
+        return result;
+    }
 
     // ===================== Getters =============================
     
     public String getFirstName() {
-        return this.eliminateWordsWithSymbols(firstName);
+        return this.eliminateWordsWithSymbols(this.escapeSingleQuotes(firstName));
     }
 
     public String getLastName() {
-        return this.eliminateWordsWithSymbols(lastName);
+        return this.eliminateWordsWithSymbols(this.escapeSingleQuotes(lastName));
     }
 
     public String getFullName() {
-        return (this.title + " " + this.getFirstName() + " " + 
-                this.getLastName()).trim();
+        return this.escapeSingleQuotes((this.title + " " + this.getFirstName() + " " + 
+                this.getLastName()).trim());
     }
 
     public String getRest() {
-        return rest.trim();
+        return this.escapeSingleQuotes(rest.trim());
     }
 
     public String getTitle() {

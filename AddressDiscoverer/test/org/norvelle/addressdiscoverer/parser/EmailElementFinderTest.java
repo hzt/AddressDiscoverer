@@ -10,7 +10,7 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
-import org.norvelle.addressdiscoverer.EmailElementFinder;
+import org.norvelle.addressdiscoverer.parse.EmailElementFinder;
 import java.io.IOException;
 import java.util.List;
 import junit.framework.Assert;

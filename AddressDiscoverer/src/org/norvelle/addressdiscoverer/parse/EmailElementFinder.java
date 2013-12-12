@@ -8,7 +8,7 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer;
+package org.norvelle.addressdiscoverer.parse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.norvelle.addressdiscoverer.parser.Parser;
+import org.norvelle.addressdiscoverer.parse.parser.Parser;
 
 /**
  * Represents the contents of a table found in the HTML source code of a page.

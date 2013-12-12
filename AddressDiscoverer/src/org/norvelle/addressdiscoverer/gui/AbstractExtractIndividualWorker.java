@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import javax.swing.SwingWorker;
 import org.apache.commons.io.IOUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.IndividualExtractor;
+import org.norvelle.addressdiscoverer.parse.IndividualExtractor;
 import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;

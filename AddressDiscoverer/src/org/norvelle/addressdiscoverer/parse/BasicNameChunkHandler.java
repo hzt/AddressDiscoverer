@@ -8,7 +8,7 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parser;
+package org.norvelle.addressdiscoverer.parse;
 
 import java.sql.SQLException;
 import java.util.logging.Level;
