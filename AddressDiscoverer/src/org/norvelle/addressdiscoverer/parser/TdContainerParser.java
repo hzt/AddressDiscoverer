@@ -43,7 +43,7 @@ public class TdContainerParser extends Parser {
      * Given a JSoup TR element, try to create an Individual object based on
      * the fragments of information we find.
      * 
-     * @param row A JSoup Element object representing an HTML TR tag
+     * @param row
      * @param department The Department the new Individual will belong to.
      * @return An Individual with appropriately filled in details
      * @throws org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException
@@ -56,7 +56,8 @@ public class TdContainerParser extends Parser {
     {
         // First, see if we have more than one TD for our row. If so, then we
         // can potentially parse this with this parser, otherwise fail
-        Elements tds = row.select("td");
+        Element myRow = row.clone();
+        Elements tds = myRow.select("td");
         if (tds.size() == 1)
             throw new CantParseIndividualException("TdContainerParser only works with multiple TDs");
         
@@ -79,7 +80,7 @@ public class TdContainerParser extends Parser {
         
         // Next, find our email TD, and fail if we can't find it.
         String email = "";
-        Elements emailTds = row.select(
+        Elements emailTds = myRow.select(
                 String.format("td:matches(%s)", Parser.emailRegex));
         if (emailTds.isEmpty())
             throw new CantParseIndividualException("None of the TDs have an email in them");
@@ -95,7 +96,7 @@ public class TdContainerParser extends Parser {
         // Now, put everything that remains into the "rest" category, minus any
         // number we might encounter
         String rest = "";
-        for (Element td : row.select("td")) 
+        for (Element td : myRow.select("td")) 
             rest += " " + td.text();
         rest = rest.replaceAll("\\d", "").trim();
         

@@ -137,6 +137,35 @@ public class IndividualExtractorTest {
                 "", lmflamarique.getUnprocessed());
     }
     
+    @Test
+    public void testOlizas() {
+        List<Individual> individuals;
+        try {
+            individuals = TestUtilities.extractIndividuals(
+                    "/org/norvelle/addressdiscoverer/resources/olizas.html",
+                    TestUtilities.getTestOutputDirectory() + File.separator + "olizas.txt"
+            );
+        } catch (IOException ex) {
+            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+            return;
+        }
+        Assert.assertEquals(
+                String.format("There should be 1 individual, %d were found", 
+                        individuals.size()), 1, individuals.size());
+        for (Individual i: individuals) 
+            Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
+                i.getClass().equals(NullIndividual.class));
+        Individual olizas = individuals.get(0);
+        Assert.assertEquals("The individual's first name should be Olga", 
+                "Olga", olizas.getFirstName());
+        Assert.assertEquals("The individual's title should be ''", 
+                "", olizas.getTitle());
+        Assert.assertEquals("The individual's last name should be Lizasoain Rumeu", 
+                "Lizasoain Rumeu", olizas.getLastName());
+        Assert.assertEquals("The individual's email should be cmpasamar@unav.es", 
+                "olizas@unav.es", olizas.getEmail());
+    }
+    
     //@Test
     public void testThreeColumnRecords() {
         List<Individual> individuals;

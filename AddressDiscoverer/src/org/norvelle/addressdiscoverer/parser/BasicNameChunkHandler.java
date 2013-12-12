@@ -56,6 +56,9 @@ public class BasicNameChunkHandler {
         if (BasicNameChunkHandler.hasCommaPattern == null)
             BasicNameChunkHandler.hasCommaPattern = Pattern.compile(BasicNameChunkHandler.hasCommaRegex);
         
+        // Eliminate non-breaking spaces
+        chunk = chunk.replaceAll("\\xA0", " ");
+        
         // Eliminate numbers... no use for them.
         chunk = chunk.replaceAll("\\b\\d+\\b", "").trim();
         

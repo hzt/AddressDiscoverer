@@ -82,7 +82,7 @@ public class Name {
     public Name(String first, String last, String rest) {
         this.firstName = first;
         this.lastName = last;
-        this.rest = rest;
+        this.rest = rest.trim();
         this.moveParens();
         this.stealFromFirst();
     }
@@ -263,27 +263,37 @@ public class Name {
             this.firstName = this.firstName.replace(this.lastName, "");
         }
     }
+    
+    private String eliminateWordsWithSymbols(String chunk) {
+        String result = "";
+        for (String word : StringUtils.split(chunk)) {
+            if (!word.matches(".*(\\p{P}|\\p{S}).*"))
+                result += " " + word;
+        }
+        return result.trim();
+    }
 
     // ===================== Getters =============================
     
     public String getFirstName() {
-        return firstName;
+        return this.eliminateWordsWithSymbols(firstName);
     }
 
     public String getLastName() {
-        return lastName;
+        return this.eliminateWordsWithSymbols(lastName);
     }
 
     public String getFullName() {
-        return (this.title + " " + this.firstName + " " + this.lastName).trim();
+        return (this.title + " " + this.getFirstName() + " " + 
+                this.getLastName()).trim();
     }
 
     public String getRest() {
-        return rest;
+        return rest.trim();
     }
 
     public String getTitle() {
-        return title;
+        return title.trim();
     }
 
     

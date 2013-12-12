@@ -22,6 +22,7 @@ import org.norvelle.addressdiscoverer.parser.EmailElementFinderTest;
 import org.norvelle.addressdiscoverer.parser.ExtractFromFilesTest;
 import org.norvelle.addressdiscoverer.parser.IndividualExtractorTest;
 import org.norvelle.addressdiscoverer.parser.JSoupTest;
+import org.norvelle.addressdiscoverer.parser.TdContainerParserTest;
 
 /**
  *
@@ -34,7 +35,8 @@ import org.norvelle.addressdiscoverer.parser.JSoupTest;
     EmailElementFinderTest.class, 
     NameChunkTest.class,
     NameTest.class,
-    JSoupTest.class
+    JSoupTest.class,
+    TdContainerParserTest.class
 })
 
 public class AddressDiscovererTestSuite {

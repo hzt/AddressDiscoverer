@@ -74,8 +74,8 @@ public abstract class Parser {
         double topScore = 0.0; 
         Individual bestIndividual = null;
         for (Parser p : Parser.parsers) {
-            logger.log(Level.INFO, String.format("Trying parser %s on text: '%s'",
-                p.getClass().getSimpleName(), row.toString()));
+            //logger.log(Level.INFO, String.format("Trying parser %s on text: '%s'",
+            //    p.getClass().getSimpleName(), row.toString()));
             Individual currIndividual;
             try {
                 currIndividual = p.getIndividual(row, department);

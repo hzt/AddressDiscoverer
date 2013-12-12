@@ -10,7 +10,6 @@ import org.norvelle.utils.Utils;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -62,7 +61,7 @@ public class AddressDiscoverer {
         System.setProperty(LocalLog.LOCAL_LOG_FILE_PROPERTY, System.getProperty("java.io.tmpdir") 
                 + File.separator + "addressdiscoverer.ormlite.log");        
         this.checkSettingsDirExists();
-        logger.setLevel(Level.INFO);
+        logger.setLevel(Level.SEVERE);
         FileHandler fh = new FileHandler(this.settingsDirname + File.separator + "debug.log", 
                 8096, 1, true);  
         logger.addHandler(fh);

@@ -92,11 +92,51 @@ public class ExtractFromFilesTest {
                 numNulls ++;
         }
         logger.log(Level.INFO, String.format("%d NullIndividuals were found", numNulls));
-            
-        for (Individual i: individuals) 
+        int percentageOfNulls = numNulls / individuals.size();
+        Assert.assertTrue(String.format("Percentage of nulls is too high: %d", percentageOfNulls), 
+                percentageOfNulls < 2);
+        /*for (Individual i: individuals) 
             Assert.assertFalse("There should be no NullIndividuals, returned: " + i.toString(), 
-                i.getClass().equals(NullIndividual.class));
+                i.getClass().equals(NullIndividual.class));*/
     }
     
+    @Test
+    public void testEducacion() {
+        List<Individual> individuals;
+        try {
+            individuals = TestUtilities.extractIndividuals(
+                    "/org/norvelle/addressdiscoverer/resources/navarra_educacion.html",
+                    TestUtilities.getTestOutputDirectory() + File.separator + "educacion.txt",
+                    "iso-8859-1"
+            );
+        } catch (IOException ex) {
+            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+            return;
+        }
+        Assert.assertEquals(
+                String.format("There should be 55 individuals, %d were found", individuals.size()), 
+                55, individuals.size());
+        int numNulls = 0;
+        for (Individual i: individuals) {
+            if (i.getClass().equals(NullIndividual.class))
+                numNulls ++;
+        }
+        logger.log(Level.INFO, String.format("%d NullIndividuals were found", numNulls));
+        int percentageOfNulls = numNulls / individuals.size();
+        Assert.assertTrue(String.format("Percentage of nulls is too high: %d", percentageOfNulls), 
+                percentageOfNulls < 2);
+        for (Individual i: individuals) {
+            Assert.assertFalse(
+                    String.format(
+                            "There should not be any first names with punctuation in them: %s", 
+                            i.getFirstName()), 
+                i.getFirstName().matches(".*(\\p{P}|\\p{S}).*"));
+            Assert.assertTrue(
+                String.format(
+                    "All first names should begin with a letter, but found '%s'", 
+                    i.getFirstName().charAt(0)),
+                    i.getFirstName().matches("^\\p{L}.*"));
+        }
+    }
     
 }
