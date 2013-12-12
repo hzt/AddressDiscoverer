@@ -12,8 +12,10 @@ package org.norvelle.addressdiscoverer;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
+import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 
@@ -22,27 +24,24 @@ import org.norvelle.addressdiscoverer.model.Individual;
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class IndividualExporter {
+public class AllIndividualExporter {
     
     private final File file;
-    private final List<Individual> individuals;
-    private final Department department;
     
-    public IndividualExporter(File file, List<Individual> individuals, Department department) {
+    public AllIndividualExporter(File file) {
         this.file = file;
-        this.individuals = individuals;
-        this.department = department;
     }
     
-    public void export() throws IOException {
+    public void export() throws IOException, OrmObjectNotConfiguredException, SQLException {
+        List<Individual> individuals = Individual.getAll();
         StringBuilder csvBuilder = new StringBuilder();
         csvBuilder.append("first").append("\tlast").append("\temail").append("\ttitle")
                 .append("\tinstitution").append("\tdepartment").append("\tother").append("\n");
-        for (Individual i : this.individuals) {
+        for (Individual i : individuals) {
             csvBuilder.append(i.getFirstName()).append("\t").append(i.getLastName())
                     .append("\t").append(i.getEmail()).append("\t").append(i.getTitle())
-                    .append("\t").append(this.department.getInstitution().toString())
-                    .append("\t").append(this.department.toString()).append("\t")
+                    .append("\t").append(i.getDepartment().getInstitution().toString())
+                    .append("\t").append(i.getDepartment().toString()).append("\t")
                     .append(i.getUnprocessed()).append("\n");
         }
         FileUtils.write(file, csvBuilder, "UTF-8");

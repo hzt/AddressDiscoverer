@@ -15,6 +15,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
@@ -84,6 +85,11 @@ public class Institution implements Comparable {
     public static Institution getById(String id) throws SQLException, OrmObjectNotConfiguredException {
         Institution.checkConfigured();
         return Institution.dao.queryForId(id);
+    }
+    
+    public static List<Institution> getAll() throws SQLException, OrmObjectNotConfiguredException {
+        Institution.checkConfigured();
+        return Institution.dao.queryForAll();
     }
     
     public static Institution create(String name) throws SQLException, OrmObjectNotConfiguredException {

@@ -16,6 +16,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -178,6 +179,10 @@ public class Individual implements Comparable {
         return unprocessed;
     }
 
+    public void setUnprocessed(String unprocessed) {
+        this.unprocessed = unprocessed;
+    }
+
     public String getOriginalText() {
         return originalText;
     }
@@ -244,6 +249,29 @@ public class Individual implements Comparable {
         List<Individual> results =
             Individual.dao.queryBuilder().where().
               eq("department_id", department).query();
+        for (Individual i : results)
+            i.getDepartment().setName(department.getName()); // Hack
+        return results;
+    }
+
+    public static List<Individual> getAll() 
+            throws OrmObjectNotConfiguredException, SQLException 
+    {
+        Individual.checkConfigured();
+        List<Individual> results = new ArrayList();
+        List<Institution> institutions = Institution.getAll();
+        for (Institution institution : institutions) {
+            HashMap<Integer, Department> departments = Department.getDepartmentsForInstitution(institution);
+            for (Department department : departments.values()) {
+                department.setInstitution(institution);
+                List<Individual> individuals = Individual.getIndividualsForDepartment(department);
+                for (Individual individual : individuals) {
+                    individual.setDepartment(department);
+                    results.add(individual);
+                }
+            }
+        }
+        //Individual.dao.queryForAll();
         return results;
     }
 

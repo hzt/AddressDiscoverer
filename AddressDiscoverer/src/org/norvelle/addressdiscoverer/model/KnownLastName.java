@@ -20,6 +20,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
@@ -94,6 +96,35 @@ public class KnownLastName {
         else
             logger.log(Level.FINE, String.format("%s is NOT a last name", name));
         return isMatch;
+    }
+    
+    public static KnownLastName get(String name) throws SQLException, OrmObjectNotConfiguredException {
+        KnownLastName.checkConfigured();
+        List<KnownLastName> matches =  KnownLastName.dao.queryForEq("name", name);
+        if (!matches.isEmpty())
+            return matches.get(0);
+        else return null;
+    }
+    
+    /**
+     * Tell OrmLite to store this KnownLastName as data in the SQLite backend
+     * 
+     * @param name
+     * @throws SQLException
+     * @throws OrmObjectNotConfiguredException 
+     */
+    public static void store(KnownLastName name) throws SQLException, 
+            OrmObjectNotConfiguredException 
+    {
+        KnownLastName.checkConfigured();
+        List<KnownLastName> matches = KnownLastName.dao.queryForEq("name", name);
+        boolean isMatch = !matches.isEmpty();
+        if (! isMatch)
+            KnownLastName.dao.create(name);
+    }
+    
+    public static void delete(KnownLastName k) throws SQLException {
+        KnownLastName.dao.delete(k);
     }
     
     private static void checkConfigured() throws OrmObjectNotConfiguredException {

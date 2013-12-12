@@ -6,10 +6,18 @@ package org.norvelle.addressdiscoverer.gui;
 import java.awt.BorderLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.AllIndividualExporter;
+import org.norvelle.addressdiscoverer.IndividualExporter;
 import org.norvelle.utils.Utils;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
@@ -75,8 +83,11 @@ public class MainWindow extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jSaveFileChooser = new javax.swing.JFileChooser();
         jMainMenuBar = new javax.swing.JMenuBar();
         jFileMenu = new javax.swing.JMenu();
+        jExportAllMenuItem = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jExitMenuItem = new javax.swing.JMenuItem();
         jHelpMenu = new javax.swing.JMenu();
         jAboutMenu = new javax.swing.JMenuItem();
@@ -89,6 +100,15 @@ public class MainWindow extends javax.swing.JFrame {
         });
 
         jFileMenu.setText("File");
+
+        jExportAllMenuItem.setText("Export All Individuals");
+        jExportAllMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jExportAllMenuItemActionPerformed(evt);
+            }
+        });
+        jFileMenu.add(jExportAllMenuItem);
+        jFileMenu.add(jSeparator1);
 
         jExitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.event.InputEvent.CTRL_MASK));
         jExitMenuItem.setText("Exit");
@@ -132,12 +152,36 @@ public class MainWindow extends javax.swing.JFrame {
         this.application.shutdown();
     }//GEN-LAST:event_formWindowClosing
 
+    private void jExportAllMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jExportAllMenuItemActionPerformed
+        int returnVal = this.jSaveFileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = jSaveFileChooser.getSelectedFile();
+            if (file.exists()) {
+                int reply = JOptionPane.showConfirmDialog(null, "File exists. Overwrite?", "Confirm overwrite", 
+                        JOptionPane.YES_NO_OPTION);
+                if (reply == JOptionPane.NO_OPTION) 
+                    return;
+            }
+            AllIndividualExporter exporter = 
+                    new AllIndividualExporter(file);
+            try {
+                exporter.export();
+            } catch (IOException | OrmObjectNotConfiguredException | SQLException ex) {
+                AddressDiscoverer.reportException(ex);
+            } 
+        }
+        
+    }//GEN-LAST:event_jExportAllMenuItemActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem jAboutMenu;
     private javax.swing.JMenuItem jExitMenuItem;
+    private javax.swing.JMenuItem jExportAllMenuItem;
     private javax.swing.JMenu jFileMenu;
     private javax.swing.JMenu jHelpMenu;
     private javax.swing.JMenuBar jMainMenuBar;
+    private javax.swing.JFileChooser jSaveFileChooser;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
     // End of variables declaration//GEN-END:variables
 }

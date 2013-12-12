@@ -10,14 +10,17 @@
  */
 package org.norvelle.addressdiscoverer.gui;
 
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JProgressBar;
+import javax.swing.JTable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
@@ -76,6 +79,22 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             public void changedUpdate(DocumentEvent de) {
                 updateDepartmentWebAddress();
                 jRetrieveHTMLButton.setEnabled(true);
+            }
+        });
+        
+        // Add a mouse listener for double clicks on the table
+        final EmailDiscoveryPanel myThis = this;
+        this.jAddressesFoundTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent me) {
+                JTable table =(JTable) me.getSource();
+                Point p = me.getPoint();
+                int row = table.rowAtPoint(p);
+                if (me.getClickCount() == 2) {
+                    Individual individual = individuals.get(row);
+                    EditIndividualDialog dialog = new EditIndividualDialog(myThis, individual, true);
+                    dialog.setVisible(true);
+                }
             }
         });
 
@@ -157,6 +176,10 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 this.worker.execute();
             } // else
         } // if (!myURI
+    }
+    
+    public void refreshResultsTable() {
+        this.populateResultsTable(this.individuals);
     }
     
     public void populateResultsTable(List<Individual> individuals) {
@@ -444,7 +467,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         int returnVal = this.jSaveFileChooser.showOpenDialog(this.parent);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = jSaveFileChooser.getSelectedFile();
-            IndividualExporter exporter = new IndividualExporter(file, this.individuals);
+            IndividualExporter exporter = 
+                    new IndividualExporter(file, this.individuals, this.currentDepartment);
             try {
                 exporter.export();
             } catch (IOException ex) {

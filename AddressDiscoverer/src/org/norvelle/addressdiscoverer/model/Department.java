@@ -123,6 +123,11 @@ public class Department implements Comparable {
         return Department.dao.queryForId(id);
     }
     
+    public static List<Department> getAll() throws SQLException, OrmObjectNotConfiguredException {
+        Department.checkConfigured();
+        return Department.dao.queryForAll();
+    }
+    
     public static Department create(String name, Institution institution) 
             throws SQLException, OrmObjectNotConfiguredException {
         Department.checkConfigured();
@@ -154,6 +159,7 @@ public class Department implements Comparable {
         HashMap<Integer, Department> departments = new HashMap();
         for (Department d : results) {
             departments.put(d.getId(), d);
+            d.getInstitution().setName(institution.getName()); // This is a hack
         }
         return departments;
     }
