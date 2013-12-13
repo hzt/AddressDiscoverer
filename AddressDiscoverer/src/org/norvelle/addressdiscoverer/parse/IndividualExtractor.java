@@ -20,13 +20,14 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.exceptions.CantExtractMultipleIndividualsException;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.gui.IProgressConsumer;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
-import org.norvelle.addressdiscoverer.model.NullIndividual;
+import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 import org.norvelle.addressdiscoverer.parse.parser.Parser;
 
 /**
@@ -56,8 +57,12 @@ public class IndividualExtractor {
      * 
      * @param html The HTML for the page that is to be scraped.
      * @return List<Individual> The list of Individuals found, if any
+     * @throws java.sql.SQLException
+     * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      */
-    public List<Individual> parse(String html) {
+    public List<Individual> parse(String html) throws SQLException, 
+            OrmObjectNotConfiguredException 
+    {
         logger.log(Level.INFO, "Entering IndividualExtractor.parse()");
         List<Individual> myIndividuals = new ArrayList<>();
         if (html.isEmpty())
@@ -73,7 +78,15 @@ public class IndividualExtractor {
         try {
             myIndividuals = this.getSingleIndividualsFromTrs(tableRows);
         } catch (MultipleRecordsInTrException ex) {
-            myIndividuals = this.getMultipleIndividualsFromTrs(tableRows);
+            try {
+                myIndividuals = this.getMultipleIndividualsFromTrs(tableRows); 
+            }
+            catch (CantExtractMultipleIndividualsException ex2) {
+                myIndividuals = new ArrayList<>();
+                logger.log(Level.SEVERE, 
+                        String.format("Could not generate individuals from %d table rows", 
+                                tableRows.size()));
+            }
         }
         
         this.individuals = myIndividuals;
@@ -98,7 +111,7 @@ public class IndividualExtractor {
             try {
                 in = Parser.getBestIndividual(row, this.department);
             } catch (CantParseIndividualException ex) {
-                in = new NullIndividual(row.text() + ": " + ex.getMessage());
+                in = new UnparsableIndividual(row.text() + ": " + ex.getMessage());
             } catch (SQLException | OrmObjectNotConfiguredException ex) {
                 AddressDiscoverer.reportException(ex);
                 continue;
@@ -120,21 +133,15 @@ public class IndividualExtractor {
      * @param tableRows
      * @return List<Individual> A List of all the individuals found in the page
      */
-    private List<Individual> getMultipleIndividualsFromTrs(List<Element> tableRows) {
+    private List<Individual> getMultipleIndividualsFromTrs(List<Element> tableRows) 
+            throws CantExtractMultipleIndividualsException, SQLException, 
+            OrmObjectNotConfiguredException 
+    {
         List<Individual> myIndividuals = new ArrayList<>();
         int rowCount = 0;
         for (Element row : tableRows) {
-            try {
-                myIndividuals.addAll(
-                        Parser.getMultipleIndividualsFromRow(row, this.department));
-            } catch (CantParseIndividualException ex) {
-                for (Element r : tableRows) 
-                    myIndividuals.add(new NullIndividual(r.text() + ": " + ex.getMessage()));
-                break;
-            } catch (SQLException | OrmObjectNotConfiguredException ex) {
-                AddressDiscoverer.reportException(ex);
-                continue;
-            }
+            myIndividuals.addAll(
+                  Parser.getMultipleIndividualsFromRow(row, this.department));
             logger.log(Level.INFO, String.format("Adding %d new Individuals", myIndividuals.size()));
             rowCount ++;
             if (this.progressConsumer != null)

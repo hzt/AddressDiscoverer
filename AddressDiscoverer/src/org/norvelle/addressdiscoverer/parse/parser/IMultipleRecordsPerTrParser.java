@@ -26,6 +26,6 @@ import org.norvelle.addressdiscoverer.model.Individual;
 public interface IMultipleRecordsPerTrParser {
 
     List<Individual> getMultipleIndividuals(Element row, Department department) 
-            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException;
+            throws SQLException, OrmObjectNotConfiguredException;
     
 }

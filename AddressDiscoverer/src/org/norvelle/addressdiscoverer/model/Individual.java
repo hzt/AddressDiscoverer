@@ -222,7 +222,7 @@ public class Individual implements Comparable {
             OrmObjectNotConfiguredException, IndividualHasNoDepartmentException, 
             CannotStoreNullIndividualException 
     {
-        if (i.getClass().equals(NullIndividual.class))
+        if (i.getClass().equals(UnparsableIndividual.class))
             throw new CannotStoreNullIndividualException(i);
         if (i.getDepartment() == null) 
             throw new IndividualHasNoDepartmentException();

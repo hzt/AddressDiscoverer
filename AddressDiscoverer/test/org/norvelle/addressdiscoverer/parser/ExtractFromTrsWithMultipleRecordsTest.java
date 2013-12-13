@@ -11,6 +11,7 @@
 package org.norvelle.addressdiscoverer.parser;
 
 import com.j256.ormlite.support.ConnectionSource;
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
-import org.norvelle.addressdiscoverer.model.NullIndividual;
+import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 import org.norvelle.addressdiscoverer.parse.parser.EntireRecordInTdParser;
 import org.norvelle.utils.Utils;
 
@@ -64,7 +65,8 @@ public class ExtractFromTrsWithMultipleRecordsTest {
         List<Individual> individuals = new ArrayList<Individual>();
         String html;
         try {
-            html = Utils.loadStringFromResource("/org/norvelle/addressdiscoverer/resources/navarra_historia.html", 
+            html = Utils.loadStringFromResource(
+                    "/org/norvelle/addressdiscoverer/resources/navarra_historia.html", 
                     "iso-8859-1");
         } catch (IOException ex) {
             fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
@@ -76,9 +78,6 @@ public class ExtractFromTrsWithMultipleRecordsTest {
         for (Element tr : trs) {
             try {
                 individuals.addAll(parser.getMultipleIndividuals(tr, null));
-            }
-            catch (CantParseIndividualException cx) {
-                individuals.add(new NullIndividual(tr.text()));
             } catch (SQLException | 
                     OrmObjectNotConfiguredException ex) {
                 logger.log(Level.SEVERE, null, ex);
@@ -88,12 +87,36 @@ public class ExtractFromTrsWithMultipleRecordsTest {
             }
         }
         
+        StringBuilder individualLog = new StringBuilder();
+        int numNulls = 0;
+        for (Individual i: individuals) {
+            individualLog.append(i.toString()).append("\n");
+            if (i.getClass().equals(UnparsableIndividual.class))
+                numNulls ++;
+        }
+        logger.log(Level.INFO, "Found following individuals:\n" + individualLog.toString());
+        logger.log(Level.INFO, String.format("%d NullIndividuals were found", numNulls));
         Assert.assertEquals(
-                String.format("There should be 68 individuals, %d were found", individuals.size()), 
-                68, individuals.size());
-        for (Individual i: individuals) 
-            Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
-                i.getClass().equals(NullIndividual.class));
+                String.format("There should be 34 individuals, %d were found", individuals.size()), 
+                34, individuals.size() - numNulls);
+    }
+    
+    @Test
+    public void testHistoria2() {
+        List<Individual> individuals;
+        try {
+            individuals = TestUtilities.extractIndividuals(
+                    "/org/norvelle/addressdiscoverer/resources/navarra_historia.html",
+                    TestUtilities.getTestOutputDirectory() + File.separator + "navarra_historia.txt"
+            );
+        } catch (IOException ex) {
+            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+            return;
+        }
+        
+        Assert.assertEquals(
+                String.format("There should be 36 individuals, %d were found", individuals.size()), 
+                36, individuals.size());
     }
     
 

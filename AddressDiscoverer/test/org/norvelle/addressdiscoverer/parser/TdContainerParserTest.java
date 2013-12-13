@@ -28,9 +28,10 @@ import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
-import org.norvelle.addressdiscoverer.model.NullIndividual;
+import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 import org.norvelle.utils.Utils;
 
 /**
@@ -76,6 +77,9 @@ public class TdContainerParserTest {
         } catch (CantParseIndividualException | SQLException | OrmObjectNotConfiguredException ex) {
             fail("Problem with parsing: " + ex.getMessage());
             return;
+        } catch (MultipleRecordsInTrException ex) {
+            fail("File contains multiple records per TR, should only have one");
+            return;
         }
         
         Assert.assertEquals("The individual's first name should be Fernando", 
@@ -104,7 +108,7 @@ public class TdContainerParserTest {
                 String.format("There should be 1 individual, %d were found", individuals.size()), 1, individuals.size());
         for (Individual i: individuals) 
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
-                i.getClass().equals(NullIndividual.class));
+                i.getClass().equals(UnparsableIndividual.class));
         Individual lfmugica = individuals.get(0);
         Assert.assertEquals("The individual's first name should be Fernando", 
                 "Fernando", lfmugica.getFirstName());

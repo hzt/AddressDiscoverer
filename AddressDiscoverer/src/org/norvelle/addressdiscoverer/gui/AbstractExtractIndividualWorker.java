@@ -32,7 +32,7 @@ import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentExcept
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
-import org.norvelle.addressdiscoverer.model.NullIndividual;
+import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 
 /**
  *
@@ -76,7 +76,7 @@ public abstract class AbstractExtractIndividualWorker
             IndividualExtractor addressParser = new IndividualExtractor(this.department, this);
             List<Individual> individuals = addressParser.parse(html);
             for (Individual i : individuals) {
-                if (!i.getClass().equals(NullIndividual.class))
+                if (!i.getClass().equals(UnparsableIndividual.class))
                     Individual.store(i);
             }
             this.panel.populateResultsTable(individuals);

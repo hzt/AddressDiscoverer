@@ -33,7 +33,7 @@ import org.norvelle.addressdiscoverer.IndividualExporter;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
-import org.norvelle.addressdiscoverer.model.NullIndividual;
+import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 
 /**
  *
@@ -196,7 +196,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             model.setRowCount(individuals.size());
             int rowCount = 0;
             for (Individual i : individuals) {
-                if (!i.getClass().equals(NullIndividual.class)) {
+                if (!i.getClass().equals(UnparsableIndividual.class)) {
                     model.setValueAt(i.getTitle(), rowCount, 0);
                     model.setValueAt(i.getFirstName(), rowCount, 1);
                     model.setValueAt(i.getLastName(), rowCount, 2);

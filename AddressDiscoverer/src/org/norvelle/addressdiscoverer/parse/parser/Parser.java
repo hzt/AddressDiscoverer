@@ -13,14 +13,15 @@ package org.norvelle.addressdiscoverer.parse.parser;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jsoup.nodes.Element;
+import org.norvelle.addressdiscoverer.exceptions.CantExtractMultipleIndividualsException;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
+import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 
 /**
  * Base class for all parsers producing Individuals from text chunks.
@@ -115,7 +116,8 @@ public abstract class Parser {
 
     public static List<Individual> getMultipleIndividualsFromRow(Element row, 
                 Department department) 
-            throws SQLException, OrmObjectNotConfiguredException, CantParseIndividualException
+            throws SQLException, OrmObjectNotConfiguredException, 
+                CantExtractMultipleIndividualsException
     {
         double topScore = 0.0; 
         List<Individual> bestIndividuals = null;
@@ -123,17 +125,17 @@ public abstract class Parser {
             //logger.log(Level.INFO, String.format("Trying parser %s on text: '%s'",
             //    p.getClass().getSimpleName(), row.toString()));
             List<Individual> currIndividuals;
-            try {
-                currIndividuals = p.getMultipleIndividuals(row, department);
-            }
-            catch (CantParseIndividualException ex) {
-                continue;
-            }
+            currIndividuals = p.getMultipleIndividuals(row, department);
             if (currIndividuals == null) 
                 continue;
+            
+            // If we got some Individuals back, calculate an overall goodness
+            // score for them, so we can compare the results of different
+            // parsers.
             double currScore = 0.0;
             for (Individual i : currIndividuals)
-                currScore += i.getScore();
+                if (!i.getClass().equals(UnparsableIndividual.class))
+                    currScore += i.getScore();
             if (currScore > topScore) {
                 topScore = currScore;
                 bestIndividuals = currIndividuals;
@@ -142,7 +144,7 @@ public abstract class Parser {
         
         // If none of our parsers worked, declare failure
         if (bestIndividuals == null)
-            throw new CantParseIndividualException(row.text());
+            throw new CantExtractMultipleIndividualsException(row.text());
         
         return bestIndividuals;
     }

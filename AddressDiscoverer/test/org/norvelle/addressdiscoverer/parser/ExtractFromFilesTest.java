@@ -24,7 +24,7 @@ import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.model.Individual;
-import org.norvelle.addressdiscoverer.model.NullIndividual;
+import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 
 /**
  *
@@ -67,7 +67,7 @@ public class ExtractFromFilesTest {
                 48, individuals.size());
         for (Individual i: individuals) 
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
-                i.getClass().equals(NullIndividual.class));
+                i.getClass().equals(UnparsableIndividual.class));
     }
     
     @Test
@@ -88,7 +88,7 @@ public class ExtractFromFilesTest {
                 47, individuals.size());
         int numNulls = 0;
         for (Individual i: individuals) {
-            if (i.getClass().equals(NullIndividual.class))
+            if (i.getClass().equals(UnparsableIndividual.class))
                 numNulls ++;
         }
         logger.log(Level.INFO, String.format("%d NullIndividuals were found", numNulls));
@@ -118,7 +118,7 @@ public class ExtractFromFilesTest {
                 55, individuals.size());
         int numNulls = 0;
         for (Individual i: individuals) {
-            if (i.getClass().equals(NullIndividual.class))
+            if (i.getClass().equals(UnparsableIndividual.class))
                 numNulls ++;
         }
         logger.log(Level.INFO, String.format("%d NullIndividuals were found", numNulls));

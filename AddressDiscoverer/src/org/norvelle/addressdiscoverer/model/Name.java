@@ -44,7 +44,7 @@ public class Name {
      */
     private final ArrayList<String> possibleTitles = new ArrayList<String>() {{
         add("Dr."); add("Dra."); add("Ing."); add("Lic.");
-        add("D."); add("Dña."); add("Prof."); 
+        add("D."); add("Dña."); add("Prof.");  
     }};
     
     /**
@@ -301,5 +301,8 @@ public class Name {
         return title.trim();
     }
 
+    public String toString() {
+        return (this.title + " " + this.firstName + " " + this.lastName).trim();
+    }
     
 }

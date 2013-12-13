@@ -23,7 +23,7 @@ import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.model.Individual;
-import org.norvelle.addressdiscoverer.model.NullIndividual;
+import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 
 /**
  *
@@ -65,7 +65,7 @@ public class IndividualExtractorTest {
                 String.format("There should be 1 individual, %d were found", individuals.size()), 1, individuals.size());
         for (Individual i: individuals) 
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
-                i.getClass().equals(NullIndividual.class));
+                i.getClass().equals(UnparsableIndividual.class));
         Individual cmpasamar = individuals.get(0);
         Assert.assertEquals("The individual's first name should be Concepción", 
                 "Concepción", cmpasamar.getFirstName());
@@ -93,7 +93,7 @@ public class IndividualExtractorTest {
                 String.format("There should be 1 individual, %d were found", individuals.size()), 1, individuals.size());
         for (Individual i: individuals) 
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
-                i.getClass().equals(NullIndividual.class));
+                i.getClass().equals(UnparsableIndividual.class));
         Individual mzugasti = individuals.get(0);
         Assert.assertEquals("The individual's first name should be Miguel", 
                 "Miguel", mzugasti.getFirstName());
@@ -123,7 +123,7 @@ public class IndividualExtractorTest {
                 String.format("There should be 1 individual, %d were found", individuals.size()), 1, individuals.size());
         for (Individual i: individuals) 
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
-                i.getClass().equals(NullIndividual.class));
+                i.getClass().equals(UnparsableIndividual.class));
         Individual lmflamarique = individuals.get(0);
         Assert.assertEquals("The individual's first name should be Lourdes", 
                 "Lourdes", lmflamarique.getFirstName());
@@ -154,7 +154,7 @@ public class IndividualExtractorTest {
                         individuals.size()), 1, individuals.size());
         for (Individual i: individuals) 
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
-                i.getClass().equals(NullIndividual.class));
+                i.getClass().equals(UnparsableIndividual.class));
         Individual olizas = individuals.get(0);
         Assert.assertEquals("The individual's first name should be Olga", 
                 "Olga", olizas.getFirstName());
@@ -183,7 +183,37 @@ public class IndividualExtractorTest {
                 individuals.size() == 3);
         for (Individual i: individuals) 
             Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
-                i.getClass().equals(NullIndividual.class));
+                i.getClass().equals(UnparsableIndividual.class));
+    }
+    
+    @Test
+    public void testAenciso() {
+        List<Individual> individuals;
+        try {
+            individuals = TestUtilities.extractIndividuals(
+                    "/org/norvelle/addressdiscoverer/resources/agenciso.html",
+                    TestUtilities.getTestOutputDirectory() + File.separator + "agenciso.txt"
+            );
+        } catch (IOException ex) {
+            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+            return;
+        }
+        Assert.assertEquals(
+                String.format("There should be 1 individual, %d were found", individuals.size()), 1, individuals.size());
+        for (Individual i: individuals) 
+            Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), 
+                i.getClass().equals(UnparsableIndividual.class));
+        Individual aenciso = individuals.get(0);
+        Assert.assertEquals("The individual's first name should be Agustín", 
+                "Agustín", aenciso.getFirstName());
+        Assert.assertEquals("The individual's title should be Dr.", 
+                "Dr.", aenciso.getTitle());
+        Assert.assertEquals("The individual's last name should be González Enciso", 
+                "González Enciso", aenciso.getLastName());
+        Assert.assertEquals("The individual's email should be agenciso@unav.es", 
+                "agenciso@unav.es", aenciso.getEmail());
+        //Assert.assertEquals("The remaining text should be 'Catedrático Historia Moderna'", 
+        //        "Catedrático Historia Moderna", aenciso.getUnprocessed());
     }
     
 }

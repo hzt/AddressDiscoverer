@@ -32,11 +32,6 @@ public class BasicNameChunkHandler {
     private static final String hasCommaRegex = "^(.*),(.*)$";
     private static Pattern hasCommaPattern;
 
-    private String firstName;
-    private String lastName;
-    private String fullName;
-    private String rest;
-    
     public BasicNameChunkHandler() {}
     
     /**
@@ -44,6 +39,8 @@ public class BasicNameChunkHandler {
      * the first and last names of the individual, plus his email and other info.
      *
      * @param chunk A String containing HTML for a table row
+     * @return 
+     * @throws org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException 
      * @see getFirstName(), etc. for methods to retrieve the results, if any
      * @throws SQLException
      * @throws OrmObjectNotConfiguredException 
@@ -51,7 +48,7 @@ public class BasicNameChunkHandler {
     public Name processChunkForName(String chunk) 
             throws SQLException, OrmObjectNotConfiguredException, CantParseIndividualException
     {
-        logger.log(Level.INFO, "Processing chunk for name: {0}", chunk);
+        //logger.log(Level.INFO, "Processing chunk for name: {0}", chunk);
 
         if (BasicNameChunkHandler.hasCommaPattern == null)
             BasicNameChunkHandler.hasCommaPattern = Pattern.compile(BasicNameChunkHandler.hasCommaRegex);
@@ -59,7 +56,11 @@ public class BasicNameChunkHandler {
         // Eliminate non-breaking spaces
         chunk = chunk.replaceAll("\\xA0", " ");
         
-        // Eliminate numbers... no use for them.
+        // Replace single quotes with apostrophes, to avoid SQL problems
+        chunk = chunk.replaceAll("'", "ʼ");
+
+        // Eliminate numbers... no use for them, but only ones that exist separate
+        // and not as part of emails.
         chunk = chunk.replaceAll("\\b\\d+\\b", "").trim();
         
         // First see if we have a name divided by a comma

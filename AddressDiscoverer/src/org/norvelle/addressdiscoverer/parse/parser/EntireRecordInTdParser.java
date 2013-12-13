@@ -27,6 +27,7 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
+import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 import org.norvelle.addressdiscoverer.parse.BasicNameChunkHandler;
 
 /**
@@ -99,7 +100,7 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
      */
     @Override
     public List<Individual> getMultipleIndividuals(Element row, Department department) 
-            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException
+            throws SQLException, OrmObjectNotConfiguredException
     {
         this.department = department;
         List<Individual> individuals = new ArrayList<>();
@@ -109,10 +110,14 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
         // format is and extract the fields appropriately
         for (Element td : tds) {
             try {
-                individuals.add(this.extractIndividualFromTd(td));
+                Individual newIndividual = this.extractIndividualFromTd(td);
+                individuals.add(newIndividual);
             } catch (EmptyTdException ex) {
                 // We skip empty TDs and don't complain.
                 continue;
+            } catch (CantParseIndividualException ex) {
+                // Record unparsable TDs that look like they ought to be parsable.
+                individuals.add(new UnparsableIndividual(td.text()));
             }
         }
         
@@ -131,7 +136,8 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
      * @throws OrmObjectNotConfiguredException 
      */
     private Individual extractIndividualFromTd(Element td) 
-            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException, EmptyTdException 
+            throws CantParseIndividualException, SQLException, 
+            OrmObjectNotConfiguredException, EmptyTdException 
     {
         // First see if there are multiple P elements
         List<String> chunks = new ArrayList<>();
@@ -143,19 +149,27 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
         
         // If not, see if we can split the content by BR
         else {
-            String tdHtml = td.html();
-            String[] lines = StringUtils.split(tdHtml, "br");
+            String tdHtml = td.html().replace("&nbsp;", " ").trim();
+            tdHtml = tdHtml.replaceAll("(<br\\ ?\\/?>)", "\n");
+            String[] lines = StringUtils.split(tdHtml, "\n");
             if (lines.length  > 1)
-                for (String line : lines)
-                    chunks.add(line.replaceAll("(<|>|\\\\)", "").trim());
+                for (String line : lines) {
+                    line = line.replaceAll("<(.*?)>", "").trim();
+                    line = line.replaceAll("&nbsp;", "").trim();
+                    chunks.add(line);
+                }
             
             // If there are no BRs, then we will process the text as one long string
-            else 
+            else if (lines.length == 1)
                 chunks.add(td.text());
         }
+        
+        Individual i;
         if (chunks.size() == 1)
-            return this.createIndividualFromSingleChunk(chunks.get(0));
-        else return this.createIndividualFromMultipleChunks(chunks);
+            i = this.createIndividualFromSingleChunk(chunks.get(0));
+        else 
+            i = this.createIndividualFromMultipleChunks(chunks);
+        return i;
     }
     
     /**
@@ -184,15 +198,16 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
             throw new EmptyTdException("None of the TD parts have any text");
         
         // Now that we have a chunk of text with a name, see if we can't create a Name
-        String nameChunk = chunks.get(0);
+        String nameChunk = this.stripInvalidChars(noEmptyChunks.get(0));
         BasicNameChunkHandler np = new BasicNameChunkHandler();
         Name name = np.processChunkForName(nameChunk);
-        chunks.remove(nameChunk);
+        noEmptyChunks.remove(noEmptyChunks.get(0));
         
         // Next, find our email chunk, and fail if we can't find it.
         String email = "";
         List<String> unprocessedChunks = new ArrayList<>();
-        for (String chunk : chunks) {
+        for (String chunk : noEmptyChunks) {
+            chunk = chunk.replaceAll("\\xA0", " ").trim();
             Matcher emailMatcher = this.findEmailPattern.matcher(chunk);
             if (emailMatcher.matches() && email.isEmpty()) 
                 email = emailMatcher.group(1);
@@ -233,5 +248,12 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
             System.exit(1);
             return null;
         }
+    }
+    
+    private String stripInvalidChars(String text) {
+        text = text.replaceAll("\\.", "ZZZZ");
+        text = text.replaceAll("(\\p{P}|\\p{S})", "");
+        text = text.replace("ZZZZ", ".");
+        return text;
     }
 }

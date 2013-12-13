@@ -14,16 +14,18 @@ package org.norvelle.addressdiscoverer.model;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class NullIndividual extends Individual {
+public class UnparsableIndividual extends Individual {
     
     String id;
     
-    public NullIndividual(String identifier) {
+    public UnparsableIndividual(String identifier) {
         this.id = identifier;
     }
     
     @Override
     public String toString() {
+        if (this.id.trim().isEmpty())
+            return "Empty data given";
         return "Unparsed: " + this.id;
     }
     
