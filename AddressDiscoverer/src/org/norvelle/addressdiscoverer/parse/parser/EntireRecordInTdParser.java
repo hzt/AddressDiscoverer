@@ -251,8 +251,10 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
     }
     
     private String stripInvalidChars(String text) {
+        text = text.replaceAll("'", "XXXX");
         text = text.replaceAll("\\.", "ZZZZ");
         text = text.replaceAll("(\\p{P}|\\p{S})", "");
+        text = text.replace("XXXX", "ʼ");
         text = text.replace("ZZZZ", ".");
         return text;
     }

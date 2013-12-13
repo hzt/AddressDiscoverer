@@ -16,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -92,8 +93,16 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 int row = table.rowAtPoint(p);
                 if (me.getClickCount() == 2) {
                     Individual individual = individuals.get(row);
-                    EditIndividualDialog dialog = new EditIndividualDialog(myThis, individual, true);
-                    dialog.setVisible(true);
+                    if (individual.getClass().equals(UnparsableIndividual.class)) {
+                        CreateIndividualFromUnparsedTextDialog dialog = 
+                                new CreateIndividualFromUnparsedTextDialog(myThis, 
+                                        (UnparsableIndividual) individual, currentDepartment, true);
+                        dialog.setVisible(true);
+                    }
+                    else {
+                        EditIndividualDialog dialog = new EditIndividualDialog(myThis, individual, true);
+                        dialog.setVisible(true);
+                    }
                 }
             }
         });
@@ -124,10 +133,14 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             this.jHTMLPanel.setEnabled(false);
             this.setHTMLPanelContents("");
             this.jBytesReceivedLabel.setEnabled(false);
+            this.individuals = new ArrayList<>();
+            this.populateResultsTable(this.individuals);
+            this.jSaveResultsButton.setEnabled(false);
         }
         else {
             String url = department.getWebAddress();
             this.jWebAddressField.setText(url);
+            this.jWebAddressField.setCaretPosition(0);
             this.jWebAddressField.setEnabled(true);
             this.jBytesReceivedLabel.setEnabled(true);
             this.jRetrieveHTMLButton.setEnabled(true);
@@ -140,8 +153,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             else this.setHTMLPanelContents(""); 
             List<Individual> individuals;
             try {
-                individuals = Individual.getIndividualsForDepartment(department);
-                this.populateResultsTable(individuals);
+                this.individuals = Individual.getIndividualsForDepartment(department);
+                this.populateResultsTable(this.individuals);
                 this.jSaveResultsButton.setEnabled(true);
             } catch (OrmObjectNotConfiguredException | SQLException ex) {
                 AddressDiscoverer.reportException(ex);
@@ -178,6 +191,12 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         } // if (!myURI
     }
     
+    public void addNewIndividual(Individual individual, UnparsableIndividual old) {
+        this.individuals.remove(old);
+        this.individuals.add(individual);
+        this.populateResultsTable(this.individuals);
+    }
+    
     public void refreshResultsTable() {
         this.populateResultsTable(this.individuals);
     }
@@ -199,9 +218,9 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 if (!i.getClass().equals(UnparsableIndividual.class)) {
                     model.setValueAt(i.getTitle(), rowCount, 0);
                     model.setValueAt(i.getFirstName(), rowCount, 1);
-                    model.setValueAt(i.getLastName(), rowCount, 2);
+                    model.setValueAt(chop(i.getLastName()), rowCount, 2);
                     model.setValueAt(i.getEmail(), rowCount, 3);
-                    model.setValueAt(i.getUnprocessed(), rowCount, 4);
+                    model.setValueAt(chop(i.getUnprocessed()), rowCount, 4);
                 }
                 else {
                     model.setValueAt("NULL", rowCount, 0);
@@ -215,6 +234,13 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         }
         this.jAddressesFoundTable.setModel(model);
         this.individuals = individuals;
+    }
+    
+    private String chop(String text) {
+        if (text.length() > 30) {
+            text = text.substring(0, 30) + "...";
+        }
+        return text;
     }
     
     /**
@@ -382,8 +408,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jEmailSourceTabLayout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jWebAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jWebAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jOpenFileButton)))
                 .addContainerGap())
         );
@@ -458,6 +484,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = jOpenFileChooser.getSelectedFile();
             this.jWebAddressField.setText(file.getAbsolutePath());
+            this.jWebAddressField.setCaretPosition(0);
             this.updateDepartmentWebAddress();
         }
         
