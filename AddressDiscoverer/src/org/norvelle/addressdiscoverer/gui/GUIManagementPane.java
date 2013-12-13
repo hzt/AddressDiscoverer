@@ -69,11 +69,13 @@ public class GUIManagementPane extends JPanel {
 
     public void setSelectedInstitution(Institution selectedInstitution) {
         this.departmentListPanel.setInstitution(selectedInstitution);
+        AddressDiscoverer.application.statusChanged();
     }
 
     public void setSelectedDepartment(Department selectedDepartment) {
         try {
             this.emailDiscoveryPanel.setDepartment(selectedDepartment);
+            AddressDiscoverer.application.statusChanged();
         } catch (IOException | SAXException ex) {
             AddressDiscoverer.reportException(ex);
         }

@@ -42,9 +42,9 @@ public class MainWindow extends javax.swing.JFrame {
         this.application = application;
         initComponents();
         GUIManagementPane threePane = new GUIManagementPane(this, application);
-        this.setLayout(new BorderLayout());
+        this.jMainPanel.setLayout(new BorderLayout());
         Toolkit tk = Toolkit.getDefaultToolkit(); 
-        this.getContentPane().add(threePane, BorderLayout.CENTER);
+        this.jMainPanel.add(threePane, BorderLayout.CENTER);
         int xSize = (int) (tk.getScreenSize().getWidth() * 0.9);  
         int ySize = (int) (tk.getScreenSize().getHeight() * 0.9);  
         this.setSize(xSize,ySize);
@@ -61,6 +61,7 @@ public class MainWindow extends javax.swing.JFrame {
         imagesList.add(medImage);
         imagesList.add(largeImage);
         this.setIconImages(imagesList);
+        AddressDiscoverer.application.statusChanged();
     }
     
     /**
@@ -73,6 +74,10 @@ public class MainWindow extends javax.swing.JFrame {
             Utils.wordWrapString(message, 50),
             "Program error", JOptionPane.ERROR_MESSAGE);
     }
+    
+    public void updateStatus(String message) {
+        this.jStatusLabel.setText(message);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -84,6 +89,9 @@ public class MainWindow extends javax.swing.JFrame {
     private void initComponents() {
 
         jSaveFileChooser = new javax.swing.JFileChooser();
+        jMainPanel = new javax.swing.JPanel();
+        jStatusPanel = new javax.swing.JPanel();
+        jStatusLabel = new javax.swing.JLabel();
         jMainMenuBar = new javax.swing.JMenuBar();
         jFileMenu = new javax.swing.JMenu();
         jExportAllMenuItem = new javax.swing.JMenuItem();
@@ -98,6 +106,32 @@ public class MainWindow extends javax.swing.JFrame {
                 formWindowClosing(evt);
             }
         });
+
+        javax.swing.GroupLayout jMainPanelLayout = new javax.swing.GroupLayout(jMainPanel);
+        jMainPanel.setLayout(jMainPanelLayout);
+        jMainPanelLayout.setHorizontalGroup(
+            jMainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        jMainPanelLayout.setVerticalGroup(
+            jMainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 562, Short.MAX_VALUE)
+        );
+
+        jStatusPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jStatusLabel.setText("Status:");
+
+        javax.swing.GroupLayout jStatusPanelLayout = new javax.swing.GroupLayout(jStatusPanel);
+        jStatusPanel.setLayout(jStatusPanelLayout);
+        jStatusPanelLayout.setHorizontalGroup(
+            jStatusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 975, Short.MAX_VALUE)
+        );
+        jStatusPanelLayout.setVerticalGroup(
+            jStatusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jStatusLabel)
+        );
 
         jFileMenu.setText("File");
 
@@ -134,11 +168,15 @@ public class MainWindow extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 979, Short.MAX_VALUE)
+            .addComponent(jStatusPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jMainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 589, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jMainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jStatusPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -181,7 +219,10 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenu jFileMenu;
     private javax.swing.JMenu jHelpMenu;
     private javax.swing.JMenuBar jMainMenuBar;
+    private javax.swing.JPanel jMainPanel;
     private javax.swing.JFileChooser jSaveFileChooser;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JLabel jStatusLabel;
+    private javax.swing.JPanel jStatusPanel;
     // End of variables declaration//GEN-END:variables
 }

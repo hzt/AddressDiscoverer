@@ -25,7 +25,7 @@ import org.norvelle.addressdiscoverer.parse.parser.Parser;
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class EmailElementFinder {
+public class EmailElementInTrFinder {
 
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
@@ -39,7 +39,7 @@ public class EmailElementFinder {
      * 
      * @param soup A JSoup Document that is the root of a web page.
      */
-    public EmailElementFinder(Document soup) {
+    public EmailElementInTrFinder(Document soup) {
         logger.log(Level.FINE, "Entering EmailElementFinder.new()");
         Elements elementsWithEmails = soup.select(
                 String.format("tr:matches(%s)", Parser.emailRegex));
@@ -57,12 +57,6 @@ public class EmailElementFinder {
             if (trElement != null)
                 this.addIfNotPresent(attrElement);
         }
-        logger.log(Level.FINE, 
-                String.format("Found %d Elements with an email in a link HREF attribute", 
-                        elementsWithEmailAttributes.size()));
-        logger.log(Level.FINE, 
-                String.format("%d Elements with an email in a link HREF attribute were newly added", 
-                        this.rows.size() - numFound));
         logger.log(Level.FINE, "Exiting EmailElementFinder.new()");
     }
 

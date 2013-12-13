@@ -10,12 +10,14 @@
  */
 package org.norvelle.addressdiscoverer.parse;
 
-import org.norvelle.addressdiscoverer.parse.EmailElementFinder;
+import java.io.File;
+import org.norvelle.addressdiscoverer.parse.EmailElementInTrFinder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -68,10 +70,23 @@ public class IndividualExtractor {
         if (html.isEmpty())
             return myIndividuals;
         
-        // We use JSoup to do our parsing
+        // See if we get more email-containing elements via the TR or P 
+        // based element finders
         Document soup = Jsoup.parse(html);
-        EmailElementFinder finder = new EmailElementFinder(soup);
-        List<Element> tableRows = finder.getRows();
+        List<Element> tableRows;
+        EmailElementInTrFinder trFinder = new EmailElementInTrFinder(soup);
+        List<Element> trRows = trFinder.getRows();
+        EmailElementOutsideTrFinder pFinder = new EmailElementOutsideTrFinder(soup);
+        if (pFinder.getEmailToTrProportion() < 0.45) {
+            logger.log(Level.FINE, String.format("EmailElementOutsideTrFinder found %d P tags", trRows.size()));
+            tableRows = pRows;
+        }
+        else {
+            logger.log(Level.FINE, String.format("EmailElementInTrFinder found %d P tags", trRows.size()));
+            tableRows = trRows;
+        }
+
+        // Now, send the rows found to the parsers and choose the best result found
         if (this.progressConsumer != null)
             this.progressConsumer.setTotalElementsToProcess(tableRows.size());
         int rowCount = 0;

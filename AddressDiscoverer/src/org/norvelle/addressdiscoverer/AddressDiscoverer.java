@@ -25,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.gui.MainWindow;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
@@ -44,7 +45,7 @@ public class AddressDiscoverer {
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     // Our "singleton" application instance
-    private static AddressDiscoverer application;
+    public static AddressDiscoverer application;
     
     // Private variables for the application
     private final MainWindow window;
@@ -147,7 +148,22 @@ public class AddressDiscoverer {
         }
     }
         
-    // ===================== Getters and setters =============================
+    public void statusChanged() {
+        try {
+            int numInstitutions = (int) Institution.getCount();
+            int numDepartments = (int) Department.getCount();
+            int numIndividuals = (int) Individual.getCount();
+            String statusText = String.format(
+                    "%d individuals in %d departments from %d institutions",
+                    numIndividuals, numDepartments, numInstitutions);
+            if (this.window != null)
+                this.window.updateStatus(statusText);
+        } catch (SQLException | OrmObjectNotConfiguredException ex) {
+            reportException(ex);
+        }
+    }
+    
+    // ===================== Globally accessible methods =============================
     
     public static void reportException(Exception e) {
         logger.log(Level.SEVERE, e.getMessage());

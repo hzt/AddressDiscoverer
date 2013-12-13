@@ -175,4 +175,11 @@ public class Department implements Comparable {
             Department.delete(d);
         }
     }
+    
+    public static long getCount() throws SQLException, OrmObjectNotConfiguredException {
+        Department.checkConfigured();
+        long total = Department.dao.countOf();
+        return total;
+    }
+
 }

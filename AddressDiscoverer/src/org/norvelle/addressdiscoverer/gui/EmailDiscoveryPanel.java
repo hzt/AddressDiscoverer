@@ -234,6 +234,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         }
         this.jAddressesFoundTable.setModel(model);
         this.individuals = individuals;
+        AddressDiscoverer.application.statusChanged();
     }
     
     private String chop(String text) {

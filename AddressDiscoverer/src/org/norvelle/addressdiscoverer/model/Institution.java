@@ -121,5 +121,11 @@ public class Institution implements Comparable {
         }
         return institutions;
     }
+    
+    public static long getCount() throws SQLException, OrmObjectNotConfiguredException {
+        Institution.checkConfigured();
+        long total = Institution.dao.countOf();
+        return total;
+    }
 
 }

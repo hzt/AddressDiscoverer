@@ -286,5 +286,11 @@ public class Individual implements Comparable {
         }
     }
     
+    public static long getCount() throws SQLException, OrmObjectNotConfiguredException {
+        Individual.checkConfigured();
+        long total = Individual.dao.countOf();
+        return total;
+    }
+
 
 }
