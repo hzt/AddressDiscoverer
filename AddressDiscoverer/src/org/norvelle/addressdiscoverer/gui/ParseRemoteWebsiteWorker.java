@@ -60,7 +60,7 @@ public class ParseRemoteWebsiteWorker extends AbstractExtractIndividualWorker {
             String html = writer.toString();
             updateDepartmentHTML(html);
             this.panel.setHTMLPanelContents(html);
-            extractIndividuals(html);
+            extractIndividuals(html, charset);
         } catch (IOException ex) {
             AddressDiscoverer.reportException(ex);
         }

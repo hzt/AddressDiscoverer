@@ -13,6 +13,7 @@ package org.norvelle.addressdiscoverer.parser;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,32 +24,35 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
-import org.norvelle.addressdiscoverer.parse.parser.EntireRecordInTdParser;
+import org.norvelle.addressdiscoverer.parse.EmailElementOutsideTrFinder;
+import org.norvelle.addressdiscoverer.parse.parser.Parser;
 import org.norvelle.utils.Utils;
 
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class ExtractFromTrsWithMultipleRecordsTest {
+public class ExtractFromPageWithoutTrsTest {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
     private static ConnectionSource connection;
 
-    public ExtractFromTrsWithMultipleRecordsTest() {
+    public ExtractFromPageWithoutTrsTest() {
     }
 
     @BeforeClass
+    @SuppressWarnings("UnnecessaryReturnStatement")
     public static void setUpClass() {
         TestUtilities.setupLogger();
         try {
@@ -60,29 +64,41 @@ public class ExtractFromTrsWithMultipleRecordsTest {
     }
 
     @Test
-    public void testHistoria() {
-        List<Individual> individuals = new ArrayList<Individual>();
+    @SuppressWarnings("UnnecessaryReturnStatement")
+    public void testDerecho() {
+        List<Individual> individuals = new ArrayList<>();
         String html;
         try {
             html = Utils.loadStringFromResource(
-                    "/org/norvelle/addressdiscoverer/resources/navarra_historia.html", 
-                    "iso-8859-1");
+                    "/org/norvelle/addressdiscoverer/resources/navarra_derecho.html", 
+                    "UTF-8");
         } catch (IOException ex) {
             fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
             return;
         }
         Document soup = Jsoup.parse(html);
-        Elements trs = soup.select("tr");
-        EntireRecordInTdParser parser = new EntireRecordInTdParser();
+        EmailElementOutsideTrFinder finder = new EmailElementOutsideTrFinder(soup, "UTF-8");
+        List<Element> trs;
+        try {
+            trs = finder.getRows();
+        } catch (SQLException | OrmObjectNotConfiguredException | UnsupportedEncodingException ex) {
+            fail("Couldn't use EmailElementOutsideTrFinder due to exception: " + ex.getMessage());
+            return;            
+        }
+        Assert.assertEquals(String.format("There should be 57 TRs found, but %d were returned", 57),
+                57, trs.size());
+        
         for (Element tr : trs) {
             try {
-                individuals.addAll(parser.getMultipleIndividuals(tr, null));
-            } catch (SQLException | 
+                individuals.add(Parser.getBestIndividual(tr, null));
+            } catch (SQLException | MultipleRecordsInTrException |
                     OrmObjectNotConfiguredException ex) {
                 logger.log(Level.SEVERE, null, ex);
                 logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(ex));
                 fail("Problem parsing TRs: " + ex.getMessage());
                 return;
+            } catch (CantParseIndividualException ex) {
+                individuals.add(new UnparsableIndividual(tr.text()));
             }
         }
         
@@ -93,20 +109,20 @@ public class ExtractFromTrsWithMultipleRecordsTest {
             if (i.getClass().equals(UnparsableIndividual.class))
                 numNulls ++;
         }
-        logger.log(Level.INFO, "Found following individuals:\n" + individualLog.toString());
+        logger.log(Level.INFO, "Found following individuals:\n{0}", individualLog.toString());
         logger.log(Level.INFO, String.format("%d NullIndividuals were found", numNulls));
         Assert.assertEquals(
-                String.format("There should be 34 individuals, %d were found", individuals.size()), 
-                34, individuals.size() - numNulls);
+                String.format("There should be 57 individuals, %d were found", individuals.size()), 
+                57, individuals.size() - numNulls); 
     }
     
     @Test
-    public void testHistoria2() {
+    public void testDerecho2() {
         List<Individual> individuals;
         try {
             individuals = TestUtilities.extractIndividuals(
-                    "/org/norvelle/addressdiscoverer/resources/navarra_historia.html",
-                    TestUtilities.getTestOutputDirectory() + File.separator + "navarra_historia.txt"
+                    "/org/norvelle/addressdiscoverer/resources/navarra_derecho.html",
+                    TestUtilities.getTestOutputDirectory() + File.separator + "navarra_derecho.txt"
             );
         } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
@@ -114,8 +130,8 @@ public class ExtractFromTrsWithMultipleRecordsTest {
         }
         
         Assert.assertEquals(
-                String.format("There should be 36 individuals, %d were found", individuals.size()), 
-                36, individuals.size());
+                String.format("There should be 57 individuals, %d were found", individuals.size()), 
+                57, individuals.size());
     }
     
 

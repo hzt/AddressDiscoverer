@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
 import org.jsoup.Jsoup;
@@ -100,8 +99,8 @@ public class TdContainerParserTest {
                     "/org/norvelle/addressdiscoverer/resources/lfmugica.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "lfmugica.txt"
             );
-        } catch (IOException ex) {
-            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
         Assert.assertEquals(

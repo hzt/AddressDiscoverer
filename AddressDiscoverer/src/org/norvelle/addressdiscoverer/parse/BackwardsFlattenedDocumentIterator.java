@@ -10,13 +10,20 @@
  */
 package org.norvelle.addressdiscoverer.parse;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Node;
-import org.norvelle.addressdiscoverer.parse.parser.Parser;
+import org.jsoup.nodes.TextNode;
+import org.norvelle.addressdiscoverer.Constants;
 
 /**
  * Given a standard tree-shaped JSoup Document, create a flattened list of
@@ -28,13 +35,18 @@ import org.norvelle.addressdiscoverer.parse.parser.Parser;
  */
 public class BackwardsFlattenedDocumentIterator implements Iterable<String>, Iterator<String> {
     
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
     private final List<String> textNodes = new ArrayList<>(); 
-    private final Pattern emailPattern = Pattern.compile(Parser.emailRegex);
+    private final Pattern emailPattern = Pattern.compile(Constants.emailRegex);
     private int currPosition;
 
-    public BackwardsFlattenedDocumentIterator(Document soup) {
+    public BackwardsFlattenedDocumentIterator(Document soup, String encoding) 
+            throws UnsupportedEncodingException 
+    {
         // First we generate the flattened list of elements
-        this.walkNodeBackwards(soup);
+        this.walkNodeBackwards(soup, encoding);
+        logger.log(Level.FINE, "Flattened document: \n" + StringUtils.join(this.textNodes, "\n"));
         
         // Now, we set the cursor to the end so we can iterate backwards
         this.currPosition = this.textNodes.size() - 1;
@@ -45,22 +57,28 @@ public class BackwardsFlattenedDocumentIterator implements Iterable<String>, Ite
      * 
      * @param currNode 
      */
-    private void walkNodeBackwards(Node currNode) {
+    private void walkNodeBackwards(Node currNode, String encoding) 
+            throws UnsupportedEncodingException 
+    {
+        List<Node> children = currNode.childNodes();
+        for (int i = children.size() - 1; i >= 0; i --) {
+            Node child = children.get(i);
+            this.walkNodeBackwards(child, encoding);
+        }
         if (currNode.hasAttr("href") && 
                 emailPattern.matcher(currNode.attr("href")).matches()) 
         {
             this.textNodes.add(0, currNode.attr("href"));
             return;
         }
-        else if (currNode.childNodes().isEmpty()) {
-            if (!currNode.toString().isEmpty())
-                this.textNodes.add(0, currNode.toString());
-            return;
-        }
-        List<Node> children = currNode.childNodes();
-        for (int i = children.size() - 1; i != 0; i --) {
-            Node child = children.get(i);
-            this.walkNodeBackwards(child);
+        if (currNode.getClass().equals(TextNode.class) && !currNode.toString().trim().isEmpty()) {
+            String htmlEncodedString = currNode.toString();
+            String processedString = htmlEncodedString.replace("&nbsp;", " ");
+            processedString = URLDecoder.decode(processedString, encoding);
+            processedString = StringEscapeUtils.unescapeHtml4(processedString);
+            processedString = processedString.replaceAll("[_]", "");
+            if (!processedString.trim().isEmpty())
+                this.textNodes.add(0, processedString.trim());
         }
     }
 

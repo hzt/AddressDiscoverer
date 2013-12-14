@@ -39,11 +39,6 @@ public abstract class Parser {
             = new ArrayList<>();
     
     /**
-     * A regex string for finding emails
-     */
-    public static final String emailRegex = "(\\w+\\.)*\\w+[@](\\w+\\.)+(\\w+)";
-    
-    /**
      * A constructor that should never be called
      */
     public Parser() { }

@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
@@ -32,7 +33,7 @@ public class EmailInAttributeParser extends Parser {
     private final String splitByEmailRegex;
     
     public EmailInAttributeParser() {
-        this.splitByEmailRegex = String.format("(.*) (%s) (.*)", Parser.emailRegex);
+        this.splitByEmailRegex = String.format("(.*) (%s) (.*)", Constants.emailRegex);
         this.splitByEmailPattern = Pattern.compile(this.splitByEmailRegex);
     }
 
@@ -54,7 +55,7 @@ public class EmailInAttributeParser extends Parser {
             MultipleRecordsInTrException
     {
         Elements emailAttrElements = row.select(
-                String.format("[href~=(%s)]", Parser.emailRegex));
+                String.format("[href~=(%s)]", Constants.emailRegex));
         if (emailAttrElements.isEmpty())
             throw new CantParseIndividualException("No email in attributes");
         Element elem = emailAttrElements.first();

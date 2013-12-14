@@ -22,6 +22,7 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 
@@ -57,8 +58,8 @@ public class IndividualExtractorTest {
                     "/org/norvelle/addressdiscoverer/resources/cmpasamar.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "cmpasamar.txt"
             );
-        } catch (IOException ex) {
-            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
         Assert.assertEquals(
@@ -85,8 +86,8 @@ public class IndividualExtractorTest {
                     "/org/norvelle/addressdiscoverer/resources/mzugasti.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "mzugasti.txt"
             );
-        } catch (IOException ex) {
-            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
         Assert.assertEquals(
@@ -115,8 +116,8 @@ public class IndividualExtractorTest {
                     "/org/norvelle/addressdiscoverer/resources/lflamarique.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "lflamarique.txt"
             );
-        } catch (IOException ex) {
-            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
         Assert.assertEquals(
@@ -145,8 +146,8 @@ public class IndividualExtractorTest {
                     "/org/norvelle/addressdiscoverer/resources/olizas.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "olizas.txt"
             );
-        } catch (IOException ex) {
-            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
         Assert.assertEquals(
@@ -174,8 +175,8 @@ public class IndividualExtractorTest {
                     "/org/norvelle/addressdiscoverer/resources/ThreeFieldsAcrossNames.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "individuals.txt"
             );
-        } catch (IOException ex) {
-            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
         Assert.assertEquals(
@@ -194,8 +195,8 @@ public class IndividualExtractorTest {
                     "/org/norvelle/addressdiscoverer/resources/agenciso.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "agenciso.txt"
             );
-        } catch (IOException ex) {
-            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
         Assert.assertEquals(

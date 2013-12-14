@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
@@ -35,10 +36,10 @@ public class TdContainerParser extends Parser {
     
     public TdContainerParser() {
         this.splitByEmailPattern = Pattern.compile(
-                String.format("^(.*) (%s) (.*)$", Parser.emailRegex));
+                String.format("^(.*) (%s) (.*)$", Constants.emailRegex));
         this.splitByEmailPattern2 = Pattern.compile(
-                String.format("^(.*) (%s)$", Parser.emailRegex));
-        this.findEmailPattern = Pattern.compile(String.format("(%s)", Parser.emailRegex));
+                String.format("^(.*) (%s)$", Constants.emailRegex));
+        this.findEmailPattern = Pattern.compile(String.format("(%s)", Constants.emailRegex));
     }
 
     /**
@@ -85,7 +86,7 @@ public class TdContainerParser extends Parser {
         // Next, find our email TD, and fail if we can't find it.
         String email = "";
         Elements emailTds = myRow.select(
-                String.format("td:matches(%s)", Parser.emailRegex));
+                String.format("td:matches(%s)", Constants.emailRegex));
         if (emailTds.isEmpty())
             throw new CantParseIndividualException("None of the TDs have an email in them");
         for (Element emailTd : emailTds) {

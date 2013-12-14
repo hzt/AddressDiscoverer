@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.EmptyTdException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
@@ -42,7 +43,7 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     private final Pattern findEmailPattern = 
-            Pattern.compile(String.format("(%s)", Parser.emailRegex));;
+            Pattern.compile(String.format("(%s)", Constants.emailRegex));;
     
     // We store our department when parsing multiple records
     Department department;
@@ -79,7 +80,7 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
         // type parser. Otherwise, we fail here and let the next single record
         // per row take over.
         Elements elementsWithEmails = myRow.select(
-                String.format("td:matches(%s)", Parser.emailRegex));
+                String.format("td:matches(%s)", Constants.emailRegex));
         if (elementsWithEmails.size() > 1)
             throw new MultipleRecordsInTrException();
         else

@@ -13,6 +13,7 @@ package org.norvelle.addressdiscoverer.gui;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.sql.SQLException;
@@ -70,20 +71,24 @@ public abstract class AbstractExtractIndividualWorker
         listeners.remove(listener);
     }
 
-    protected void extractIndividuals(String html) {
+    protected void extractIndividuals(String html, String encoding) {
         try {
             Individual.deleteIndividualsForDepartment(this.department);
             IndividualExtractor addressParser = new IndividualExtractor(this.department, this);
-            List<Individual> individuals = addressParser.parse(html);
+            List<Individual> individuals = addressParser.parse(html, encoding);
             for (Individual i : individuals) {
                 if (!i.getClass().equals(UnparsableIndividual.class))
                     Individual.store(i);
             }
             this.panel.populateResultsTable(individuals);
             this.panel.notifyParsingFinished();
-        } catch (OrmObjectNotConfiguredException | SQLException | IndividualHasNoDepartmentException | CannotStoreNullIndividualException ex) {
+        } 
+        catch (UnsupportedEncodingException | OrmObjectNotConfiguredException | 
+                SQLException | IndividualHasNoDepartmentException | 
+                CannotStoreNullIndividualException ex) 
+        {
             AddressDiscoverer.reportException(ex);
-        }
+        } 
     }
 
     protected String getCharsetFromStream(InputStream in) throws IOException {

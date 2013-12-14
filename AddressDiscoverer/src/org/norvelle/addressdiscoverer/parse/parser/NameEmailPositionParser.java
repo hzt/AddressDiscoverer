@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
+import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
@@ -33,9 +34,9 @@ public class NameEmailPositionParser extends Parser {
     
     public NameEmailPositionParser() {
         this.splitByEmailPattern = Pattern.compile(
-                String.format("^(.*) (%s) (.*)$", Parser.emailRegex));
+                String.format("^(.*) (%s) (.*)$", Constants.emailRegex));
         this.splitByEmailPattern2 = Pattern.compile(
-                String.format("^(.*) (%s)$", Parser.emailRegex));
+                String.format("^(.*) (%s)$", Constants.emailRegex));
     }
 
      /**

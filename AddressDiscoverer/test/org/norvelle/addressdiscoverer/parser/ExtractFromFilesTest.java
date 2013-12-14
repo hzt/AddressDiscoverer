@@ -23,6 +23,7 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 
@@ -58,8 +59,8 @@ public class ExtractFromFilesTest {
                     "/org/norvelle/addressdiscoverer/resources/navarra_filosofia.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "filosofia.txt"
             );
-        } catch (IOException ex) {
-            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
         Assert.assertEquals(
@@ -79,8 +80,8 @@ public class ExtractFromFilesTest {
                     TestUtilities.getTestOutputDirectory() + File.separator + "filologia.txt",
                     "windows-1252"
             );
-        } catch (IOException ex) {
-            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
         Assert.assertEquals(
@@ -109,8 +110,8 @@ public class ExtractFromFilesTest {
                     TestUtilities.getTestOutputDirectory() + File.separator + "educacion.txt",
                     "iso-8859-1"
             );
-        } catch (IOException ex) {
-            fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
         Assert.assertEquals(

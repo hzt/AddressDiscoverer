@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.parse.parser.Parser;
 
 /**
@@ -42,7 +43,7 @@ public class EmailElementInTrFinder {
     public EmailElementInTrFinder(Document soup) {
         logger.log(Level.FINE, "Entering EmailElementFinder.new()");
         Elements elementsWithEmails = soup.select(
-                String.format("tr:matches(%s)", Parser.emailRegex));
+                String.format("tr:matches(%s)", Constants.emailRegex));
         for (Element element: elementsWithEmails)
             this.rows.add(element);
         logger.log(Level.FINE, 
@@ -51,7 +52,7 @@ public class EmailElementInTrFinder {
         int numFound = this.rows.size();
 
         Elements elementsWithEmailAttributes = soup.select(
-                String.format("[href~=(%s)]", Parser.emailRegex));
+                String.format("[href~=(%s)]", Constants.emailRegex));
         for (Element attrElement: elementsWithEmailAttributes) {
             Element trElement = this.translateToTr(attrElement);
             if (trElement != null)

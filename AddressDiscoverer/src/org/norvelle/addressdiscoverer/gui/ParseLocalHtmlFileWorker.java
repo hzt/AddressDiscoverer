@@ -52,7 +52,7 @@ public class ParseLocalHtmlFileWorker extends AbstractExtractIndividualWorker {
             String html = FileUtils.readFileToString(this.localFile, Charset.forName(charset));
             this.updateDepartmentHTML(html);
             this.panel.setHTMLPanelContents(html);
-            this.extractIndividuals(html);
+            this.extractIndividuals(html, charset);
         } catch (IOException ex) {
             AddressDiscoverer.reportException(ex);
         } // try
