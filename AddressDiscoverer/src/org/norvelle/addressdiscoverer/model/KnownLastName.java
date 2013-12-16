@@ -10,75 +10,49 @@
  */
 package org.norvelle.addressdiscoverer.model;
 
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.DatabaseTable;
-import com.j256.ormlite.table.TableUtils;
-import java.sql.SQLException;
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents an access pathway to our list of last names
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-@DatabaseTable(tableName = "last_names")
 public class KnownLastName {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
     
-    private static Dao<KnownLastName, String> dao;
+    // Our hashmap for tracking existing first names
+    private static final HashMap<String, Integer> lastNames = new HashMap<>();
     
-    @DatabaseField
-    private String name;
-    
-    @DatabaseField(generatedId = true)
-    private int id;
-    
-    /**
-     * ORMLite needs a no-arg constructor
-     */
-    public KnownLastName() {
-    }
-    
-    /**
-     * Initialize the first name with a name, plus a unique id.
-     * 
-     * @param name 
-     */
-    public KnownLastName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getId() {
-        return id;
-    }
-    
-    @Override
-    public String toString() {
-        return this.name;
-    }
+    // The file where we store our last names
+    private static File namesFile;
     
     // ===================== Static Data Manipulation Methods =============================
     
-    public static void initialize(ConnectionSource connectionSource) throws SQLException {
-        KnownLastName.dao = 
-            DaoManager.createDao(connectionSource, KnownLastName.class);
-        TableUtils.createTableIfNotExists(connectionSource, KnownLastName.class);
+    public static void initialize(String settingsDir) throws IOException {
+        namesFile = new File(settingsDir + File.separator + "lastnames.txt");
+        String nameStr = FileUtils.readFileToString(namesFile, "UTF-8");
+        String[] namesArray = StringUtils.split(nameStr, "\n");
+        for (String name : namesArray) 
+            lastNames.put(name, 1);
     }
     
-    public static boolean isLastName(String name) throws SQLException, OrmObjectNotConfiguredException {
-        KnownLastName.checkConfigured();
+    public static void store() throws IOException {
+        String namesStr = StringUtils.join(lastNames.keySet(), "\n");
+        FileUtils.writeStringToFile(namesFile, namesStr, "UTF-8");
+    }
+    
+    public static boolean isLastName(String name) {
         // First, check something easy... if the name has a hyphen, it's a last name
         if (name.contains("-")) return true;
         
@@ -87,8 +61,7 @@ public class KnownLastName {
                 .replace("ó", "o").replace("ú", "u").replace("ü", "u")
                 .replace("ß", "ss").replace("ö", "o").replace("ü", "u")
                 .replace("ä", "a").replace("ë", "e").replace("è", "e");
-        List<KnownLastName> matches = KnownLastName.dao.queryForEq("name", name);
-        boolean isMatch = !matches.isEmpty();
+        boolean isMatch = hasLastName(name);
         if (isMatch)
             logger.log(Level.FINE, String.format("%s is a last name", name));
         else
@@ -96,38 +69,22 @@ public class KnownLastName {
         return isMatch;
     }
     
-    public static KnownLastName get(String name) throws SQLException, OrmObjectNotConfiguredException {
-        KnownLastName.checkConfigured();
-        List<KnownLastName> matches =  KnownLastName.dao.queryForEq("name", name);
-        if (!matches.isEmpty())
-            return matches.get(0);
-        else return null;
+    private static boolean hasLastName(String name) {
+        for (String currName : lastNames.keySet()) {
+            String diff = StringUtils.difference(name, currName);
+            String diff2 = StringUtils.difference(currName, name);
+            if (diff.isEmpty() && diff2.isEmpty())
+                return true;
+        }
+        return false;
+    }
+
+    public static void delete(String name) {
+        if (lastNames.containsKey(name))
+            lastNames.remove(name);
     }
     
-    /**
-     * Tell OrmLite to store this KnownLastName as data in the SQLite backend
-     * 
-     * @param name
-     * @throws SQLException
-     * @throws OrmObjectNotConfiguredException 
-     */
-    public static void store(KnownLastName name) throws SQLException, 
-            OrmObjectNotConfiguredException 
-    {
-        KnownLastName.checkConfigured();
-        List<KnownLastName> matches = KnownLastName.dao.queryForEq("name", name);
-        boolean isMatch = !matches.isEmpty();
-        if (! isMatch)
-            KnownLastName.dao.create(name);
+    public static void add(String name) {
+        lastNames.put(name, 1);
     }
-    
-    public static void delete(KnownLastName k) throws SQLException {
-        KnownLastName.dao.delete(k);
-    }
-    
-    private static void checkConfigured() throws OrmObjectNotConfiguredException {
-        if (KnownLastName.dao == null)
-            throw new OrmObjectNotConfiguredException("LastName DAO not configured");
-    }
-    
 }

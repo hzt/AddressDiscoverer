@@ -22,6 +22,7 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
@@ -40,11 +41,12 @@ public class IndividualExtractorTest {
     }
 
     @BeforeClass
+    @SuppressWarnings("UnnecessaryReturnStatement")
     public static void setUpClass() {
         TestUtilities.setupLogger();
         try {
             connection = TestUtilities.getDBConnection("addresses.test.sqlite");
-        } catch (SQLException | CannotLoadJDBCDriverException ex) {
+        } catch (SQLException | CannotLoadJDBCDriverException |IOException ex) {
             fail("Encountered problems connecting to database: " + ex.getMessage());
             return;
         }
@@ -58,7 +60,8 @@ public class IndividualExtractorTest {
                     "/org/norvelle/addressdiscoverer/resources/cmpasamar.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "cmpasamar.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+                | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
@@ -86,7 +89,8 @@ public class IndividualExtractorTest {
                     "/org/norvelle/addressdiscoverer/resources/mzugasti.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "mzugasti.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+                | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
@@ -111,12 +115,14 @@ public class IndividualExtractorTest {
     @Test
     public void testLmflamarique() {
         List<Individual> individuals;
+        String outputFile = TestUtilities.getTestOutputDirectory() + File.separator + "lflamarique.txt";
         try {
             individuals = TestUtilities.extractIndividuals(
                     "/org/norvelle/addressdiscoverer/resources/lflamarique.html",
-                    TestUtilities.getTestOutputDirectory() + File.separator + "lflamarique.txt"
+                    outputFile
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+                | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
@@ -146,7 +152,8 @@ public class IndividualExtractorTest {
                     "/org/norvelle/addressdiscoverer/resources/olizas.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "olizas.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+                | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
@@ -175,7 +182,8 @@ public class IndividualExtractorTest {
                     "/org/norvelle/addressdiscoverer/resources/ThreeFieldsAcrossNames.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "individuals.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+                | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
@@ -195,7 +203,8 @@ public class IndividualExtractorTest {
                     "/org/norvelle/addressdiscoverer/resources/agenciso.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "agenciso.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+                | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }

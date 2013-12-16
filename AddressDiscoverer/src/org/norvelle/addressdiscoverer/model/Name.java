@@ -56,13 +56,28 @@ public class Name {
     }};
     
     /**
+     * A static method for determining whether a chunk of text is known to
+     * contain a name.
+     * 
+     * @param chunk
+     * @return 
+     */
+    public static boolean isName(String chunk) {
+        String[] words = StringUtils.split(chunk);
+        for (String word : words) {
+            word = word.trim();
+            if (KnownFirstName.isFirstName(word)) return true;
+            if (KnownLastName.isLastName(word)) return true;
+        }
+        return false;
+    }
+    
+    /**
      * Our primary constructor... tries to apply intelligence to parsing the name
      * 
-     * @param textChunk A chunk of text that supposedly contains a name
-     * @throws SQLException
-     * @throws OrmObjectNotConfiguredException 
+     * @param textChunk A chunk of text that supposedly contains a name 
      */
-    public Name(String textChunk) throws SQLException, OrmObjectNotConfiguredException {
+    public Name(String textChunk) {
         if (textChunk.contains(","))
             this.parseCommaSeparatedChunk(textChunk);
         else
@@ -71,7 +86,7 @@ public class Name {
         this.stealFromFirst();
     }
     
-    public Name(String first, String last) throws SQLException, OrmObjectNotConfiguredException {
+    public Name(String first, String last) {
         this.firstName = first;
         this.lastName = last;
         this.extractRest();
@@ -91,6 +106,7 @@ public class Name {
         this(first, last, rest);
         this.extractTitle();
     }
+    
     /**
      * We calculate a rough score for name quality, emphasizing that a good
      * name should have title, first and last names. However, a name without
@@ -114,7 +130,7 @@ public class Name {
      * 
      * @param textChunk 
      */
-    private void parseCommaSeparatedChunk(String textChunk) throws SQLException, OrmObjectNotConfiguredException {
+    private void parseCommaSeparatedChunk(String textChunk) {
         // Split things into two parts
         String[] parts = textChunk.split(",");
         String myFirstName = parts[1];
@@ -140,9 +156,9 @@ public class Name {
                 myLastName = myLastName.replace(word, "");
                 mySuffix += word + " ";
             }
-            else if (!KnownLastName.isLastName(word) || restHasBegun) {
+            else if (KnownSpanishWord.isWord(word) || restHasBegun) {
                 restHasBegun = true;
-                myRest += myRest + " ";
+                myRest += myRest + " " + word;
                 myLastName = myLastName.replace(word, "");
             }
         }
@@ -161,7 +177,7 @@ public class Name {
      * @throws SQLException
      * @throws OrmObjectNotConfiguredException 
      */
-    private void parseOneLongChunk(String oneLongChunk) throws SQLException, OrmObjectNotConfiguredException {
+    private void parseOneLongChunk(String oneLongChunk) {
         String[] words = StringUtils.split(oneLongChunk);
         String myFirstName = "";
         String myLastName = "";
@@ -175,7 +191,7 @@ public class Name {
             else if (myFirstName.isEmpty())
                 myFirstName = word + " ";
             // Otherwise, if it is a known last name we add it to our last names
-            else if (KnownLastName.isLastName(word))
+            else if (KnownLastName.isLastName(word) || !KnownSpanishWord.isWord(word))
                 myLastName += word + " ";
             // Otherwise, it's not a last name and we haven't seen any last 
             // names yet: it's a firstn name
@@ -217,13 +233,14 @@ public class Name {
      * putting into the suffix anything that looks like a suffix, and then 
      * putting into the "rest" category anything else that doesn't fit.
      */
-    private void extractRest() throws SQLException, OrmObjectNotConfiguredException {
+    private void extractRest() {
         String possibleRest = this.lastName;
         String possibleLast = "";
         String possibleSuffix = "";
         String[] words = this.lastName.split("\\s+");
+        int wordCount = 0;
         for (String word : words) {
-            if (KnownLastName.isLastName(word)) {
+            if (KnownLastName.isLastName(word) || !KnownSpanishWord.isWord(word)) {
                 possibleLast += word + " ";
                 possibleRest = possibleRest.replace(word, "").trim();
             }
@@ -259,8 +276,10 @@ public class Name {
     private void stealFromFirst() {
         if (this.lastName.isEmpty() && !this.firstName.isEmpty()) {
             String[] words = StringUtils.split(this.firstName);
-            this.lastName = words[words.length - 1];
-            this.firstName = this.firstName.replace(this.lastName, "");
+            if (words.length > 1) {
+                this.lastName = words[words.length - 1];
+                this.firstName = this.firstName.replace(this.lastName, "");
+            }
         }
     }
     

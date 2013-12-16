@@ -30,7 +30,9 @@ import org.norvelle.addressdiscoverer.gui.MainWindow;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
+import org.norvelle.addressdiscoverer.model.KnownFirstName;
 import org.norvelle.addressdiscoverer.model.KnownLastName;
+import org.norvelle.addressdiscoverer.model.KnownSpanishWord;
 
 /**
  * 
@@ -73,6 +75,9 @@ public class AddressDiscoverer {
         // Load our properties and attach the database, creating it if it doesn't exist
         this.loadProperties();
         this.attachDatabase();
+        KnownLastName.initialize(this.settingsDirname);
+        KnownFirstName.initialize(this.settingsDirname);
+        KnownSpanishWord.initialize(this.settingsDirname);
         
         // Create our GUI
         UIManager.setLookAndFeel(
@@ -86,10 +91,13 @@ public class AddressDiscoverer {
     public void shutdown()  {
         try {
             this.saveProperties();
+            KnownLastName.store();
+            KnownFirstName.store();
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null,
-                    Utils.wordWrapString("Could not store properties: " + ex.getMessage(), 30), 
-                    "Property storage failure", JOptionPane.ERROR_MESSAGE);
+                    Utils.wordWrapString("Could not store properties or names files: " 
+                            + ex.getMessage(), 60), 
+                    "Data storage failure", JOptionPane.ERROR_MESSAGE);
         }
         logger.info("Exiting AddressDiscoverer");
         System.exit(0);
@@ -127,7 +135,6 @@ public class AddressDiscoverer {
         Institution.initialize(connectionSource);
         Department.initialize(connectionSource);
         Individual.initialize(connectionSource);
-        KnownLastName.initialize(connectionSource);
     }
     
     private void loadProperties() {

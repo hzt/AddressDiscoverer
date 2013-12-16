@@ -11,8 +11,8 @@
 package org.norvelle.addressdiscoverer.model;
 
 import com.j256.ormlite.support.ConnectionSource;
+import java.io.IOException;
 import java.sql.SQLException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -20,7 +20,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
  *
@@ -36,11 +35,12 @@ public class NameTest {
     }
     
     @BeforeClass
+    @SuppressWarnings("UnnecessaryReturnStatement")
     public static void setUpClass() {
         TestUtilities.setupLogger();
         try {
             connection = TestUtilities.getDBConnection("addresses.sqlite");
-        } catch (SQLException | CannotLoadJDBCDriverException ex) {
+        } catch (SQLException | CannotLoadJDBCDriverException | IOException ex) {
             fail("Encountered problems connecting to database: " + ex.getMessage());
             return;
         }
@@ -50,12 +50,7 @@ public class NameTest {
     public void testPasamar() {
         String chunk = "Dra. Concepción Martínez Pasamar";
         Name name;
-        try {
-            name = new Name(chunk);
-        } catch (SQLException | OrmObjectNotConfiguredException ex) {
-            fail("Encountered problems connecting to database: " + ex.getMessage());
-            return;
-        } 
+        name = new Name(chunk); 
         
         Assert.assertFalse("The Name object should not have a score of 0", name.getScore() == 0.0);
         Assert.assertEquals("First name should be Concepción", "Concepción", name.getFirstName());
@@ -64,15 +59,22 @@ public class NameTest {
     }
 
     @Test
+    public void testLizasoain() {
+        String chunk = "Lizasoain Rumeu, Olga";
+        Name name;
+        name = new Name(chunk); 
+        
+        Assert.assertFalse("The Name object should not have a score of 0", name.getScore() == 0.0);
+        Assert.assertEquals("First name should be Olga", "Olga", name.getFirstName());
+        Assert.assertEquals("Last name should be Lizasoain Rumeu", "Lizasoain Rumeu", name.getLastName());
+        Assert.assertEquals("Title should be ''", "", name.getTitle());
+    }
+
+    @Test
     public void testCommaSeparated() {
         String chunk = "Martínez Pasamar, Dra. Concepción";
         Name name;
-        try {
-            name = new Name(chunk);
-        } catch (SQLException | OrmObjectNotConfiguredException ex) {
-            fail("Encountered problems connecting to database: " + ex.getMessage());
-            return;
-        } 
+        name = new Name(chunk); 
         
         Assert.assertFalse("The Name object should not have a score of 0", name.getScore() == 0.0);
         Assert.assertEquals("First name should be Concepción", "Concepción", name.getFirstName());

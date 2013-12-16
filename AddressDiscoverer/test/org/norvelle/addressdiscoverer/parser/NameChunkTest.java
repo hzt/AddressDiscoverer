@@ -12,6 +12,7 @@ package org.norvelle.addressdiscoverer.parser;
 
 import org.norvelle.addressdiscoverer.parse.BasicNameChunkHandler;
 import com.j256.ormlite.support.ConnectionSource;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -43,11 +44,12 @@ public class NameChunkTest {
     }
 
     @BeforeClass
+    @SuppressWarnings("UnnecessaryReturnStatement")
     public static void setUpClass() {
         TestUtilities.setupLogger();
         try {
             connection = TestUtilities.getDBConnection("addresses.test.sqlite");
-        } catch (SQLException | CannotLoadJDBCDriverException ex) {
+        } catch (SQLException | CannotLoadJDBCDriverException | IOException ex) {
             fail("Encountered problems connecting to database: " + ex.getMessage());
             return;
         }

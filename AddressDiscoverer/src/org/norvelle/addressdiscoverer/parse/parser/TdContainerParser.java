@@ -68,15 +68,18 @@ public class TdContainerParser extends Parser {
         
         // Now, we assume that the first TD with text content holds a name
         String nameChunk = "";
+        String restChunk = "";
         for (Element td : tds) {
             if (td.hasText()) {
-                nameChunk = td.text();
-                td.remove();
-                break;
+                if (Name.isName(td.text())) {
+                    nameChunk = td.text();
+                    break;
+                }
+                else restChunk += td.text() + " ";
             }
             else td.remove();
         }
-        if (nameChunk.isEmpty())
+        if (nameChunk.isEmpty() && restChunk.isEmpty())
             throw new CantParseIndividualException("None of the TDs have text in them");
         
         // Now that we have a chunk of text with a name, see if we can't create a Name

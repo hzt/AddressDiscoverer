@@ -45,7 +45,8 @@ public class EmailElementInTrFinder {
         Elements elementsWithEmails = soup.select(
                 String.format("tr:matches(%s)", Constants.emailRegex));
         for (Element element: elementsWithEmails)
-            this.rows.add(element);
+            if (this.trDoesNotContainOtherTrs(element))
+                this.rows.add(element);
         logger.log(Level.FINE, 
                 String.format("Found %d Elements with an email in their content", 
                         elementsWithEmails.size()));
@@ -55,7 +56,7 @@ public class EmailElementInTrFinder {
                 String.format("[href~=(%s)]", Constants.emailRegex));
         for (Element attrElement: elementsWithEmailAttributes) {
             Element trElement = this.translateToTr(attrElement);
-            if (trElement != null)
+            if (trElement != null && this.trDoesNotContainOtherTrs(trElement))
                 this.addIfNotPresent(attrElement);
         }
         logger.log(Level.FINE, "Exiting EmailElementFinder.new()");
@@ -94,8 +95,8 @@ public class EmailElementInTrFinder {
      * Given an element found in a Jsoup with an attribute containing an email,
      * move up the hierarchy to the nearest TR element and return that.
      * 
-     * @param attrElement
-     * @return 
+     * @param attrElement The Element that has an email attribute
+     * @return The TR element that is the closest ancestor of the attribute-bearing element
      */
     private Element translateToTr(Element attrElement) {
         if (attrElement.tagName().equals("tr"))
@@ -108,6 +109,24 @@ public class EmailElementInTrFinder {
         }
         return null;
         
+    }
+
+    /**
+     * We don't want to have our ElementFinder return TRs that have other
+     * TRs embedded in them, so this method detects those cases.
+     * 
+     * @param element TR that we want to test for TR children
+     * @return 
+     */
+    private boolean trDoesNotContainOtherTrs(Element element) {
+        Elements children = element.children();
+        for (Element child : children) {
+            Elements allDescendents = child.getAllElements();
+            for (Element descendent : allDescendents)
+                if (descendent.tagName().equals("tr"))
+                    return false;
+        }
+        return true;
     }
     
     

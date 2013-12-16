@@ -32,8 +32,9 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
+import org.norvelle.addressdiscoverer.model.KnownFirstName;
 import org.norvelle.addressdiscoverer.model.KnownLastName;
-import org.norvelle.addressdiscoverer.parse.EmailElementOutsideTrFinder;
+import org.norvelle.addressdiscoverer.model.KnownSpanishWord;
 import org.norvelle.utils.Utils;
 
 /**
@@ -62,15 +63,17 @@ public class TestUtilities {
         return settingsDir.getAbsolutePath();
     }
 
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch"})
     public static ConnectionSource getDBConnection(String dbName) 
-            throws SQLException, CannotLoadJDBCDriverException 
+            throws SQLException, CannotLoadJDBCDriverException, IOException 
     {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException ex) {
             throw new CannotLoadJDBCDriverException(ex.getMessage());
         }
-        String dbFilePath = TestUtilities.getTestOutputDirectory() + File.separator + dbName;
+        String outputDir = TestUtilities.getTestOutputDirectory();
+        String dbFilePath = outputDir + File.separator + dbName;
 
         // create a database connection and initialize our tables.
         // All object persistence is managed via ORMLite.
@@ -87,7 +90,10 @@ public class TestUtilities {
         Institution.initialize(connectionSource);
         Department.initialize(connectionSource);
         Individual.initialize(connectionSource);
-        KnownLastName.initialize(connectionSource);
+        
+        KnownLastName.initialize(outputDir);
+        KnownFirstName.initialize(outputDir);
+        KnownSpanishWord.initialize(outputDir);
         
         return connectionSource;
     }

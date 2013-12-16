@@ -29,6 +29,7 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
@@ -53,7 +54,7 @@ public class ExtractFromTrsWithMultipleRecordsTest {
         TestUtilities.setupLogger();
         try {
             connection = TestUtilities.getDBConnection("addresses.test.sqlite");
-        } catch (SQLException | CannotLoadJDBCDriverException ex) {
+        } catch (SQLException | CannotLoadJDBCDriverException | IOException ex) {
             fail("Encountered problems connecting to database: " + ex.getMessage());
             return;
         }
@@ -108,7 +109,8 @@ public class ExtractFromTrsWithMultipleRecordsTest {
                     "/org/norvelle/addressdiscoverer/resources/navarra_historia.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "navarra_historia.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+                | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }

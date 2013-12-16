@@ -50,11 +50,12 @@ public class ExtractFromFilesTest {
     }
 
     @BeforeClass
+    @SuppressWarnings("UnnecessaryReturnStatement")
     public static void setUpClass() {
         TestUtilities.setupLogger();
         try {
             connection = TestUtilities.getDBConnection("addresses.test.sqlite");
-        } catch (SQLException | CannotLoadJDBCDriverException ex) {
+        } catch (SQLException | CannotLoadJDBCDriverException |IOException ex) {
             fail("Encountered problems connecting to database: " + ex.getMessage());
             return;
         }
@@ -78,7 +79,7 @@ public class ExtractFromFilesTest {
         return individuals;
     }
     
-    //@Test
+    @Test
     public void testFilosofia() {
         List<Individual> individuals;
         try {
@@ -86,7 +87,8 @@ public class ExtractFromFilesTest {
                     "/org/norvelle/addressdiscoverer/resources/navarra_filosofia.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "filosofia.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+                | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
@@ -104,14 +106,14 @@ public class ExtractFromFilesTest {
                 percentageOfNulls < 5);
     }
     
-    //@Test
+    @Test
     public void testFilologia() {
         List<Individual> individuals;
+        String logfile = TestUtilities.getTestOutputDirectory() + File.separator + "filologia.txt";
         try {
             individuals = extractIndividuals(
                     "/org/norvelle/addressdiscoverer/resources/navarra_philology.html",
-                    TestUtilities.getTestOutputDirectory() + File.separator + "filologia.txt",
-                    "windows-1252"
+                    logfile, "windows-1252"
             );
         } catch (IOException | SQLException | OrmObjectNotConfiguredException 
                 | IndividualExtractionFailedException ex) {
@@ -119,8 +121,8 @@ public class ExtractFromFilesTest {
             return;
         }
         Assert.assertEquals(
-                String.format("There should be 47 individuals, %d were found", individuals.size()), 
-                47, individuals.size());
+                String.format("There should be 46 individuals, %d were found", individuals.size()), 
+                46, individuals.size());
         int numNulls = 0;
         for (Individual i: individuals) {
             if (i.getClass().equals(UnparsableIndividual.class))
@@ -135,7 +137,7 @@ public class ExtractFromFilesTest {
                 i.getClass().equals(NullIndividual.class));*/
     }
     
-    //@Test
+    @Test
     public void testEducacion() {
         List<Individual> individuals;
         try {
@@ -144,7 +146,8 @@ public class ExtractFromFilesTest {
                     TestUtilities.getTestOutputDirectory() + File.separator + "educacion.txt",
                     "iso-8859-1"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException 
+                | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }
@@ -177,11 +180,11 @@ public class ExtractFromFilesTest {
     @Test
     public void testArquitectura() {
         List<Individual> individuals;
+        String outfile = TestUtilities.getTestOutputDirectory() + File.separator + "arquitectura.txt";
         try {
             individuals = extractIndividuals(
                     "/org/norvelle/addressdiscoverer/resources/navarra_arquitectura.html",
-                    TestUtilities.getTestOutputDirectory() + File.separator + "arquitectura.txt",
-                    "windows-1252"
+                    outfile, "windows-1252"
             );
         } catch (IOException | SQLException | OrmObjectNotConfiguredException 
                 | IndividualExtractionFailedException ex) {
@@ -189,8 +192,8 @@ public class ExtractFromFilesTest {
             return;
         }
         Assert.assertEquals(
-                String.format("There should be 75 individuals, %d were found", individuals.size()), 
-                75, individuals.size());
+                String.format("There should be 86 individuals, %d were found", individuals.size()), 
+                86, individuals.size());
         int numNulls = 0;
         for (Individual i: individuals) {
             if (i.getClass().equals(UnparsableIndividual.class))

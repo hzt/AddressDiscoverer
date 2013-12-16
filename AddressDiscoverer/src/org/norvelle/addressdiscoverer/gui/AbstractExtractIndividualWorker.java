@@ -29,6 +29,7 @@ import org.apache.commons.io.IOUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.parse.IndividualExtractor;
 import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
@@ -71,6 +72,7 @@ public abstract class AbstractExtractIndividualWorker
         listeners.remove(listener);
     }
 
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
     protected void extractIndividuals(String html, String encoding) {
         try {
             Individual.deleteIndividualsForDepartment(this.department);
@@ -83,9 +85,7 @@ public abstract class AbstractExtractIndividualWorker
             this.panel.populateResultsTable(individuals);
             this.panel.notifyParsingFinished();
         } 
-        catch (UnsupportedEncodingException | OrmObjectNotConfiguredException | 
-                SQLException | IndividualHasNoDepartmentException | 
-                CannotStoreNullIndividualException ex) 
+        catch (Exception ex) 
         {
             AddressDiscoverer.reportException(ex);
         } 

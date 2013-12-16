@@ -11,13 +11,11 @@
 package org.norvelle.addressdiscoverer.gui;
 
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
+import org.norvelle.addressdiscoverer.model.KnownFirstName;
 import org.norvelle.addressdiscoverer.model.KnownLastName;
 
 /**
@@ -72,7 +70,7 @@ public class EditIndividualDialog extends javax.swing.JDialog {
         jAddFirstNameButton = new javax.swing.JButton();
         jDeleteLastNameButton = new javax.swing.JButton();
         jAddLastNameButton = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        jDeleteIndividualButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Edit Individual");
@@ -108,8 +106,18 @@ public class EditIndividualDialog extends javax.swing.JDialog {
         });
 
         jDeleteFirstNameButton.setText("-");
+        jDeleteFirstNameButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jDeleteFirstNameButtonActionPerformed(evt);
+            }
+        });
 
         jAddFirstNameButton.setText("+");
+        jAddFirstNameButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jAddFirstNameButtonActionPerformed(evt);
+            }
+        });
 
         jDeleteLastNameButton.setText("-");
         jDeleteLastNameButton.addActionListener(new java.awt.event.ActionListener() {
@@ -125,10 +133,10 @@ public class EditIndividualDialog extends javax.swing.JDialog {
             }
         });
 
-        jButton1.setText("Delete");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jDeleteIndividualButton.setText("Delete");
+        jDeleteIndividualButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jDeleteIndividualButtonActionPerformed(evt);
             }
         });
 
@@ -164,7 +172,7 @@ public class EditIndividualDialog extends javax.swing.JDialog {
                                     .addComponent(jDeleteFirstNameButton)
                                     .addComponent(jDeleteLastNameButton, javax.swing.GroupLayout.Alignment.TRAILING)))))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jButton1)
+                        .addComponent(jDeleteIndividualButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 264, Short.MAX_VALUE)
                         .addComponent(jOkButton, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -202,7 +210,7 @@ public class EditIndividualDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCancelButton)
                     .addComponent(jOkButton)
-                    .addComponent(jButton1))
+                    .addComponent(jDeleteIndividualButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -234,23 +242,13 @@ public class EditIndividualDialog extends javax.swing.JDialog {
 
     private void jAddLastNameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jAddLastNameButtonActionPerformed
         String name = JOptionPane.showInputDialog("Add: ");
-        KnownLastName nameObj = new KnownLastName(name);
-        try {
-            KnownLastName.store(nameObj);
-        } catch (SQLException | OrmObjectNotConfiguredException ex) {
-            AddressDiscoverer.reportException(ex);
-        } 
+        KnownLastName.add(name);
     }//GEN-LAST:event_jAddLastNameButtonActionPerformed
 
     private void jDeleteLastNameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDeleteLastNameButtonActionPerformed
         String name = JOptionPane.showInputDialog("Delete: ");
-        try {
-            KnownLastName nameObj = KnownLastName.get(name);
-            if (nameObj != null)
-                KnownLastName.delete(nameObj);
-        } catch (SQLException | OrmObjectNotConfiguredException ex) {
-            AddressDiscoverer.reportException(ex);
-        }         
+        if (KnownLastName.isLastName(name))
+            KnownLastName.delete(name);
     }//GEN-LAST:event_jDeleteLastNameButtonActionPerformed
 
     private void jCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCancelButtonActionPerformed
@@ -258,7 +256,7 @@ public class EditIndividualDialog extends javax.swing.JDialog {
         this.dispose();
     }//GEN-LAST:event_jCancelButtonActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jDeleteIndividualButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDeleteIndividualButtonActionPerformed
         int reply = JOptionPane.showConfirmDialog(null, "Are you sure?", "Confirm delete", 
                 JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.NO_OPTION) 
@@ -271,15 +269,26 @@ public class EditIndividualDialog extends javax.swing.JDialog {
         this.parent.refreshResultsTable();
         this.setVisible(false);
         this.dispose();        
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_jDeleteIndividualButtonActionPerformed
+
+    private void jAddFirstNameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jAddFirstNameButtonActionPerformed
+        String name = JOptionPane.showInputDialog("Add: ");
+        KnownFirstName.add(name);
+    }//GEN-LAST:event_jAddFirstNameButtonActionPerformed
+
+    private void jDeleteFirstNameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDeleteFirstNameButtonActionPerformed
+        String name = JOptionPane.showInputDialog("Delete: ");
+        if (KnownFirstName.isFirstName(name))
+            KnownFirstName.delete(name);
+    }//GEN-LAST:event_jDeleteFirstNameButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jAddFirstNameButton;
     private javax.swing.JButton jAddLastNameButton;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jCancelButton;
     private javax.swing.JButton jDeleteFirstNameButton;
+    private javax.swing.JButton jDeleteIndividualButton;
     private javax.swing.JButton jDeleteLastNameButton;
     private javax.swing.JTextField jEmailName;
     private javax.swing.JTextField jFirstNameField;

@@ -125,7 +125,7 @@ public class IndividualExtractor {
      */
     private List<Individual> getSingleIndividualsFromTrs(List<Element> tableRows)
             throws MultipleRecordsInTrException {
-        List<Individual> myIndividuals = new ArrayList<Individual>();
+        List<Individual> myIndividuals = new ArrayList<>();
         int rowCount = 0;
         for (Element row : tableRows) {
             Individual in;
