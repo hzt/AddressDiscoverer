@@ -17,6 +17,7 @@ import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
@@ -26,6 +27,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
@@ -91,7 +93,8 @@ public class TestUtilities {
     }
 
     public static List extractIndividuals(String htmlUri, String outputFile, String encoding) 
-            throws IOException, SQLException, OrmObjectNotConfiguredException 
+            throws IOException, SQLException, OrmObjectNotConfiguredException, 
+            UnsupportedEncodingException, IndividualExtractionFailedException 
     {
         String html;
         html = Utils.loadStringFromResource(htmlUri, encoding);
@@ -108,7 +111,8 @@ public class TestUtilities {
     }
     
     public static List extractIndividuals(String htmlUri, String outputFile) 
-            throws IOException, SQLException, OrmObjectNotConfiguredException 
+            throws IOException, SQLException, OrmObjectNotConfiguredException, 
+            UnsupportedEncodingException, IndividualExtractionFailedException 
     {
         return extractIndividuals(htmlUri, outputFile, "UTF-8");
     }

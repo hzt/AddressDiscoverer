@@ -15,6 +15,21 @@ package org.norvelle.addressdiscoverer.model;
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public class UnparsableIndividual extends Individual {
+
+    @Override
+    public String getEmail() {
+        return "Unparsable"; //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getLastName() {
+        return "Unparsable"; //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getFirstName() {
+        return "Unparsable"; //To change body of generated methods, choose Tools | Templates.
+    }
     
     String id;
     

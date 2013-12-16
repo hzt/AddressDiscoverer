@@ -14,24 +14,23 @@ package org.norvelle.addressdiscoverer.exceptions;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class CantExtractMultipleIndividualsException extends Exception {
+public class IndividualExtractionFailedException extends Exception {
 
     /**
      * Creates a new instance of
-     * <code>CantExtractMultipleIndividualsException</code> without detail
-     * message.
+     * <code>IndividualExtractionFailedException</code> without detail message.
      */
-    public CantExtractMultipleIndividualsException() {
+    public IndividualExtractionFailedException() {
     }
 
     /**
      * Constructs an instance of
-     * <code>CantExtractMultipleIndividualsException</code> with the specified
+     * <code>IndividualExtractionFailedException</code> with the specified
      * detail message.
      *
      * @param msg the detail message.
      */
-    public CantExtractMultipleIndividualsException(String msg) {
-        super("Cannot extract multiple individuals from this TR");
+    public IndividualExtractionFailedException(String msg) {
+        super(msg);
     }
 }

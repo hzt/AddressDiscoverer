@@ -83,12 +83,12 @@ public abstract class Parser {
         
         double topScore = 0.0; 
         Individual bestIndividual = null;
-        for (Parser p : Parser.singleRecordPerTrParsers) {
+        for (Parser currParser : Parser.singleRecordPerTrParsers) {
             //logger.log(Level.INFO, String.format("Trying parser %s on text: '%s'",
             //    p.getClass().getSimpleName(), row.toString()));
             Individual currIndividual;
             try {
-                currIndividual = p.getIndividual(row, department);
+                currIndividual = currParser.getIndividual(row, department);
             }
             catch (CantParseIndividualException ex) {
                 continue;

@@ -27,24 +27,21 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-@DatabaseTable(tableName = "last_names")
-public class KnownLastName {
+@DatabaseTable(tableName = "first_names")
+public class KnownFirstName {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
     
-    private static Dao<KnownLastName, String> dao;
+    private static Dao<KnownFirstName, String> dao;
     
     @DatabaseField
     private String name;
     
-    @DatabaseField(generatedId = true)
-    private int id;
-    
     /**
      * ORMLite needs a no-arg constructor
      */
-    public KnownLastName() {
+    public KnownFirstName() {
     }
     
     /**
@@ -52,7 +49,7 @@ public class KnownLastName {
      * 
      * @param name 
      */
-    public KnownLastName(String name) {
+    public KnownFirstName(String name) {
         this.name = name;
     }
 
@@ -60,10 +57,6 @@ public class KnownLastName {
         return name;
     }
 
-    public int getId() {
-        return id;
-    }
-    
     @Override
     public String toString() {
         return this.name;
@@ -72,13 +65,13 @@ public class KnownLastName {
     // ===================== Static Data Manipulation Methods =============================
     
     public static void initialize(ConnectionSource connectionSource) throws SQLException {
-        KnownLastName.dao = 
-            DaoManager.createDao(connectionSource, KnownLastName.class);
-        TableUtils.createTableIfNotExists(connectionSource, KnownLastName.class);
+        KnownFirstName.dao = 
+            DaoManager.createDao(connectionSource, KnownFirstName.class);
+        TableUtils.createTableIfNotExists(connectionSource, KnownFirstName.class);
     }
     
-    public static boolean isLastName(String name) throws SQLException, OrmObjectNotConfiguredException {
-        KnownLastName.checkConfigured();
+    public static boolean isFirstName(String name) throws SQLException, OrmObjectNotConfiguredException {
+        KnownFirstName.checkConfigured();
         // First, check something easy... if the name has a hyphen, it's a last name
         if (name.contains("-")) return true;
         
@@ -87,18 +80,18 @@ public class KnownLastName {
                 .replace("ó", "o").replace("ú", "u").replace("ü", "u")
                 .replace("ß", "ss").replace("ö", "o").replace("ü", "u")
                 .replace("ä", "a").replace("ë", "e").replace("è", "e");
-        List<KnownLastName> matches = KnownLastName.dao.queryForEq("name", name);
+        List<KnownFirstName> matches = KnownFirstName.dao.queryForEq("name", name);
         boolean isMatch = !matches.isEmpty();
         if (isMatch)
-            logger.log(Level.FINE, String.format("%s is a last name", name));
+            logger.log(Level.FINE, String.format("%s is a first name", name));
         else
-            logger.log(Level.FINE, String.format("%s is NOT a last name", name));
+            logger.log(Level.FINE, String.format("%s is NOT a first name", name));
         return isMatch;
     }
     
-    public static KnownLastName get(String name) throws SQLException, OrmObjectNotConfiguredException {
-        KnownLastName.checkConfigured();
-        List<KnownLastName> matches =  KnownLastName.dao.queryForEq("name", name);
+    public static KnownFirstName get(String name) throws SQLException, OrmObjectNotConfiguredException {
+        KnownFirstName.checkConfigured();
+        List<KnownFirstName> matches =  KnownFirstName.dao.queryForEq("name", name);
         if (!matches.isEmpty())
             return matches.get(0);
         else return null;
@@ -111,23 +104,23 @@ public class KnownLastName {
      * @throws SQLException
      * @throws OrmObjectNotConfiguredException 
      */
-    public static void store(KnownLastName name) throws SQLException, 
+    public static void store(KnownFirstName name) throws SQLException, 
             OrmObjectNotConfiguredException 
     {
-        KnownLastName.checkConfigured();
-        List<KnownLastName> matches = KnownLastName.dao.queryForEq("name", name);
+        KnownFirstName.checkConfigured();
+        List<KnownFirstName> matches = KnownFirstName.dao.queryForEq("name", name);
         boolean isMatch = !matches.isEmpty();
         if (! isMatch)
-            KnownLastName.dao.create(name);
+            KnownFirstName.dao.create(name);
     }
     
-    public static void delete(KnownLastName k) throws SQLException {
-        KnownLastName.dao.delete(k);
+    public static void delete(KnownFirstName k) throws SQLException {
+        KnownFirstName.dao.delete(k);
     }
     
     private static void checkConfigured() throws OrmObjectNotConfiguredException {
-        if (KnownLastName.dao == null)
-            throw new OrmObjectNotConfiguredException("LastName DAO not configured");
+        if (KnownFirstName.dao == null)
+            throw new OrmObjectNotConfiguredException("FirstName DAO not configured");
     }
     
 }

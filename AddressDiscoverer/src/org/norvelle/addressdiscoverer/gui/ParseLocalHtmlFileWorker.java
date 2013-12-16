@@ -25,8 +25,9 @@ public class ParseLocalHtmlFileWorker extends AbstractExtractIndividualWorker {
     /**
      * Creates an instance of the worker... nothing happens until start() is called.
      *
-     * @param runner The ResearchAssistantRunner that we'll be updating.
+     * @param department
      * @param localFile
+     * @param panel
      */
     public ParseLocalHtmlFileWorker(final Department department, 
             final File localFile, final EmailDiscoveryPanel panel) 
@@ -45,6 +46,7 @@ public class ParseLocalHtmlFileWorker extends AbstractExtractIndividualWorker {
      * @throws Exception Only in the case of a NullPointerException or other unexpected error
      */
     @Override
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch"})
     protected Integer doInBackground() throws Exception {
         try {
             InputStream in = new FileInputStream(this.localFile);
@@ -53,8 +55,9 @@ public class ParseLocalHtmlFileWorker extends AbstractExtractIndividualWorker {
             this.updateDepartmentHTML(html);
             this.panel.setHTMLPanelContents(html);
             this.extractIndividuals(html, charset);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             AddressDiscoverer.reportException(ex);
+            this.panel.notifyParsingFinished();
         } // try
         return 0;
     }

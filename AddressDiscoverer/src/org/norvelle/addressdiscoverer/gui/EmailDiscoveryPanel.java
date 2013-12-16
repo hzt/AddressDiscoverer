@@ -133,6 +133,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             this.jHTMLPanel.setEnabled(false);
             this.setHTMLPanelContents("");
             this.jBytesReceivedLabel.setEnabled(false);
+            this.jBytesReceivedLabel.setText("0");
             this.individuals = new ArrayList<>();
             this.populateResultsTable(this.individuals);
             this.jSaveResultsButton.setEnabled(false);
@@ -167,7 +168,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
      * Asynchronously fetch the HTML for the specified webpage and update our
      * HTML rendering pane with that content.
      */
-    private void webAddressChanged() {
+    private void fetchAndParseHtml() {
         this.jRetrieveHTMLButton.setEnabled(false);
         this.jSaveResultsButton.setEnabled(false);
         final String myURI = this.jWebAddressField.getText();
@@ -295,6 +296,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     public void notifyParsingFinished() {
         jRetrieveHTMLButton.setEnabled(true);
         this.jSaveResultsButton.setEnabled(true);
+        this.jParsingProgressBar.setValue(0);
     }
     
     /**
@@ -390,7 +392,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             .addGroup(jEmailSourceTabLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 716, Short.MAX_VALUE)
                     .addGroup(jEmailSourceTabLayout.createSequentialGroup()
                         .addComponent(jLabel4)
                         .addGap(26, 26, 26)
@@ -404,12 +406,12 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jBytesReceivedLabel))
                             .addComponent(jLabel3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 203, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 382, Short.MAX_VALUE)
                         .addComponent(jSaveResultsButton))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jEmailSourceTabLayout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jWebAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jWebAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 519, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jOpenFileButton)))
                 .addContainerGap())
@@ -477,7 +479,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
 
     private void jRetrieveHTMLButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRetrieveHTMLButtonActionPerformed
         if (!this.jWebAddressField.getText().isEmpty())
-            this.webAddressChanged();
+            this.fetchAndParseHtml();
     }//GEN-LAST:event_jRetrieveHTMLButtonActionPerformed
 
     private void jOpenFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jOpenFileButtonActionPerformed

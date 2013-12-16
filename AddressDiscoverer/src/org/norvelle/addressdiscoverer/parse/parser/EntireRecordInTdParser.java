@@ -12,6 +12,7 @@ package org.norvelle.addressdiscoverer.parse.parser;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -81,10 +82,23 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
         // per row take over.
         Elements elementsWithEmails = myRow.select(
                 String.format("td:matches(%s)", Constants.emailRegex));
-        if (elementsWithEmails.size() > 1)
-            throw new MultipleRecordsInTrException();
+        if (elementsWithEmails.size() > 1) {
+            HashMap<String, String> emails = new HashMap<>();
+            for (Element elementWithEmails : elementsWithEmails) {
+                Matcher emailMatcher = this.findEmailPattern.matcher(elementWithEmails.text());
+                while (emailMatcher.find()) {
+                    emails.put(emailMatcher.group(1), "");
+                }
+                if (emails.size() > 1)
+                    throw new MultipleRecordsInTrException("There are more than one email elements in this row");
+            }
+        }
         else
             throw new CantParseIndividualException("EntireRecordInTdParser only works with multiple TDs");
+
+        int i = 1;
+        return null;
+        //Individual i = new Individual(name, email, "", rest, this.getClass().getSimpleName(), department);
     }
     
     /**

@@ -16,6 +16,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.norvelle.addressdiscoverer.exceptions.CannotCreateIndividualTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.KnownLastName;
 
@@ -36,14 +37,15 @@ class IndividualCollector {
     }
 
     public void addLine(String line) throws SQLException, OrmObjectNotConfiguredException {
-        if (this.name.isEmpty() && this.isLastName(line)) {
-            this.name = line;
-        } else if (!this.name.isEmpty() && this.isLastName(line)) {
-            this.unprocessed.add(this.name);
-            this.name = line;
-        } else  {
-            this.unprocessed.add(line);
-        }
+        if (this.isLastName(line)) {
+            if (this.name.isEmpty()) 
+                this.name = line;
+            else {
+                this.unprocessed.add(this.name);
+                this.name = line;
+            }
+        } 
+        else this.unprocessed.add(line);
     }
 
     /**
@@ -55,15 +57,18 @@ class IndividualCollector {
      *
      * @return An Element representing a TR with TDs for each field found.
      */
-    public Element createIndividualTr() {
+    public Element createIndividualTr() throws CannotCreateIndividualTrException {
         Document trDocument = new Document("");
         Element tr = trDocument.createElement("tr");
         
         // First create and append a TD for our name, as best as we can guess it.
         Element nameTd = trDocument.createElement("td");
         if (this.name.isEmpty()) {
-            String nameGuess = this.unprocessed.get(this.unprocessed.size() - 1);
-            nameTd.appendText(nameGuess);
+            if (!this.unprocessed.isEmpty()) {
+                String nameGuess = this.unprocessed.get(this.unprocessed.size() - 1);
+                nameTd.appendText(nameGuess);
+            }
+            else throw new CannotCreateIndividualTrException();
         } else {
             nameTd.appendText(this.name);
         }

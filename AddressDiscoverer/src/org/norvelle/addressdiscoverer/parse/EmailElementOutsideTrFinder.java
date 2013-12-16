@@ -21,6 +21,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.Constants;
+import org.norvelle.addressdiscoverer.exceptions.CannotCreateIndividualTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
@@ -147,7 +148,12 @@ public class EmailElementOutsideTrFinder {
                 if (!email.equals(currEmail)) {
                     currEmail = email;
                     if (currIndividual != null) 
-                        trs.add(currIndividual.createIndividualTr());
+                        try {
+                            trs.add(currIndividual.createIndividualTr());
+                        } catch (CannotCreateIndividualTrException ex) {
+                            // Do nothing... we essentially discard the invalid information,
+                            // don't add a TR.
+                        }
                     currIndividual = new IndividualCollector(currEmail);
                 }
             }
@@ -155,7 +161,11 @@ public class EmailElementOutsideTrFinder {
                 currIndividual.addLine(nodeData);
         }
         if (currIndividual != null)
-            trs.add(currIndividual.createIndividualTr());
+            try {
+                trs.add(currIndividual.createIndividualTr());
+            } catch (CannotCreateIndividualTrException ex) {
+                // Ignore invalid data, don't add any TR
+            }
         
         return trs;
     }

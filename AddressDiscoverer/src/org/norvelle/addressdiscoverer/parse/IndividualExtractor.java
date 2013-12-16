@@ -22,6 +22,7 @@ import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.exceptions.CantExtractMultipleIndividualsException;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.gui.IProgressConsumer;
@@ -63,10 +64,13 @@ public class IndividualExtractor {
      * @throws
      * org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      * @throws java.io.UnsupportedEncodingException
+     * @throws org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException
      */
     public List<Individual> parse(String html, String encoding) throws SQLException,
             OrmObjectNotConfiguredException,
-            UnsupportedEncodingException {
+            UnsupportedEncodingException,
+            IndividualExtractionFailedException 
+    {
         logger.log(Level.INFO, "Entering IndividualExtractor.parse()");
         List<Individual> myIndividuals = new ArrayList<>();
         if (html.isEmpty()) {
@@ -80,9 +84,13 @@ public class IndividualExtractor {
         EmailElementInTrFinder trFinder = new EmailElementInTrFinder(soup);
         List<Element> trRows = trFinder.getRows();
         EmailElementOutsideTrFinder pFinder = new EmailElementOutsideTrFinder(soup, encoding);
-        if (pFinder.getEmailToTrProportion() < 0.45) {
+        List<Element> outsideTrRows = pFinder.getRows();
+        
+        // Now, we select the appropriate colleciton of TRs based on which method
+        // gave us more.
+        if (outsideTrRows.size() > trRows.size()) {
             logger.log(Level.FINE, String.format("EmailElementOutsideTrFinder found %d P tags", trRows.size()));
-            tableRows = pFinder.getRows();
+            tableRows = outsideTrRows;
         } else {
             logger.log(Level.FINE, String.format("EmailElementInTrFinder found %d P tags", trRows.size()));
             tableRows = trRows;
@@ -99,10 +107,7 @@ public class IndividualExtractor {
             try {
                 myIndividuals = this.getMultipleIndividualsFromTrs(tableRows);
             } catch (CantExtractMultipleIndividualsException ex2) {
-                myIndividuals = new ArrayList<>();
-                logger.log(Level.SEVERE,
-                        String.format("Could not generate individuals from %d table rows",
-                                tableRows.size()));
+                throw new IndividualExtractionFailedException(ex2.getMessage());
             }
         }
 
