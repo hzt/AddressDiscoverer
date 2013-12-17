@@ -13,6 +13,7 @@ package org.norvelle.addressdiscoverer.parse.parser;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.text.WordUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.Constants;
@@ -27,19 +28,12 @@ import org.norvelle.addressdiscoverer.model.Name;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class RecordContainedInTdParser extends Parser {
+public class EachPartInTdParser extends Parser {
     
-    private final Pattern splitByEmailPattern;
-    private final Pattern splitByEmailPattern2;
-    private final Pattern findEmailPattern;
+    private final Pattern findEmailPattern = 
+            Pattern.compile(String.format("(%s)", Constants.emailRegex));
     
-    public RecordContainedInTdParser() {
-        this.splitByEmailPattern = Pattern.compile(
-                String.format("^(.*) (%s) (.*)$", Constants.emailRegex));
-        this.splitByEmailPattern2 = Pattern.compile(
-                String.format("^(.*) (%s)$", Constants.emailRegex));
-        this.findEmailPattern = Pattern.compile(String.format("(%s)", Constants.emailRegex));
-    }
+    public EachPartInTdParser() {}
 
     /**
      * Given a JSoup TR element, try to create an Individual object based on
@@ -70,12 +64,13 @@ public class RecordContainedInTdParser extends Parser {
         String restChunk = "";
         for (Element td : tds) {
             if (td.hasText()) {
-                if (Name.isName(td.text())) {
-                    nameChunk = td.text();
+                String text = WordUtils.capitalizeFully(td.text());
+                if (Name.isName(text)) {
+                    nameChunk = text;
                     td.remove();
                     break;
                 }
-                else restChunk += td.text() + " ";
+                else restChunk += text + " ";
             }
             else td.remove();
         }

@@ -12,9 +12,7 @@ package org.norvelle.addressdiscoverer.model;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;

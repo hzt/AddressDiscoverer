@@ -55,7 +55,7 @@ public abstract class Parser {
         // throws an exception if there are multiple records, which causes
         // the parser to swtich to multiple record per TR parsers.
         Parser.singleRecordPerTrParsers.add(new MultipleRecordsInOneTrParser()); 
-        Parser.singleRecordPerTrParsers.add(new RecordContainedInTdParser());
+        Parser.singleRecordPerTrParsers.add(new EachPartInTdParser());
         Parser.singleRecordPerTrParsers.add(new NameEmailPositionParser());
         Parser.singleRecordPerTrParsers.add(new EmailInAttributeParser());
         
@@ -83,31 +83,24 @@ public abstract class Parser {
             Parser.initializeParsers();
         
         double topScore = 0.0; 
-        Individual bestIndividual = null;
+        Individual individual = null;
         for (Parser currParser : Parser.singleRecordPerTrParsers) {
             //logger.log(Level.INFO, String.format("Trying parser %s on text: '%s'",
             //    p.getClass().getSimpleName(), row.toString()));
-            Individual currIndividual;
             try {
-                currIndividual = currParser.getIndividual(row, department);
+                individual = currParser.getIndividual(row, department);
+                break;
             }
             catch (CantParseIndividualException ex) {
                 continue;
             }
-            if (currIndividual == null) 
-                continue;
-            double currScore = currIndividual.getScore();
-            if (currScore > topScore) {
-                topScore = currScore;
-                bestIndividual = currIndividual;
-            }
         }
         
         // If none of our parsers worked, declare failure
-        if (bestIndividual == null)
+        if (individual == null)
             throw new CantParseIndividualException(row.text());
         
-        return bestIndividual;
+        return individual;
     }
 
     /**

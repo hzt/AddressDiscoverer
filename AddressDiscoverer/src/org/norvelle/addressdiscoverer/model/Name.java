@@ -266,15 +266,18 @@ public class Name {
     // ===================== Getters =============================
     
     public String getFirstName() {
+        String name = Abbreviations.fixAbbreviations(this.firstName);
+        name = name.replaceAll("\\.", ". ").replaceAll("  ", " ");
         return WordUtils.capitalizeFully(
             this.eliminateWordsWithSymbols(
-                this.escapeSingleQuotes(firstName)));
+                this.escapeSingleQuotes(name)));
     }
 
     public String getLastName() {
+        String name = Abbreviations.fixAbbreviations(this.lastName);
         return WordUtils.capitalizeFully(
                 this.eliminateWordsWithSymbols(
-                        this.escapeSingleQuotes(lastName)).toLowerCase());
+                        this.escapeSingleQuotes(name)).toLowerCase());
     }
 
     public String getFullName() {

@@ -10,7 +10,7 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
-import org.norvelle.addressdiscoverer.parse.parser.RecordContainedInTdParser;
+import org.norvelle.addressdiscoverer.parse.parser.EachPartInTdParser;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.File;
 import java.io.IOException;
@@ -68,7 +68,7 @@ public class TdContainerParserTest {
             fail("Couldn't extract individuals due to IOException: " + ex.getMessage());
             return;
         }
-        RecordContainedInTdParser parser = new RecordContainedInTdParser();
+        EachPartInTdParser parser = new EachPartInTdParser();
         Document soup = Jsoup.parse(html);
         Elements rows = soup.select("tr");
         Individual i;

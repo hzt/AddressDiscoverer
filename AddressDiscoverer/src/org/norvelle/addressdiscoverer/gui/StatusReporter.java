@@ -57,7 +57,7 @@ public class StatusReporter {
     }};
     
     private ParsingStages stage;
-    private final String baseLabel;
+    private String baseLabel;
     private String label;
     private int totalNumericSteps = 1;
     private int currentNumericStep;
@@ -83,6 +83,7 @@ public class StatusReporter {
     public void setTotalNumericSteps(int totalSteps) {
         this.totalNumericSteps = totalSteps;
         this.currentNumericStep = 0;
+        this.baseLabel = this.parsingStages.get(this.stage.ordinal());
         this.reportNumericProgress();
     }
     
@@ -109,7 +110,7 @@ public class StatusReporter {
     }
 
     public String getLabel() {
-        return label;
+        return this.label;
     }    
 
     public void setLabel(String label) {
@@ -118,9 +119,13 @@ public class StatusReporter {
 
     public void setStage(ParsingStages stage) {
         this.stage = stage;
+        this.label = this.parsingStages.get(stage.ordinal());
         if (this.progressConsumer != null)
             this.progressConsumer.reportProgressStage(this);
     }
     
-    
+    @Override
+    public String toString() {
+        return String.format("Stage %d: %s", this.stage.ordinal(), this.label);
+    }
 }

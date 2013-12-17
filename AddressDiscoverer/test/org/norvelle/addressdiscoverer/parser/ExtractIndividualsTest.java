@@ -228,9 +228,19 @@ public class ExtractIndividualsTest {
     }
     
     @Test
+    public void testSarda() {
+        try {
+            TestUtilities.testOneTr("jalmirallsa@ub.edu", "", "Jaume", "Almirall Sarda", 
+                    "Professor associat Dept Filologia Grega");
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
+        }
+    }
+
+    @Test
     public void testDelval() {
         try {
-            TestUtilities.testOneTr("adeval@unav.es", "", "M.A.", "Alonso del Val", "email");
+            TestUtilities.testOneTr("adeval@unav.es", "", "M. A.", "Alonso Del Val", "email");
         } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
         }
