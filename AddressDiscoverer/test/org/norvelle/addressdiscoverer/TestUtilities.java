@@ -22,7 +22,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -35,6 +37,7 @@ import org.norvelle.addressdiscoverer.model.Institution;
 import org.norvelle.addressdiscoverer.model.KnownFirstName;
 import org.norvelle.addressdiscoverer.model.KnownLastName;
 import org.norvelle.addressdiscoverer.model.KnownSpanishWord;
+import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 import org.norvelle.utils.Utils;
 
 /**
@@ -104,15 +107,10 @@ public class TestUtilities {
     {
         String html;
         html = Utils.loadStringFromResource(htmlUri, encoding);
-        Document soup = Jsoup.parse(html);
-        logger.log(Level.FINE, String.format("JSoup parsed document as follows:\n%s", soup.toString()));
-        EmailElementInTrFinder finder = new EmailElementInTrFinder(soup);
-        List<Element> rows = finder.getRows();
-        logger.log(Level.FINE, String.format("EmailElementFinder found %d TR tags", rows.size()));
         IndividualExtractor ext = new IndividualExtractor(null, null);
         List<Individual> individuals = ext.parse(html, encoding);
-        if (!outputFile.isEmpty())
-            FileUtils.writeLines(new File(outputFile), rows);
+        //if (!outputFile.isEmpty())
+        //    FileUtils.writeLines(new File(outputFile), rows);
         return individuals;
     }
     
@@ -121,5 +119,26 @@ public class TestUtilities {
             UnsupportedEncodingException, IndividualExtractionFailedException 
     {
         return extractIndividuals(htmlUri, outputFile, "UTF-8");
+    }
+
+    public static void testOneTr(String email, String title, String first, String last, String rest) 
+            throws IOException, SQLException, OrmObjectNotConfiguredException, 
+            UnsupportedEncodingException, IndividualExtractionFailedException 
+    {
+        List<Individual> individuals;
+        String[] emailParts = StringUtils.split(email, "@");
+        String emailBase = emailParts[0];
+        String outputFile = TestUtilities.getTestOutputDirectory() + File.separator + emailBase + ".txt";
+        individuals = TestUtilities.extractIndividuals("/org/norvelle/addressdiscoverer/resources/" + emailBase + ".html", outputFile);
+        Assert.assertEquals(String.format("There should be 1 individual, %d were found", individuals.size()), 1, individuals.size());
+        for (Individual i : individuals) {
+            Assert.assertFalse("There should be no NullIndividuals returned: " + i.toString(), i.getClass().equals(UnparsableIndividual.class));
+        }
+        Individual myIndividual = individuals.get(0);
+        Assert.assertEquals("The individual's first name should be " + first, first, myIndividual.getFirstName());
+        Assert.assertEquals(String.format("The individual's title should be '%s'", title), title, myIndividual.getTitle());
+        Assert.assertEquals("The individual's last name should be " + last, last, myIndividual.getLastName());
+        Assert.assertEquals("The individual's email should be " + email, email, myIndividual.getEmail());
+        Assert.assertEquals(String.format("The remaining text should be '%s'", rest), rest, myIndividual.getUnprocessed());
     }
 }

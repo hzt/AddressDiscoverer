@@ -13,6 +13,7 @@ package org.norvelle.addressdiscoverer.model;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 
 /**
  *
@@ -50,9 +52,13 @@ public class NameTest {
     public void testPasamar() {
         String chunk = "Dra. Concepción Martínez Pasamar";
         Name name;
-        name = new Name(chunk); 
+        try { 
+            name = new Name(chunk);
+        } catch (CantParseIndividualException ex) {
+            fail("Can't parse individual");
+            return;
+        }
         
-        Assert.assertFalse("The Name object should not have a score of 0", name.getScore() == 0.0);
         Assert.assertEquals("First name should be Concepción", "Concepción", name.getFirstName());
         Assert.assertEquals("Last name should be Martínez Pasamar", "Martínez Pasamar", name.getLastName());
         Assert.assertEquals("Title should be Dra.", "Dra.", name.getTitle());
@@ -62,9 +68,13 @@ public class NameTest {
     public void testLizasoain() {
         String chunk = "Lizasoain Rumeu, Olga";
         Name name;
-        name = new Name(chunk); 
+        try { 
+            name = new Name(chunk);
+        } catch (CantParseIndividualException ex) {
+            fail("Can't parse individual");
+            return;
+        }
         
-        Assert.assertFalse("The Name object should not have a score of 0", name.getScore() == 0.0);
         Assert.assertEquals("First name should be Olga", "Olga", name.getFirstName());
         Assert.assertEquals("Last name should be Lizasoain Rumeu", "Lizasoain Rumeu", name.getLastName());
         Assert.assertEquals("Title should be ''", "", name.getTitle());
@@ -74,12 +84,32 @@ public class NameTest {
     public void testCommaSeparated() {
         String chunk = "Martínez Pasamar, Dra. Concepción";
         Name name;
-        name = new Name(chunk); 
+        try { 
+            name = new Name(chunk);
+        } catch (CantParseIndividualException ex) {
+            fail("Can't parse individual");
+            return;
+        }
         
-        Assert.assertFalse("The Name object should not have a score of 0", name.getScore() == 0.0);
         Assert.assertEquals("First name should be Concepción", "Concepción", name.getFirstName());
         Assert.assertEquals("Last name should be Martínez Pasamar", "Martínez Pasamar", name.getLastName());
         Assert.assertEquals("Title should be Dra.", "Dra.", name.getTitle());
+    }
+    
+    @Test
+    public void testAdeval() {
+        String chunk = "Alonso del Val, M.A.";
+        Name name;
+        try { 
+            name = new Name(chunk);
+        } catch (CantParseIndividualException ex) {
+            fail("Can't parse individual");
+            return;
+        }
+        
+        Assert.assertEquals("First name should be M.A.", "M.A.", name.getFirstName());
+        Assert.assertEquals("Last name should be Alonso del Val", "Alonso del Val", name.getLastName());
+        Assert.assertEquals("Title should be ''", "", name.getTitle());
     }
     
 }

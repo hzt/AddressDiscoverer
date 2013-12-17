@@ -33,7 +33,7 @@ import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedExcep
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
-import org.norvelle.addressdiscoverer.parse.parser.EntireRecordInTdParser;
+import org.norvelle.addressdiscoverer.parse.parser.MultipleRecordsInOneTrParser;
 import org.norvelle.utils.Utils;
 
 /**
@@ -74,7 +74,7 @@ public class ExtractFromTrsWithMultipleRecordsTest {
         }
         Document soup = Jsoup.parse(html);
         Elements trs = soup.select("tr");
-        EntireRecordInTdParser parser = new EntireRecordInTdParser();
+        MultipleRecordsInOneTrParser parser = new MultipleRecordsInOneTrParser();
         for (Element tr : trs) {
             try {
                 individuals.addAll(parser.getMultipleIndividuals(tr, null));

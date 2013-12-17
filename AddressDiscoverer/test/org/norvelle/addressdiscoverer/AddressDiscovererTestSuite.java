@@ -21,7 +21,7 @@ import org.norvelle.addressdiscoverer.parser.NameChunkTest;
 import org.norvelle.addressdiscoverer.parser.EmailElementFinderTest;
 import org.norvelle.addressdiscoverer.parser.ExtractFromFilesTest;
 import org.norvelle.addressdiscoverer.parser.ExtractFromTrsWithMultipleRecordsTest;
-import org.norvelle.addressdiscoverer.parser.IndividualExtractorTest;
+import org.norvelle.addressdiscoverer.parser.ExtractIndividualsTest;
 import org.norvelle.addressdiscoverer.parser.JSoupTest;
 import org.norvelle.addressdiscoverer.parser.TdContainerParserTest;
 
@@ -32,7 +32,7 @@ import org.norvelle.addressdiscoverer.parser.TdContainerParserTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     ExtractFromFilesTest.class,
-    IndividualExtractorTest.class,
+    ExtractIndividualsTest.class,
     EmailElementFinderTest.class, 
     NameChunkTest.class,
     NameTest.class,

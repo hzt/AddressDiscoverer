@@ -21,7 +21,6 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
-import org.norvelle.addressdiscoverer.parse.BasicNameChunkHandler;
 
 /**
  *
@@ -90,8 +89,7 @@ public class NameEmailPositionParser extends Parser {
         
         // Now that we have a chunk of text with a name, parse it into its parts
         // and create an Individual out of it.
-        BasicNameChunkHandler np = new BasicNameChunkHandler();
-        Name name = np.processChunkForName(nameChunk);
+        Name name = new Name(nameChunk);
         Individual i = new Individual(name, email, "", rest, this.getClass().getSimpleName(), department);
         return i;
     }

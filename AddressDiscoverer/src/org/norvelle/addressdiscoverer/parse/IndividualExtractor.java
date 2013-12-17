@@ -100,7 +100,7 @@ public class IndividualExtractor {
         if (this.progressConsumer != null) {
             this.progressConsumer.setTotalElementsToProcess(tableRows.size());
         }
-        int rowCount = 0;
+
         try {
             myIndividuals = this.getSingleIndividualsFromTrs(tableRows);
         } catch (MultipleRecordsInTrException ex) {

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
 import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
@@ -125,6 +126,7 @@ public class Individual implements Comparable {
         if (!this.email.isEmpty()) score += 5.0;
         if (!this.affiliation.isEmpty()) score += 1.0;
         if (!this.title.isEmpty()) score += 1.0;
+        score += StringUtils.split(this.unprocessed).length;
 
         return score / 5;
     }

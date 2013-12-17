@@ -53,13 +53,13 @@ public abstract class Parser {
         // Parsers for handling a single record per TR. The first of these
         // throws an exception if there are multiple records, which causes
         // the parser to swtich to multiple record per TR parsers.
-        Parser.singleRecordPerTrParsers.add(new EntireRecordInTdParser()); 
-        Parser.singleRecordPerTrParsers.add(new TdContainerParser());
+        Parser.singleRecordPerTrParsers.add(new MultipleRecordsInOneTrParser()); 
+        Parser.singleRecordPerTrParsers.add(new RecordContainedInTdParser());
         Parser.singleRecordPerTrParsers.add(new NameEmailPositionParser());
         Parser.singleRecordPerTrParsers.add(new EmailInAttributeParser());
         
         // Parsers for handling different types of multple record arrangements
-        Parser.multipleRecordsPerTrParsers.add(new EntireRecordInTdParser());
+        Parser.multipleRecordsPerTrParsers.add(new MultipleRecordsInOneTrParser());
     }
     
     /**

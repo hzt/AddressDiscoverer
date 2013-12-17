@@ -22,19 +22,18 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
-import org.norvelle.addressdiscoverer.parse.BasicNameChunkHandler;
 
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class TdContainerParser extends Parser {
+public class RecordContainedInTdParser extends Parser {
     
     private final Pattern splitByEmailPattern;
     private final Pattern splitByEmailPattern2;
     private final Pattern findEmailPattern;
     
-    public TdContainerParser() {
+    public RecordContainedInTdParser() {
         this.splitByEmailPattern = Pattern.compile(
                 String.format("^(.*) (%s) (.*)$", Constants.emailRegex));
         this.splitByEmailPattern2 = Pattern.compile(
@@ -73,6 +72,7 @@ public class TdContainerParser extends Parser {
             if (td.hasText()) {
                 if (Name.isName(td.text())) {
                     nameChunk = td.text();
+                    td.remove();
                     break;
                 }
                 else restChunk += td.text() + " ";
@@ -83,8 +83,7 @@ public class TdContainerParser extends Parser {
             throw new CantParseIndividualException("None of the TDs have text in them");
         
         // Now that we have a chunk of text with a name, see if we can't create a Name
-        BasicNameChunkHandler np = new BasicNameChunkHandler();
-        Name name = np.processChunkForName(nameChunk);
+        Name name = new Name(nameChunk);
         
         // Next, find our email TD, and fail if we can't find it.
         String email = "";
@@ -103,7 +102,7 @@ public class TdContainerParser extends Parser {
         
         // Now, put everything that remains into the "rest" category, minus any
         // number we might encounter
-        String rest = "";
+        String rest = name.getUnprocessed();
         for (Element td : myRow.select("td")) 
             rest += " " + td.text();
         rest = rest.replaceAll("\\d", "").trim();

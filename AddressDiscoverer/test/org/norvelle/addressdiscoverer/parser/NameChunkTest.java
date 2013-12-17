@@ -10,7 +10,6 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
-import org.norvelle.addressdiscoverer.parse.BasicNameChunkHandler;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -25,7 +24,6 @@ import static org.junit.Assert.*;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Name;
 
 /**
@@ -107,11 +105,10 @@ public class NameChunkTest {
     @Test
     public void testTextWithParentheses() {
         String text = "Torralba, José María (en ICS)";
-        BasicNameChunkHandler handler = new BasicNameChunkHandler();
         Name name;
         try {
-            name = handler.processChunkForName(text);
-        } catch (SQLException | OrmObjectNotConfiguredException | CantParseIndividualException ex) {
+            name = new Name(text);
+        } catch (CantParseIndividualException ex) {
             fail("Name handler failed: " + ex.getMessage());
             return;
         }
@@ -122,7 +119,7 @@ public class NameChunkTest {
         Assert.assertEquals("The individual's last name should be Torralba",
                 "Torralba", name.getLastName());
         Assert.assertEquals("The remaining text should be ''",
-                "(en ICS)", name.getRest());
+                "(en ICS)", name.getUnprocessed());
     }
 
 }

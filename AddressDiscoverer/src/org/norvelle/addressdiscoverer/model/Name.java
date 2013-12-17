@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
@@ -76,37 +77,33 @@ public class Name {
      * Our primary constructor... tries to apply intelligence to parsing the name
      * 
      * @param textChunk A chunk of text that supposedly contains a name 
+     * @throws org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException 
      */
-    public Name(String textChunk) {
+    public Name(String textChunk) throws CantParseIndividualException {
+        // Eliminate non-breaking spaces
+        textChunk = textChunk.replaceAll("\\xA0", " ");
+        
+        // Replace single quotes with apostrophes, to avoid SQL problems
+        textChunk = textChunk.replaceAll("'", "ʼ");
+
+        // Eliminate numbers... no use for them, but only ones that exist separately
+        // and not as part of emails.
+        textChunk = textChunk.replaceAll("\\b\\d+\\b", "").trim();
+
+        // See if we can use a comma to find first, last parts or not.
         if (textChunk.contains(","))
             this.parseCommaSeparatedChunk(textChunk);
         else
             this.parseOneLongChunk(textChunk);
-        this.moveParens();
-        this.stealFromFirst();
-    }
-    
-    public Name(String first, String last) {
-        this.firstName = first;
-        this.lastName = last;
-        this.extractRest();
-        this.moveParens();
-        this.stealFromFirst();
-    }
-    
-    public Name(String first, String last, String rest) {
-        this.firstName = first;
-        this.lastName = last;
-        this.rest = rest.trim();
-        this.moveParens();
-        this.stealFromFirst();
-    }
-    
-    public Name(String first, String last, String title, String rest) {
-        this(first, last, rest);
+        this.moveParensToUnprocessed();
+        //this.eliminateJunkFromLastName();
+        this.stealLastNameFromFirst();
         this.extractTitle();
+
+        if (this.getScore() == 0.0)
+            throw new CantParseIndividualException(textChunk);
     }
-    
+        
     /**
      * We calculate a rough score for name quality, emphasizing that a good
      * name should have title, first and last names. However, a name without
@@ -114,7 +111,7 @@ public class Name {
      * 
      * @return A numeric score indicating rough name quality. 
      */
-    public double getScore() {
+    private double getScore() {
         double score = 0.0;
         if (!this.lastName.isEmpty()) score += 1.0;
         if (!this.title.isEmpty()) score += 1.0;
@@ -158,7 +155,7 @@ public class Name {
             }
             else if (KnownSpanishWord.isWord(word) || restHasBegun) {
                 restHasBegun = true;
-                myRest += myRest + " " + word;
+                myRest += " " + word;
                 myLastName = myLastName.replace(word, "");
             }
         }
@@ -213,7 +210,7 @@ public class Name {
      */
     private void extractTitle() {
         @SuppressWarnings("LocalVariableHidesMemberVariable")
-        String title = "";
+        String title = this.title;
         for (String possibleTitle : this.possibleTitles) {
             if (this.firstName.contains(possibleTitle)) {
                 this.firstName = this.firstName.replace(possibleTitle, "").trim();
@@ -233,12 +230,11 @@ public class Name {
      * putting into the suffix anything that looks like a suffix, and then 
      * putting into the "rest" category anything else that doesn't fit.
      */
-    private void extractRest() {
+    private void eliminateJunkFromLastName() {
         String possibleRest = this.lastName;
         String possibleLast = "";
         String possibleSuffix = "";
         String[] words = this.lastName.split("\\s+");
-        int wordCount = 0;
         for (String word : words) {
             if (KnownLastName.isLastName(word) || !KnownSpanishWord.isWord(word)) {
                 possibleLast += word + " ";
@@ -257,7 +253,7 @@ public class Name {
         this.rest = possibleRest.trim();
     }
 
-    private void moveParens() {
+    private void moveParensToUnprocessed() {
         Pattern pp = Pattern.compile("\\(.*\\)");
         Matcher matcherFirst = pp.matcher(this.firstName);
         while (matcherFirst.find())  {
@@ -273,7 +269,7 @@ public class Name {
         }
     }
     
-    private void stealFromFirst() {
+    private void stealLastNameFromFirst() {
         if (this.lastName.isEmpty() && !this.firstName.isEmpty()) {
             String[] words = StringUtils.split(this.firstName);
             if (words.length > 1) {
@@ -285,10 +281,12 @@ public class Name {
     
     private String eliminateWordsWithSymbols(String chunk) {
         String result = "";
+        chunk = chunk.replace(".", "ZZZZ");
         for (String word : StringUtils.split(chunk)) {
             if (!word.matches(".*(\\p{P}|\\p{S}).*"))
                 result += " " + word;
         }
+        result = result.replace("ZZZZ", ".");
         return result.trim();
     }
     
@@ -312,7 +310,7 @@ public class Name {
                 this.getLastName()).trim());
     }
 
-    public String getRest() {
+    public String getUnprocessed() {
         return this.escapeSingleQuotes(rest.trim());
     }
 
@@ -320,6 +318,7 @@ public class Name {
         return title.trim();
     }
 
+    @Override
     public String toString() {
         return (this.title + " " + this.firstName + " " + this.lastName).trim();
     }

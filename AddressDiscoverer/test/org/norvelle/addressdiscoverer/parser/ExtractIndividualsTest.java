@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
 import junit.framework.Assert;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
@@ -31,13 +32,13 @@ import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class IndividualExtractorTest {
+public class ExtractIndividualsTest {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
     private static ConnectionSource connection;
 
-    public IndividualExtractorTest() {
+    public ExtractIndividualsTest() {
     }
 
     @BeforeClass
@@ -226,4 +227,12 @@ public class IndividualExtractorTest {
         //        "Catedrático Historia Moderna", aenciso.getUnprocessed());
     }
     
+    @Test
+    public void testDelval() {
+        try {
+            TestUtilities.testOneTr("adeval@unav.es", "", "M.A.", "Alonso del Val", "email");
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
+        }
+    }
 }

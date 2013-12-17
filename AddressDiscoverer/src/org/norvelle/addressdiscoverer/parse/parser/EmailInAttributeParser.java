@@ -21,7 +21,6 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
-import org.norvelle.addressdiscoverer.parse.BasicNameChunkHandler;
 
 /**
  *
@@ -63,9 +62,8 @@ public class EmailInAttributeParser extends Parser {
         
         // Based on the text found in the current row, see if we can't
         // extract a more or less complete Individual.
-        BasicNameChunkHandler handler = new BasicNameChunkHandler();
-        Name name = handler.processChunkForName(row.text());
-        String rest = name.getRest();
+        Name name = new Name(row.text());
+        String rest = name.getUnprocessed();
         
         Individual i = new Individual(name, email, "", rest, this.getClass().getSimpleName(), department);
         return i;

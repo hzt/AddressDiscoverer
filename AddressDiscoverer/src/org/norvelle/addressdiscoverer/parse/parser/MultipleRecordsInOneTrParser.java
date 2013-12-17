@@ -30,7 +30,6 @@ import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
-import org.norvelle.addressdiscoverer.parse.BasicNameChunkHandler;
 
 /**
  * Detects when an entire Individual's record is contained within a single
@@ -38,7 +37,7 @@ import org.norvelle.addressdiscoverer.parse.BasicNameChunkHandler;
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPerTrParser {
+public class MultipleRecordsInOneTrParser extends Parser implements IMultipleRecordsPerTrParser {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
@@ -49,7 +48,7 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
     // We store our department when parsing multiple records
     Department department;
     
-    public EntireRecordInTdParser() { }
+    public MultipleRecordsInOneTrParser() { }
 
     /**
      * Given a JSoup TR element, try to create an Individual object based on
@@ -214,8 +213,7 @@ public class EntireRecordInTdParser extends Parser implements IMultipleRecordsPe
         
         // Now that we have a chunk of text with a name, see if we can't create a Name
         String nameChunk = this.stripInvalidChars(noEmptyChunks.get(0));
-        BasicNameChunkHandler np = new BasicNameChunkHandler();
-        Name name = np.processChunkForName(nameChunk);
+        Name name = new Name(nameChunk);
         noEmptyChunks.remove(noEmptyChunks.get(0));
         
         // Next, find our email chunk, and fail if we can't find it.
