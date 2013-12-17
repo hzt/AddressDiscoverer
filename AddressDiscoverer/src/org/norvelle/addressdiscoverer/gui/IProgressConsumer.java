@@ -16,8 +16,6 @@ package org.norvelle.addressdiscoverer.gui;
  */
 public interface IProgressConsumer {
 
-    public void publishProgress(int progress);
-
-    public void setTotalElementsToProcess(int size);
-    
+    public void reportProgressStage(StatusReporter progress);
+        
 }

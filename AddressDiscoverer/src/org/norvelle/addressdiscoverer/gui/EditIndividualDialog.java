@@ -230,6 +230,8 @@ public class EditIndividualDialog extends javax.swing.JDialog {
             this.individual.setLastName(this.jLastNameField.getText());
         if (!this.jRestName.getText().equals(this.individual.getUnprocessed()))
             this.individual.setUnprocessed(this.jRestName.getText());
+        if (!this.jEmailName.getText().equals(this.individual.getEmail()))
+            this.individual.setUnprocessed(this.jRestName.getText());
         try {
             Individual.update(individual);
         } catch (SQLException ex) {
@@ -262,6 +264,7 @@ public class EditIndividualDialog extends javax.swing.JDialog {
         if (reply == JOptionPane.NO_OPTION) 
             return;
         try {
+            this.parent.notifyIndividualDeleted(individual);
             Individual.delete(this.individual);
         } catch (SQLException ex) {
             AddressDiscoverer.reportException(ex);

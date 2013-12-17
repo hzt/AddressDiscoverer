@@ -13,7 +13,6 @@ package org.norvelle.addressdiscoverer.gui;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.sql.SQLException;
@@ -28,10 +27,6 @@ import javax.swing.SwingWorker;
 import org.apache.commons.io.IOUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.parse.IndividualExtractor;
-import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
-import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
-import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
@@ -41,7 +36,7 @@ import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public abstract class AbstractExtractIndividualWorker 
-    extends SwingWorker<Integer, Integer> implements IProgressConsumer 
+    extends SwingWorker<Integer, StatusReporter> implements IProgressConsumer 
 {
     static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     protected final HashMap<String, Integer> programProgress = new HashMap<>();
@@ -73,12 +68,17 @@ public abstract class AbstractExtractIndividualWorker
     }
 
     @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
-    protected void extractIndividuals(String html, String encoding) {
+    protected void extractIndividuals(String html, String encoding, StatusReporter status) {
         try {
+            status.setStage(StatusReporter.ParsingStages.DELETING);
             Individual.deleteIndividualsForDepartment(this.department);
-            IndividualExtractor addressParser = new IndividualExtractor(this.department, this);
+            IndividualExtractor addressParser = new IndividualExtractor(this.department, status);
             List<Individual> individuals = addressParser.parse(html, encoding);
+            status.setStage(StatusReporter.ParsingStages.SAVING);
+            int individualNumber = 0;
             for (Individual i : individuals) {
+                status.setNumericProgress(individualNumber++);
+                this.reportProgressStage(status);
                 if (!i.getClass().equals(UnparsableIndividual.class))
                     Individual.store(i);
             }
@@ -134,15 +134,10 @@ public abstract class AbstractExtractIndividualWorker
             AddressDiscoverer.reportException(ex);
         }
     }
-
-    @Override
-    public void publishProgress(int progress) {
-        publish(progress);
-    }
     
     @Override
-    public void setTotalElementsToProcess(int size) {
-        this.panel.getjParsingProgressBar().setMaximum(size);
+    public void reportProgressStage(StatusReporter stage) {
+        publish(stage);
     }
 
     /**
@@ -150,12 +145,12 @@ public abstract class AbstractExtractIndividualWorker
      * allowing the SwingWorker to periodically check those signals and process
      * them here.
      *
-     * @param progressUpdates
+     * @param statusUpdates List of status updates to be sent to the GUI
      */
     @Override
-    protected void process(final List<Integer> progressUpdates) {
-        for (final Integer progress : progressUpdates) {
-            this.panel.getjParsingProgressBar().setValue(progress);
+    protected void process(final List<StatusReporter> statusUpdates) {
+        for (final StatusReporter status : statusUpdates) {
+            this.panel.notifyParsingStage(status);
         }
     }
     

@@ -25,7 +25,7 @@ import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.gui.IProgressConsumer;
+import org.norvelle.addressdiscoverer.gui.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
@@ -42,15 +42,14 @@ public class IndividualExtractor {
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    private String html;
     private List<Individual> individuals;
     private final Department department;
-    private final IProgressConsumer progressConsumer;
+    private final StatusReporter status;
 
-    public IndividualExtractor(Department department, IProgressConsumer progressConsumer) {
+    public IndividualExtractor(Department department, StatusReporter status) {
         this.individuals = new ArrayList<>();
         this.department = department;
-        this.progressConsumer = progressConsumer;
+        this.status = status;
     }
 
     /**
@@ -79,10 +78,13 @@ public class IndividualExtractor {
 
         // See if we get more email-containing elements via the TR or P 
         // based element finders
+        status.setStage(StatusReporter.ParsingStages.PARSING_HTML);
         Document soup = Jsoup.parse(html);
         List<Element> tableRows;
-        EmailElementInTrFinder trFinder = new EmailElementInTrFinder(soup);
+        status.setStage(StatusReporter.ParsingStages.FINDING_EMAILS);
+        EmailElementViaLinksFinder trFinder = new EmailElementViaLinksFinder(soup);
         List<Element> trRows = trFinder.getRows();
+        status.setStage(StatusReporter.ParsingStages.FINDING_EMAILS);
         EmailElementOutsideTrFinder pFinder = new EmailElementOutsideTrFinder(soup, encoding);
         List<Element> outsideTrRows = pFinder.getRows();
         
@@ -91,21 +93,33 @@ public class IndividualExtractor {
         if (outsideTrRows.size() > trRows.size()) {
             logger.log(Level.FINE, String.format("EmailElementOutsideTrFinder found %d P tags", trRows.size()));
             tableRows = outsideTrRows;
-        } else {
+        } else if (!trRows.isEmpty()) {
             logger.log(Level.FINE, String.format("EmailElementInTrFinder found %d P tags", trRows.size()));
             tableRows = trRows;
         }
-
-        // Now, send the rows found to the parsers and choose the best result found
-        if (this.progressConsumer != null) {
-            this.progressConsumer.setTotalElementsToProcess(tableRows.size());
+        
+        // If we are unable to find any email TRs, this probably means we have a
+        // page that embeds its emails in secondary pages. Run a link finder 
+        // designed to pick those up.
+        else { 
+            status.setStage(StatusReporter.ParsingStages.FINDING_EMAILS_IN_LINKS);
+            EmailElementViaLinksFinder vlFinder = new EmailElementViaLinksFinder(soup);
+            List<Element> viaLinksTrRows = vlFinder.getRows();
+            
+            // If we find some email TRs via this method, we go ahead and proceed
+            // with those TRs and see what we get.
+            if (!viaLinksTrRows.isEmpty()) {
+                tableRows = viaLinksTrRows;
+            }
+            else throw new IndividualExtractionFailedException(
+                "No emails were found for this page");
         }
-
+        
         try {
-            myIndividuals = this.getSingleIndividualsFromTrs(tableRows);
+            myIndividuals = this.getSingleIndividualsFromTrs(tableRows, status);
         } catch (MultipleRecordsInTrException ex) {
             try {
-                myIndividuals = this.getMultipleIndividualsFromTrs(tableRows);
+                myIndividuals = this.getMultipleIndividualsFromTrs(tableRows, status);
             } catch (CantExtractMultipleIndividualsException ex2) {
                 throw new IndividualExtractionFailedException(ex2.getMessage());
             }
@@ -123,13 +137,17 @@ public class IndividualExtractor {
      * @param tableRows
      * @return List<Individual> A List of all the individuals found in the page
      */
-    private List<Individual> getSingleIndividualsFromTrs(List<Element> tableRows)
-            throws MultipleRecordsInTrException {
+    private List<Individual> getSingleIndividualsFromTrs(
+            List<Element> tableRows, StatusReporter status)
+            throws MultipleRecordsInTrException 
+    {
         List<Individual> myIndividuals = new ArrayList<>();
-        int rowCount = 0;
+        status.setStage(StatusReporter.ParsingStages.EXTRACTING_INDIVIDUALS);
+        status.setTotalNumericSteps(tableRows.size());
         for (Element row : tableRows) {
             Individual in;
             try {
+                status.incrementNumericProgress();
                 in = Parser.getBestIndividual(row, this.department);
             } catch (CantParseIndividualException ex) {
                 in = new UnparsableIndividual(row.text() + ": " + ex.getMessage());
@@ -140,10 +158,6 @@ public class IndividualExtractor {
             logger.log(Level.INFO, "Adding new Individual: {0}", in.toString());
             in.setOriginalText(row.text());
             myIndividuals.add(in);
-            rowCount++;
-            if (this.progressConsumer != null) {
-                this.progressConsumer.publishProgress(rowCount);
-            }
         }
         return myIndividuals;
     }
@@ -155,19 +169,26 @@ public class IndividualExtractor {
      * @param tableRows
      * @return List<Individual> A List of all the individuals found in the page
      */
-    private List<Individual> getMultipleIndividualsFromTrs(List<Element> tableRows)
+    private List<Individual> getMultipleIndividualsFromTrs(List<Element> tableRows,
+            StatusReporter status)
             throws CantExtractMultipleIndividualsException, SQLException,
-            OrmObjectNotConfiguredException {
+            OrmObjectNotConfiguredException 
+    {
         List<Individual> myIndividuals = new ArrayList<>();
-        int rowCount = 0;
+        
+        // Calculate how many TDs we're going to have to look at
+        int totalTds = 0;
+        for (Element tr : tableRows) 
+            totalTds += tr.select("td").size();
+        status.setStage(StatusReporter.ParsingStages.EXTRACTING_INDIVIDUALS);
+        status.setTotalNumericSteps(totalTds);
+ 
+        // Go through each row and extract any individuals found
         for (Element row : tableRows) {
             myIndividuals.addAll(
-                    Parser.getMultipleIndividualsFromRow(row, this.department));
+                    Parser.getMultipleIndividualsFromRow(
+                            row, this.department, status));
             logger.log(Level.INFO, String.format("Adding %d new Individuals", myIndividuals.size()));
-            rowCount++;
-            if (this.progressConsumer != null) {
-                this.progressConsumer.publishProgress(rowCount);
-            }
         }
         return myIndividuals;
     }

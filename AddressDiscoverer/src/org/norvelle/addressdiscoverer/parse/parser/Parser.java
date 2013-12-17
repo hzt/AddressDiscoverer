@@ -19,6 +19,7 @@ import org.norvelle.addressdiscoverer.exceptions.CantExtractMultipleIndividualsE
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.gui.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
@@ -34,8 +35,8 @@ public abstract class Parser {
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     // Our list of parsers to be tried, in the order they should be applied
-    private static List<Parser> singleRecordPerTrParsers = new ArrayList<>();
-    private static List<IMultipleRecordsPerTrParser> multipleRecordsPerTrParsers 
+    private static final List<Parser> singleRecordPerTrParsers = new ArrayList<>();
+    private static final List<IMultipleRecordsPerTrParser> multipleRecordsPerTrParsers 
             = new ArrayList<>();
     
     /**
@@ -109,18 +110,32 @@ public abstract class Parser {
         return bestIndividual;
     }
 
+    /**
+     * Called when we know that a single TR will contain multiple TDs,
+     * each with an individual's data in them.
+     * 
+     * @param row
+     * @param department
+     * @param status A StatusReporter that lets us communicate progress to the GUI
+     * @return List<Individual> The Individuals we've been able to extract.
+     * @throws SQLException
+     * @throws OrmObjectNotConfiguredException
+     * @throws CantExtractMultipleIndividualsException 
+     */
     public static List<Individual> getMultipleIndividualsFromRow(Element row, 
-                Department department) 
+                Department department, StatusReporter status) 
             throws SQLException, OrmObjectNotConfiguredException, 
                 CantExtractMultipleIndividualsException
     {
         double topScore = 0.0; 
+        status.setStage(StatusReporter.ParsingStages.EXTRACTING_INDIVIDUALS);
         List<Individual> bestIndividuals = null;
         for (IMultipleRecordsPerTrParser p : Parser.multipleRecordsPerTrParsers) {
+            status.incrementNumericProgress();
             //logger.log(Level.INFO, String.format("Trying parser %s on text: '%s'",
             //    p.getClass().getSimpleName(), row.toString()));
             List<Individual> currIndividuals;
-            currIndividuals = p.getMultipleIndividuals(row, department);
+            currIndividuals = p.getMultipleIndividuals(row, department, status);
             if (currIndividuals == null) 
                 continue;
             

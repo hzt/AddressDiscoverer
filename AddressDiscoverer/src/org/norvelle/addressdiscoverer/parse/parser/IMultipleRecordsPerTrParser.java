@@ -13,9 +13,8 @@ package org.norvelle.addressdiscoverer.parse.parser;
 import java.sql.SQLException;
 import java.util.List;
 import org.jsoup.nodes.Element;
-import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
-import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.gui.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 
@@ -25,7 +24,8 @@ import org.norvelle.addressdiscoverer.model.Individual;
  */
 public interface IMultipleRecordsPerTrParser {
 
-    List<Individual> getMultipleIndividuals(Element row, Department department) 
+    List<Individual> getMultipleIndividuals(Element row, Department department, 
+            StatusReporter status) 
             throws SQLException, OrmObjectNotConfiguredException;
     
 }

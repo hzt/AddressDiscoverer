@@ -31,6 +31,7 @@ import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.gui.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 import org.norvelle.addressdiscoverer.parse.parser.MultipleRecordsInOneTrParser;
@@ -50,6 +51,7 @@ public class ExtractFromTrsWithMultipleRecordsTest {
     }
 
     @BeforeClass
+    @SuppressWarnings("UnnecessaryReturnStatement")
     public static void setUpClass() {
         TestUtilities.setupLogger();
         try {
@@ -62,7 +64,7 @@ public class ExtractFromTrsWithMultipleRecordsTest {
 
     @Test
     public void testHistoria() {
-        List<Individual> individuals = new ArrayList<Individual>();
+        List<Individual> individuals = new ArrayList<>();
         String html;
         try {
             html = Utils.loadStringFromResource(
@@ -77,7 +79,8 @@ public class ExtractFromTrsWithMultipleRecordsTest {
         MultipleRecordsInOneTrParser parser = new MultipleRecordsInOneTrParser();
         for (Element tr : trs) {
             try {
-                individuals.addAll(parser.getMultipleIndividuals(tr, null));
+                StatusReporter status = new StatusReporter(StatusReporter.ParsingStages.READING_FILE, null);
+                individuals.addAll(parser.getMultipleIndividuals(tr, null, status));
             } catch (SQLException | 
                     OrmObjectNotConfiguredException ex) {
                 logger.log(Level.SEVERE, null, ex);

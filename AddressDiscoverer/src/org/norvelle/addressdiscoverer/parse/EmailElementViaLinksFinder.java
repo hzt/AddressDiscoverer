@@ -18,7 +18,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.Constants;
-import org.norvelle.addressdiscoverer.parse.parser.Parser;
 
 /**
  * Represents the contents of a table found in the HTML source code of a page.
@@ -26,7 +25,7 @@ import org.norvelle.addressdiscoverer.parse.parser.Parser;
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class EmailElementInTrFinder {
+public class EmailElementViaLinksFinder {
 
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
@@ -40,7 +39,7 @@ public class EmailElementInTrFinder {
      * 
      * @param soup A JSoup Document that is the root of a web page.
      */
-    public EmailElementInTrFinder(Document soup) {
+    public EmailElementViaLinksFinder(Document soup) {
         logger.log(Level.FINE, "Entering EmailElementFinder.new()");
         Elements elementsWithEmails = soup.select(
                 String.format("tr:matches(%s)", Constants.emailRegex));

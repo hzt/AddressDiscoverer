@@ -49,6 +49,7 @@ public class ParseRemoteWebsiteWorker extends AbstractExtractIndividualWorker {
     @Override
     protected Integer doInBackground() throws Exception {
         try {
+            StatusReporter status = new StatusReporter(StatusReporter.ParsingStages.READING_FILE, this);
             URL url = new URL(this.uri);
             URLConnection connection = url.openConnection();
             InputStream in = connection.getInputStream();
@@ -60,7 +61,7 @@ public class ParseRemoteWebsiteWorker extends AbstractExtractIndividualWorker {
             String html = writer.toString();
             updateDepartmentHTML(html);
             this.panel.setHTMLPanelContents(html);
-            extractIndividuals(html, charset);
+            extractIndividuals(html, charset, status);
         } catch (IOException ex) {
             AddressDiscoverer.reportException(ex);
         }

@@ -6,11 +6,11 @@ package org.norvelle.addressdiscoverer.gui;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.model.Department;
 
 /**
@@ -49,12 +49,13 @@ public class ParseLocalHtmlFileWorker extends AbstractExtractIndividualWorker {
     @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch"})
     protected Integer doInBackground() throws Exception {
         try {
+            StatusReporter status = new StatusReporter(StatusReporter.ParsingStages.READING_FILE, this);
             InputStream in = new FileInputStream(this.localFile);
             String charset = this.getCharsetFromStream(in);
             String html = FileUtils.readFileToString(this.localFile, Charset.forName(charset));
             this.updateDepartmentHTML(html);
-            this.panel.setHTMLPanelContents(html);
-            this.extractIndividuals(html, charset);
+            this.panel.setHTMLPanelContents(html); 
+            this.extractIndividuals(html, charset, status);
         } catch (Exception ex) {
             AddressDiscoverer.reportException(ex);
             this.panel.notifyParsingFinished();

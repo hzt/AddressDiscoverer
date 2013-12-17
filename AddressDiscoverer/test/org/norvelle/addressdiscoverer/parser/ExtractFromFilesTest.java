@@ -30,9 +30,10 @@ import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.gui.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
-import org.norvelle.addressdiscoverer.parse.EmailElementInTrFinder;
+import org.norvelle.addressdiscoverer.parse.EmailElementViaLinksFinder;
 import org.norvelle.addressdiscoverer.parse.IndividualExtractor;
 import org.norvelle.utils.Utils;
 
@@ -69,10 +70,11 @@ public class ExtractFromFilesTest {
         html = Utils.loadStringFromResource(htmlUri, encoding);
         Document soup = Jsoup.parse(html);
         logger.log(Level.FINE, String.format("JSoup parsed document as follows:\n%s", soup.toString()));
-        EmailElementInTrFinder finder = new EmailElementInTrFinder(soup);
+        EmailElementViaLinksFinder finder = new EmailElementViaLinksFinder(soup);
         List<Element> rows = finder.getRows();
         logger.log(Level.FINE, String.format("EmailElementFinder found %d TR tags", rows.size()));
-        IndividualExtractor ext = new IndividualExtractor(null, null);
+        StatusReporter status = new StatusReporter(StatusReporter.ParsingStages.READING_FILE, null);
+        IndividualExtractor ext = new IndividualExtractor(null, status);
         List<Individual> individuals = ext.parse(html, encoding);
         if (!outputFile.isEmpty())
             FileUtils.writeLines(new File(outputFile), rows);

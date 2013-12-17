@@ -11,10 +11,11 @@
 package org.norvelle.addressdiscoverer.model;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
+import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
@@ -29,32 +30,6 @@ public class Name {
     private String rest;
     private String title = "";
     private String suffix = "";
-    
-    /**
-     * A regex for detecting numbers
-     */
-    private final Pattern numberPattern = Pattern.compile("\\b\\d+\\b");
-    
-    /**
-     * A regex for detecting parentheses
-     */
-    private final Pattern parensPattern = Pattern.compile("(\\(.*\\))");
-    
-    /**
-     * A short list of likely titles
-     */
-    private final ArrayList<String> possibleTitles = new ArrayList<String>() {{
-        add("Dr."); add("Dra."); add("Ing."); add("Lic.");
-        add("D."); add("Dña."); add("Prof.");  
-    }};
-    
-    /**
-     * A short list of some common suffixes
-     */
-    private final ArrayList<String> suffixes = new ArrayList<String>() {{
-        add("Jr."); add("II"); add("III"); add("IV");
-        add("Esq"); add("SJ"); add("OP"); add("OFM");
-    }};
     
     /**
      * A static method for determining whether a chunk of text is known to
@@ -96,7 +71,7 @@ public class Name {
         else
             this.parseOneLongChunk(textChunk);
         this.moveParensToUnprocessed();
-        //this.eliminateJunkFromLastName();
+        this.eliminateJunkFromFirstName();
         this.stealLastNameFromFirst();
         this.extractTitle();
 
@@ -139,7 +114,7 @@ public class Name {
         // First see if we can pull out anything from the first name that
         // is a title
         for (String word : StringUtils.split(myFirstName)) 
-            if (this.possibleTitles.contains(word)) {
+            if (Constants.possibleTitles.contains(word)) {
                 myFirstName = myFirstName.replace(word, "");
                 myTitle += word + " ";
             }
@@ -149,7 +124,7 @@ public class Name {
         // Next, divide the "last name" into last names, suffix and "rest"
         boolean restHasBegun = false;
         for (String word : StringUtils.split(myLastName)) {
-            if (this.suffixes.contains(word)) {
+            if (Constants.suffixes.contains(word)) {
                 myLastName = myLastName.replace(word, "");
                 mySuffix += word + " ";
             }
@@ -182,7 +157,7 @@ public class Name {
         String myTitle = "";
         for (String word : words) {
             // First order of business is to see if we have a title
-            if (this.possibleTitles.contains(word))
+            if (Constants.possibleTitles.contains(word))
                 myTitle += word + " ";
             // If not, but we are at the first word, we always put it as a first name
             else if (myFirstName.isEmpty())
@@ -211,7 +186,7 @@ public class Name {
     private void extractTitle() {
         @SuppressWarnings("LocalVariableHidesMemberVariable")
         String title = this.title;
-        for (String possibleTitle : this.possibleTitles) {
+        for (String possibleTitle : Constants.possibleTitles) {
             if (this.firstName.contains(possibleTitle)) {
                 this.firstName = this.firstName.replace(possibleTitle, "").trim();
                 title += " " + possibleTitle;
@@ -230,25 +205,18 @@ public class Name {
      * putting into the suffix anything that looks like a suffix, and then 
      * putting into the "rest" category anything else that doesn't fit.
      */
-    private void eliminateJunkFromLastName() {
-        String possibleRest = this.lastName;
-        String possibleLast = "";
+    private void eliminateJunkFromFirstName() {
+        String possibleRest = this.firstName;
+        String possibleFirst = "";
         String possibleSuffix = "";
-        String[] words = this.lastName.split("\\s+");
+        String[] words = this.firstName.split("\\s+");
         for (String word : words) {
-            if (KnownLastName.isLastName(word) || !KnownSpanishWord.isWord(word)) {
-                possibleLast += word + " ";
+            if (KnownFirstName.isFirstName(word) || !KnownSpanishWord.isWord(word)) {
+                possibleFirst += word + " ";
                 possibleRest = possibleRest.replace(word, "").trim();
             }
-            else {
-                if (this.suffixes.contains(word)) {
-                    possibleSuffix += word + " ";
-                    possibleRest = possibleRest.replace(word, "").trim();
-                }
-                else break;
-            }
         }
-        this.lastName = possibleLast.trim();
+        this.firstName = possibleFirst.trim();
         this.suffix = possibleSuffix.trim();
         this.rest = possibleRest.trim();
     }
@@ -261,7 +229,7 @@ public class Name {
             this.firstName = this.firstName.replace(foundParens, "").trim();
             this.rest = (this.rest + " " + foundParens).trim();
         }
-        Matcher matcherLast = this.parensPattern.matcher(this.lastName);
+        Matcher matcherLast = Constants.parensPattern.matcher(this.lastName);
         if (matcherLast.find())  {
             String foundParens = matcherLast.group();
             this.lastName = this.lastName.replace(foundParens, "").trim();
@@ -298,11 +266,15 @@ public class Name {
     // ===================== Getters =============================
     
     public String getFirstName() {
-        return this.eliminateWordsWithSymbols(this.escapeSingleQuotes(firstName));
+        return WordUtils.capitalizeFully(
+            this.eliminateWordsWithSymbols(
+                this.escapeSingleQuotes(firstName)));
     }
 
     public String getLastName() {
-        return this.eliminateWordsWithSymbols(this.escapeSingleQuotes(lastName));
+        return WordUtils.capitalizeFully(
+                this.eliminateWordsWithSymbols(
+                        this.escapeSingleQuotes(lastName)).toLowerCase());
     }
 
     public String getFullName() {

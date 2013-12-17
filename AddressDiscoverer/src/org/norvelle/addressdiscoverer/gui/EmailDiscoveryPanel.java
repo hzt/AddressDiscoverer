@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
-import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -101,6 +100,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                     }
                     else {
                         EditIndividualDialog dialog = new EditIndividualDialog(myThis, individual, true);
+                        dialog.setLocationRelativeTo(null);
                         dialog.setVisible(true);
                     }
                 }
@@ -124,7 +124,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
      */
     public void setDepartment(Department department) throws IOException, SAXException {
         this.currentDepartment = department;
-        this.jParsingProgressBar.setValue(0);
+        this.jStageNameLabel.setText("Idle");
         if (department == null) {
             this.jWebAddressField.setText("");
             this.jWebAddressField.setEnabled(false);
@@ -171,6 +171,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private void fetchAndParseHtml() {
         this.jRetrieveHTMLButton.setEnabled(false);
         this.jSaveResultsButton.setEnabled(false);
+        this.jStageNameLabel.setEnabled(true);
         final String myURI = this.jWebAddressField.getText();
         this.populateResultsTable(null);
         if (!myURI.isEmpty()) {
@@ -289,14 +290,19 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         }
     }
 
-    public JProgressBar getjParsingProgressBar() {
-        return jParsingProgressBar;
-    }
-
     public void notifyParsingFinished() {
         jRetrieveHTMLButton.setEnabled(true);
         this.jSaveResultsButton.setEnabled(true);
-        this.jParsingProgressBar.setValue(0);
+        this.jStageNameLabel.setEnabled(false);
+        this.jStageNameLabel.setText("Idle");
+    }
+    
+    public void notifyIndividualDeleted(Individual i) {
+        this.individuals.remove(i);
+    }
+    
+    public void notifyParsingStage(StatusReporter status) {
+        this.jStageNameLabel.setText(status.getLabel());
     }
     
     /**
@@ -321,9 +327,9 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jAddressesFoundTable = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
-        jParsingProgressBar = new javax.swing.JProgressBar();
         jLabel4 = new javax.swing.JLabel();
         jSaveResultsButton = new javax.swing.JButton();
+        jStageNameLabel = new javax.swing.JLabel();
         jPageContentTab = new javax.swing.JPanel();
         jPageContentPanel = new javax.swing.JPanel();
         jHTMLPanel = new org.lobobrowser.html.gui.HtmlPanel();
@@ -385,6 +391,10 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             }
         });
 
+        jStageNameLabel.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        jStageNameLabel.setText("Finding Emails in Links");
+        jStageNameLabel.setEnabled(false);
+
         javax.swing.GroupLayout jEmailSourceTabLayout = new javax.swing.GroupLayout(jEmailSourceTab);
         jEmailSourceTab.setLayout(jEmailSourceTabLayout);
         jEmailSourceTabLayout.setHorizontalGroup(
@@ -395,8 +405,9 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 716, Short.MAX_VALUE)
                     .addGroup(jEmailSourceTabLayout.createSequentialGroup()
                         .addComponent(jLabel4)
-                        .addGap(26, 26, 26)
-                        .addComponent(jParsingProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jStageNameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jEmailSourceTabLayout.createSequentialGroup()
                         .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jEmailSourceTabLayout.createSequentialGroup()
@@ -431,9 +442,9 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                     .addComponent(jBytesReceivedLabel)
                     .addComponent(jSaveResultsButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jParsingProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
+                .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(jStageNameLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -523,11 +534,11 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private javax.swing.JFileChooser jOpenFileChooser;
     private javax.swing.JPanel jPageContentPanel;
     private javax.swing.JPanel jPageContentTab;
-    private javax.swing.JProgressBar jParsingProgressBar;
     private javax.swing.JButton jRetrieveHTMLButton;
     private javax.swing.JFileChooser jSaveFileChooser;
     private javax.swing.JButton jSaveResultsButton;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel jStageNameLabel;
     private javax.swing.JTextField jWebAddressField;
     // End of variables declaration//GEN-END:variables
 }

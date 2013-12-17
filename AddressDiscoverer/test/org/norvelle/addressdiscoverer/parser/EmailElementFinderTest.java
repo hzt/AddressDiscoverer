@@ -10,7 +10,7 @@
  */
 package org.norvelle.addressdiscoverer.parser;
 
-import org.norvelle.addressdiscoverer.parse.EmailElementInTrFinder;
+import org.norvelle.addressdiscoverer.parse.EmailElementViaLinksFinder;
 import java.io.IOException;
 import java.util.List;
 import junit.framework.Assert;
@@ -49,7 +49,7 @@ public class EmailElementFinderTest {
         Assert.assertTrue("The JSoup document must have at least one child node", ! soup.children().isEmpty());
         
         // Test the EmailElementFinder
-        EmailElementInTrFinder finder = new EmailElementInTrFinder(soup);
+        EmailElementViaLinksFinder finder = new EmailElementViaLinksFinder(soup);
         List<Element> rows = finder.getRows();
         
         Assert.assertTrue(String.format(

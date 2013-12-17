@@ -11,7 +11,6 @@
 package org.norvelle.addressdiscoverer;
 
 import org.norvelle.addressdiscoverer.parse.IndividualExtractor;
-import org.norvelle.addressdiscoverer.parse.EmailElementInTrFinder;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;
@@ -23,14 +22,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.gui.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
@@ -107,7 +103,8 @@ public class TestUtilities {
     {
         String html;
         html = Utils.loadStringFromResource(htmlUri, encoding);
-        IndividualExtractor ext = new IndividualExtractor(null, null);
+        StatusReporter status = new StatusReporter(StatusReporter.ParsingStages.READING_FILE, null);
+        IndividualExtractor ext = new IndividualExtractor(null, status);
         List<Individual> individuals = ext.parse(html, encoding);
         //if (!outputFile.isEmpty())
         //    FileUtils.writeLines(new File(outputFile), rows);

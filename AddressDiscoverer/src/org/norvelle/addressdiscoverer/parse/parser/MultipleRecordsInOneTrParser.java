@@ -26,6 +26,8 @@ import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.EmptyTdException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.gui.IProgressConsumer;
+import org.norvelle.addressdiscoverer.gui.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
@@ -107,13 +109,14 @@ public class MultipleRecordsInOneTrParser extends Parser implements IMultipleRec
      * 
      * @param row
      * @param department
+     * @param status A StatusReporter that lets us communicate progress to the GUI
      * @return List<Individual> All the individuals we could extract from this row.
-     * @throws CantParseIndividualException
      * @throws SQLException
      * @throws OrmObjectNotConfiguredException 
      */
     @Override
-    public List<Individual> getMultipleIndividuals(Element row, Department department) 
+    public List<Individual> getMultipleIndividuals(Element row, Department department, 
+            StatusReporter status) 
             throws SQLException, OrmObjectNotConfiguredException
     {
         this.department = department;
@@ -123,6 +126,7 @@ public class MultipleRecordsInOneTrParser extends Parser implements IMultipleRec
         // We assume that each TD holds a complete record... find how what the
         // format is and extract the fields appropriately
         for (Element td : tds) {
+            status.incrementNumericProgress();
             try {
                 Individual newIndividual = this.extractIndividualFromTd(td);
                 individuals.add(newIndividual);
