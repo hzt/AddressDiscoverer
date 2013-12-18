@@ -10,6 +10,8 @@
  */
 package org.norvelle.addressdiscoverer.gui;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +42,7 @@ public class DepartmentListPanel extends javax.swing.JPanel implements IListPane
      * Creates new form InstitutionListPanel
      * @param parent
      */
+    @SuppressWarnings("LeakingThisInConstructor")
     public DepartmentListPanel(GUIManagementPane parent) {
         this.parent = parent;
         initComponents();
@@ -47,6 +50,24 @@ public class DepartmentListPanel extends javax.swing.JPanel implements IListPane
         this.listModel = new DefaultListModel();
         this.jDepartmentList.setModel(listModel);
         this.jAddModifyDeleteButtonPanel.setDisabledCondition();
+
+        // Add a mouse listener for double clicks on the table
+        final DepartmentListPanel myThis = this;
+        this.jDepartmentList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent me) {
+                if (me.getClickCount() == 2) {
+                    int selectedDepartment = jDepartmentList.getSelectedIndex();
+                    Department department = (Department) 
+                        listModel.elementAt(selectedDepartment);                    
+                    EditDepartmentDialog dialog = 
+                            new EditDepartmentDialog(myThis, department);
+                    dialog.setLocationRelativeTo(null);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+        
     }
     
     public void setInstitution(Institution selectedInstitution) {
@@ -60,7 +81,7 @@ public class DepartmentListPanel extends javax.swing.JPanel implements IListPane
                     this.listModel.addElement(departments.get(key));
             }
             this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
-        } catch (OrmObjectNotConfiguredException | SQLException ex) {
+        } catch (SQLException ex) {
             AddressDiscoverer.reportException(ex);
         }
         
@@ -80,45 +101,32 @@ public class DepartmentListPanel extends javax.swing.JPanel implements IListPane
             this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
             this.refreshList();
             this.parent.setSelectedDepartment(null);
-        } catch (SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (SQLException ex) {
             AddressDiscoverer.reportException(ex);
         }        
     }
     
     @Override
     public void addNew() {
-        String name = JOptionPane.showInputDialog("Name: ");
-        if (name == null) return;
-        Department newDepartment;
-        try {
-            newDepartment = Department.create(name, this.institution);
-            this.listModel.addElement(newDepartment);
-        } catch (SQLException | OrmObjectNotConfiguredException ex) {
-            AddressDiscoverer.reportException(ex);
-        }
-        this.refreshList();
-        this.parent.setSelectedDepartment(null);
+        EditDepartmentDialog dialog = new EditDepartmentDialog(this, this.institution);
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
     }
     
     @Override
     public void modifySelected() {
-        String newName = JOptionPane.showInputDialog("New name: ");
-        if (newName == null) return;
         int selectedDepartment = this.jDepartmentList.getSelectedIndex();
-        Department departmentToModify = (Department) 
-                this.listModel.elementAt(selectedDepartment);
-        try {
-            departmentToModify.setName(newName);
-            Department.update(departmentToModify);
-            this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
-            this.refreshList();
-            this.parent.setSelectedDepartment(null);
-        } catch (SQLException ex) {
-            AddressDiscoverer.reportException(ex);
-        }        
+        if (selectedDepartment != -1) {
+            Department departmentToModify = (Department) 
+                    this.listModel.elementAt(selectedDepartment);
+            EditDepartmentDialog dialog = 
+                    new EditDepartmentDialog(this, departmentToModify);
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+        }
     }
 
-    private void refreshList() {
+    public void refreshList() {
         this.listModel = new DefaultListModel();
         HashMap<Integer, Department> departments;
         try {
@@ -128,9 +136,19 @@ public class DepartmentListPanel extends javax.swing.JPanel implements IListPane
             for (Department i : sortedDepartments)
                 this.listModel.addElement(i);
             this.jDepartmentList.setModel(this.listModel);   
-        } catch (OrmObjectNotConfiguredException | SQLException ex) {
+            if (this.jDepartmentList.getSelectedIndex() == -1) {
+                this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
+                this.parent.setSelectedDepartment(null);
+            }
+        } catch (SQLException ex) {
             AddressDiscoverer.reportException(ex);
         } 
+    }
+
+    public void notifyDepartmentDeleted() {
+        this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
+        this.refreshList();
+        this.parent.setSelectedDepartment(null);
     }
 
     /**

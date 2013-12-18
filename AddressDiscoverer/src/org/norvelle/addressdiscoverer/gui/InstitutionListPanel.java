@@ -10,12 +10,15 @@
  */
 package org.norvelle.addressdiscoverer.gui;
 
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.utils.Utils;
@@ -32,7 +35,6 @@ public class InstitutionListPanel extends javax.swing.JPanel implements IListPan
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     private final GUIManagementPane parent;
-    private HashMap<Integer, Institution> institutions;
     private DefaultListModel listModel;
     
     /**
@@ -40,12 +42,37 @@ public class InstitutionListPanel extends javax.swing.JPanel implements IListPan
      * @param parent
      * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      */
-    public InstitutionListPanel(GUIManagementPane parent) throws OrmObjectNotConfiguredException {
+    @SuppressWarnings({"LeakingThisInConstructor", "OverridableMethodCallInConstructor"})
+    public InstitutionListPanel(GUIManagementPane parent) {
         this.parent = parent;
         initComponents();
         this.jAddModifyDeleteButtonPanel.setParent(this);
         this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
+
+        // Add a mouse listener for double clicks on the table
+        final InstitutionListPanel myThis = this;
+        this.jInstitutionList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent me) {
+                if (me.getClickCount() == 2) {
+                    int selectedInstitution = jInstitutionList.getSelectedIndex();
+                    Institution institution = (Institution) 
+                        listModel.elementAt(selectedInstitution);                    
+                    EditInstitutionDialog dialog = 
+                            new EditInstitutionDialog(myThis, institution);
+                    dialog.setLocationRelativeTo(null);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+        
         this.refreshList();
+    }
+    
+    public void notifyInstitutionDeleted() {
+        this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
+        this.refreshList();
+        this.parent.setSelectedInstitution(null);
     }
 
     @Override
@@ -62,57 +89,43 @@ public class InstitutionListPanel extends javax.swing.JPanel implements IListPan
             this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
             this.refreshList();
             this.parent.setSelectedInstitution(null);
-        } catch (SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (SQLException ex) {
             AddressDiscoverer.reportException(ex);
         } 
     }
     
     @Override
     public void addNew() {
-        String name = JOptionPane.showInputDialog("Name: ");
-        Institution newInstitution;
-        try {
-            newInstitution = Institution.create(name);
-            this.listModel.addElement(newInstitution);
-        } catch (SQLException | OrmObjectNotConfiguredException ex) {
-            AddressDiscoverer.reportException(ex);
-        }
-
-        this.refreshList();
-        this.parent.setSelectedInstitution(null);
+        EditInstitutionDialog dialog = 
+                new EditInstitutionDialog(this);
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
     }
     
     @Override
     public void modifySelected() {
-        String newName = JOptionPane.showInputDialog("New name: ");
-        if (newName == null) return;
         int selectedInstitution = this.jInstitutionList.getSelectedIndex();
-        Institution institutionToModify = (Institution) 
-                this.listModel.elementAt(selectedInstitution);
-        try {
-            institutionToModify.setName(newName);
-            Institution.update(institutionToModify);
-            this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
-            this.refreshList();
-            this.parent.setSelectedInstitution(null);
-        } catch (SQLException ex) {
-            AddressDiscoverer.reportException(ex);
-        }        
-        
+        if (selectedInstitution != -1) {
+            Institution institutionToModify = (Institution) 
+                    this.listModel.elementAt(selectedInstitution);
+            EditInstitutionDialog dialog = 
+                    new EditInstitutionDialog(this, institutionToModify);
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+        }
     }
     
-    private void refreshList() {
+    public void refreshList() {
         this.listModel = new DefaultListModel();
-        HashMap<Integer, Institution> institutions;
-        try {
-            institutions = Institution.getInstitutions();
-            List<Institution> sortedInstitutions = 
-                    Utils.asSortedList(institutions.values(), Utils.ASCENDING_SORT);
-            for (Institution i : sortedInstitutions)
-                this.listModel.addElement(i);
-            this.jInstitutionList.setModel(this.listModel);   
-        } catch (OrmObjectNotConfiguredException ex) {
-            AddressDiscoverer.reportException(ex);
+        HashMap<Integer, Institution> myInstitutions = Institution.getInstitutions();
+        List<Institution> sortedInstitutions = 
+                Utils.asSortedList(myInstitutions.values(), Utils.ASCENDING_SORT);
+        for (Institution i : sortedInstitutions)
+            this.listModel.addElement(i);
+        this.jInstitutionList.setModel(this.listModel);   
+        if (this.jInstitutionList.getSelectedIndex() == -1) {
+            this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
+            this.parent.setSelectedInstitution(null);
         }
     }
 

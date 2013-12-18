@@ -57,6 +57,9 @@ public class Individual implements Comparable {
     private String affiliation;
     
     @DatabaseField
+    private String role;
+    
+    @DatabaseField
     private String unprocessed;
     
     @DatabaseField
@@ -171,6 +174,14 @@ public class Individual implements Comparable {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public int getId() {

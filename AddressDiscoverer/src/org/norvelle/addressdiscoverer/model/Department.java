@@ -46,6 +46,12 @@ public class Department implements Comparable {
     @DatabaseField
     private String html;
     
+    @DatabaseField
+    private String director;
+    
+    @DatabaseField
+    private String directorEmail;
+    
     @DatabaseField(generatedId = true)
     private int id;
     
@@ -79,6 +85,22 @@ public class Department implements Comparable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDirector() {
+        return director;
+    }
+
+    public void setDirector(String director) {
+        this.director = director;
+    }
+
+    public String getDirectorEmail() {
+        return directorEmail;
+    }
+
+    public void setDirectorEmail(String directorEmail) {
+        this.directorEmail = directorEmail;
     }
 
     public int getId() {
@@ -118,19 +140,16 @@ public class Department implements Comparable {
         TableUtils.createTableIfNotExists(connectionSource, Department.class);
     }
     
-    public static Department getById(String id) throws SQLException, OrmObjectNotConfiguredException {
-        Department.checkConfigured();
+    public static Department getById(String id) throws SQLException {
         return Department.dao.queryForId(id);
     }
     
-    public static List<Department> getAll() throws SQLException, OrmObjectNotConfiguredException {
-        Department.checkConfigured();
+    public static List<Department> getAll() throws SQLException {
         return Department.dao.queryForAll();
     }
     
     public static Department create(String name, Institution institution) 
-            throws SQLException, OrmObjectNotConfiguredException {
-        Department.checkConfigured();
+            throws SQLException {
         Department i = new Department(name, institution);
         Department.dao.create(i);
         return i;
@@ -140,19 +159,12 @@ public class Department implements Comparable {
         Department.dao.update(i);
     }
     
-    public static void delete(Department d) throws SQLException, OrmObjectNotConfiguredException {
-        Individual.deleteIndividualsForDepartment(d);
+    public static void delete(Department d) throws SQLException {
         Department.dao.delete(d);
     }
     
-    private static void checkConfigured() throws OrmObjectNotConfiguredException {
-        if (Department.dao == null)
-            throw new OrmObjectNotConfiguredException("Department DAO not configured");
-    }
-    
     public static HashMap<Integer, Department> getDepartmentsForInstitution(
-            Institution institution) throws OrmObjectNotConfiguredException, SQLException {
-        Department.checkConfigured();
+            Institution institution) throws SQLException {
         List<Department> results =
             Department.dao.queryBuilder().where().
               eq("institution_id", institution).query();
@@ -165,8 +177,8 @@ public class Department implements Comparable {
     }
 
     public static void deleteDepartmentsForInstitution(
-            Institution institution) throws OrmObjectNotConfiguredException, SQLException {
-        Department.checkConfigured();
+            Institution institution) throws SQLException 
+    {
         List<Department> results =
             Department.dao.queryBuilder().where().
               eq("institution_id", institution).query();
@@ -176,8 +188,7 @@ public class Department implements Comparable {
         }
     }
     
-    public static long getCount() throws SQLException, OrmObjectNotConfiguredException {
-        Department.checkConfigured();
+    public static long getCount() throws SQLException {
         long total = Department.dao.countOf();
         return total;
     }

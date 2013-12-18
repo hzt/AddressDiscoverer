@@ -33,6 +33,15 @@ public class Institution implements Comparable {
     @DatabaseField
     private String name;
     
+    @DatabaseField
+    private String country;
+    
+    @DatabaseField
+    private String city;
+    
+    @DatabaseField
+    private String affiliation;
+    
     @DatabaseField(generatedId = true)
     private int id;
     
@@ -59,6 +68,30 @@ public class Institution implements Comparable {
         this.name = name;
     }
 
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getAffiliation() {
+        return affiliation;
+    }
+
+    public void setAffiliation(String affiliation) {
+        this.affiliation = affiliation;
+    }
+
     public int getId() {
         return id;
     }
@@ -82,18 +115,15 @@ public class Institution implements Comparable {
         TableUtils.createTableIfNotExists(connectionSource, Institution.class);
     }
     
-    public static Institution getById(String id) throws SQLException, OrmObjectNotConfiguredException {
-        Institution.checkConfigured();
+    public static Institution getById(String id) throws SQLException {
         return Institution.dao.queryForId(id);
     }
     
-    public static List<Institution> getAll() throws SQLException, OrmObjectNotConfiguredException {
-        Institution.checkConfigured();
+    public static List<Institution> getAll() throws SQLException {
         return Institution.dao.queryForAll();
     }
     
-    public static Institution create(String name) throws SQLException, OrmObjectNotConfiguredException {
-        Institution.checkConfigured();
+    public static Institution create(String name) throws SQLException {
         Institution i = new Institution(name);
         Institution.dao.create(i);
         return i;
@@ -103,18 +133,12 @@ public class Institution implements Comparable {
         Institution.dao.update(i);
     }
     
-    public static void delete(Institution i) throws SQLException, OrmObjectNotConfiguredException {
+    public static void delete(Institution i) throws SQLException {
         Department.deleteDepartmentsForInstitution(i);
         Institution.dao.delete(i);
     }
     
-    private static void checkConfigured() throws OrmObjectNotConfiguredException {
-        if (Institution.dao == null)
-            throw new OrmObjectNotConfiguredException("Institution DAO not configured");
-    }
-    
-    public static HashMap<Integer, Institution> getInstitutions() throws OrmObjectNotConfiguredException {
-        Institution.checkConfigured();
+    public static HashMap<Integer, Institution> getInstitutions() {
         HashMap<Integer, Institution> institutions = new HashMap();
         for (Institution i : Institution.dao) {
             institutions.put(i.getId(), i);
@@ -122,8 +146,7 @@ public class Institution implements Comparable {
         return institutions;
     }
     
-    public static long getCount() throws SQLException, OrmObjectNotConfiguredException {
-        Institution.checkConfigured();
+    public static long getCount() throws SQLException {
         long total = Institution.dao.countOf();
         return total;
     }

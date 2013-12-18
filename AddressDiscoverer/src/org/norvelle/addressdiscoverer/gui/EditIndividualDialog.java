@@ -41,8 +41,9 @@ public class EditIndividualDialog extends javax.swing.JDialog {
         this.jTitleField.setText(individual.getTitle());
         this.jFirstNameField.setText(individual.getFirstName());
         this.jLastNameField.setText(individual.getLastName());
-        this.jEmailName.setText(individual.getEmail());
-        this.jRestName.setText(individual.getUnprocessed());
+        this.jEmailField.setText(individual.getEmail());
+        this.jRoleField.setText(individual.getRole());
+        this.jRestField.setText(individual.getUnprocessed());
     }
 
     /**
@@ -59,11 +60,11 @@ public class EditIndividualDialog extends javax.swing.JDialog {
         jFirstNameField = new javax.swing.JTextField();
         jLastNameField = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        jEmailName = new javax.swing.JTextField();
+        jEmailField = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jTitleField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jRestName = new javax.swing.JTextField();
+        jRestField = new javax.swing.JTextField();
         jCancelButton = new javax.swing.JButton();
         jOkButton = new javax.swing.JButton();
         jDeleteFirstNameButton = new javax.swing.JButton();
@@ -71,6 +72,8 @@ public class EditIndividualDialog extends javax.swing.JDialog {
         jDeleteLastNameButton = new javax.swing.JButton();
         jAddLastNameButton = new javax.swing.JButton();
         jDeleteIndividualButton = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        jRoleField = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Edit Individual");
@@ -140,6 +143,8 @@ public class EditIndividualDialog extends javax.swing.JDialog {
             }
         });
 
+        jLabel6.setText("Role:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -148,17 +153,25 @@ public class EditIndividualDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(jDeleteIndividualButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 264, Short.MAX_VALUE)
+                        .addComponent(jOkButton, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jCancelButton))
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
                             .addComponent(jLabel2)
                             .addComponent(jLabel3)
                             .addComponent(jLabel4)
-                            .addComponent(jLabel5))
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel6))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jRoleField)
                             .addComponent(jTitleField)
-                            .addComponent(jEmailName)
-                            .addComponent(jRestName)
+                            .addComponent(jEmailField)
+                            .addComponent(jRestField)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(jLastNameField, javax.swing.GroupLayout.Alignment.LEADING)
@@ -170,13 +183,7 @@ public class EditIndividualDialog extends javax.swing.JDialog {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jDeleteFirstNameButton)
-                                    .addComponent(jDeleteLastNameButton, javax.swing.GroupLayout.Alignment.TRAILING)))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jDeleteIndividualButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 264, Short.MAX_VALUE)
-                        .addComponent(jOkButton, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jCancelButton)))
+                                    .addComponent(jDeleteLastNameButton, javax.swing.GroupLayout.Alignment.TRAILING))))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -200,12 +207,16 @@ public class EditIndividualDialog extends javax.swing.JDialog {
                     .addComponent(jAddLastNameButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jEmailName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jEmailField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jRoleField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jRestName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jRestField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCancelButton)
@@ -228,10 +239,12 @@ public class EditIndividualDialog extends javax.swing.JDialog {
             this.individual.setFirstName(this.jFirstNameField.getText());
         if (!this.jLastNameField.getText().equals(this.individual.getLastName()))
             this.individual.setLastName(this.jLastNameField.getText());
-        if (!this.jRestName.getText().equals(this.individual.getUnprocessed()))
-            this.individual.setUnprocessed(this.jRestName.getText());
-        if (!this.jEmailName.getText().equals(this.individual.getEmail()))
-            this.individual.setUnprocessed(this.jRestName.getText());
+        if (!this.jRestField.getText().equals(this.individual.getUnprocessed()))
+            this.individual.setUnprocessed(this.jRestField.getText());
+        if (!this.jEmailField.getText().equals(this.individual.getEmail()))
+            this.individual.setEmail(this.jEmailField.getText());
+        if (!this.jRoleField.getText().equals(this.individual.getRole()))
+            this.individual.setRole(this.jRoleField.getText());
         try {
             Individual.update(individual);
         } catch (SQLException ex) {
@@ -293,16 +306,18 @@ public class EditIndividualDialog extends javax.swing.JDialog {
     private javax.swing.JButton jDeleteFirstNameButton;
     private javax.swing.JButton jDeleteIndividualButton;
     private javax.swing.JButton jDeleteLastNameButton;
-    private javax.swing.JTextField jEmailName;
+    private javax.swing.JTextField jEmailField;
     private javax.swing.JTextField jFirstNameField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JTextField jLastNameField;
     private javax.swing.JButton jOkButton;
-    private javax.swing.JTextField jRestName;
+    private javax.swing.JTextField jRestField;
+    private javax.swing.JTextField jRoleField;
     private javax.swing.JTextField jTitleField;
     // End of variables declaration//GEN-END:variables
 }

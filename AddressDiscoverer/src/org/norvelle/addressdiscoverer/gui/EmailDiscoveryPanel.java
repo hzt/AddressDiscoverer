@@ -66,19 +66,16 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             @Override
             public void insertUpdate(DocumentEvent de) {
                 updateDepartmentWebAddress();
-                jRetrieveHTMLButton.setEnabled(true);
             }
 
             @Override
             public void removeUpdate(DocumentEvent de) {
                 updateDepartmentWebAddress();
-                jRetrieveHTMLButton.setEnabled(true);
             }
 
             @Override
             public void changedUpdate(DocumentEvent de) {
                 updateDepartmentWebAddress();
-                jRetrieveHTMLButton.setEnabled(true);
             }
         });
         
@@ -144,7 +141,10 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             this.jWebAddressField.setCaretPosition(0);
             this.jWebAddressField.setEnabled(true);
             this.jBytesReceivedLabel.setEnabled(true);
-            this.jRetrieveHTMLButton.setEnabled(true);
+            if (this.jWebAddressField.getText().isEmpty()) 
+                this.jRetrieveHTMLButton.setEnabled(false);
+            else
+                this.jRetrieveHTMLButton.setEnabled(true);
             this.jOpenFileButton.setEnabled(true);
             this.jHTMLPanel.setEnabled(true);
             String html = department.getHtml();
@@ -152,7 +152,6 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 this.setHTMLPanelContents(html);
             }
             else this.setHTMLPanelContents(""); 
-            List<Individual> individuals;
             try {
                 this.individuals = Individual.getIndividualsForDepartment(department);
                 this.populateResultsTable(this.individuals);
@@ -209,6 +208,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         model.addColumn("First");
         model.addColumn("Last");
         model.addColumn("Email");
+        model.addColumn("Role");
         model.addColumn("Other");
         if (individuals == null) {
             model.setRowCount(0);
@@ -222,14 +222,16 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                     model.setValueAt(i.getFirstName(), rowCount, 1);
                     model.setValueAt(chop(i.getLastName()), rowCount, 2);
                     model.setValueAt(i.getEmail(), rowCount, 3);
-                    model.setValueAt(chop(i.getUnprocessed()), rowCount, 4);
+                    model.setValueAt(chop(i.getRole(), 20), rowCount, 4);
+                    model.setValueAt(chop(i.getUnprocessed(), 20), rowCount, 5);
                 }
                 else {
-                    model.setValueAt("NULL", rowCount, 0);
+                    model.setValueAt("Edit to fix", rowCount, 0);
                     model.setValueAt("NULL", rowCount, 1);
                     model.setValueAt("NULL", rowCount, 2);
                     model.setValueAt("NULL", rowCount, 3);
-                    model.setValueAt(i.toString(), rowCount, 4);
+                    model.setValueAt("NULL", rowCount, 4);
+                    model.setValueAt("NULL", rowCount, 5);
                 }
                 rowCount ++;
             }
@@ -240,8 +242,12 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     }
     
     private String chop(String text) {
-        if (text.length() > 30) {
-            text = text.substring(0, 30) + "...";
+        return chop(text, 30);
+    }
+    
+    private String chop(String text, int length) {
+        if (text.length() > length) {
+            text = text.substring(0, length) + "...";
         }
         return text;
     }
@@ -278,9 +284,13 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
      * Gets called when the user changes the value for the web address field.
      */
     private void updateDepartmentWebAddress() {
-        this.jRetrieveHTMLButton.setEnabled(true);
         String newAddress = this.jWebAddressField.getText();
-        if (newAddress != null && this.currentDepartment != null) {
+        if (newAddress == null || newAddress.isEmpty()) {
+            this.jRetrieveHTMLButton.setEnabled(false);
+            return;
+        }
+        this.jRetrieveHTMLButton.setEnabled(false);
+        if (this.currentDepartment != null) {
             this.currentDepartment.setWebAddress(newAddress);
             try {
                 Department.update(this.currentDepartment);
