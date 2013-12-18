@@ -11,12 +11,12 @@
 package org.norvelle.addressdiscoverer.model;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import junit.framework.Assert;
 import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.norvelle.addressdiscoverer.TestUtilities;
+import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 
 /**
  *
@@ -27,35 +27,38 @@ public class AbbreviationsTest {
     public AbbreviationsTest() {
     }
     
-    /*@BeforeClass
+    @BeforeClass
     @SuppressWarnings("UnnecessaryReturnStatement")
     public static void setUpClass() {
-        try {
-            KnownSpanishWord.initialize(TestUtilities.getTestOutputDirectory());
-            wordsFile = new File(TestUtilities.getTestOutputDirectory() 
-                    + File.separator + "spanish_words.txt");
-            String wordStr;
-            wordStr = FileUtils.readFileToString(wordsFile, "UTF-8");
-            String[] wordsArray = StringUtils.split(wordStr, "\n");
-            for (String word : wordsArray) 
-            spanishWords.put(word, 1);
-        } catch (IOException ex) {
-            fail("Can't read word file");
-            return;
-        }
-    }*/
-
-    //@Test
-    public void testAbbreviations() {
         try {
             Abbreviations.initialize(TestUtilities.getTestOutputDirectory());
         } catch (IOException ex) {
             fail("Can't read abbreviations file");
-        }
+        }        
+    }
+
+    //@Test
+    public void testAbbreviations() {
         String francisco = Abbreviations.fixAbbreviations("Fco. Manuel");
         Assert.assertEquals("Fco. Manuel should become Francisco Manuel", "Francisco Manuel", francisco);
         String maria = Abbreviations.fixAbbreviations("Mª Carmen");
         Assert.assertEquals("Mª Carmen should become María Carmen", "María Carmen", maria);
     }
     
+    @Test
+    public void testVinardell() {
+        String chunk = "Vinardell, Ma. Pilar";
+        Name name;
+        try { 
+            name = new Name(chunk);
+        } catch (CantParseIndividualException ex) {
+            fail("Can't parse individual");
+            return;
+        }
+        
+        org.junit.Assert.assertEquals("First name should be María Pilar", "María Pilar", name.getFirstName());
+        org.junit.Assert.assertEquals("Last name should be Vinardell", "Vinardell", name.getLastName());
+        org.junit.Assert.assertEquals("Title should be ''", "", name.getTitle());
+    }
+
 }

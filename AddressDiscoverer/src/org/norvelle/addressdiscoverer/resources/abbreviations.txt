@@ -1,5 +1,7 @@
 Ma.	María
+M.	María
 Fco.	Francisco
+Frco.	Francisco
 Mª.	María
 Mª	María
 Glez.	González

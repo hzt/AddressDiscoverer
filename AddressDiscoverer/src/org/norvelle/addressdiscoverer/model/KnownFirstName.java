@@ -51,6 +51,12 @@ public class KnownFirstName {
     }
     
     public static boolean isFirstName(String name) {
+        if (name == null) return false;
+        if (name.contains("-")) {
+            String[] splitNames = StringUtils.split(name, "-");
+            return isFirstName(splitNames[0]) || isFirstName(splitNames[1]);
+        }
+        
         // Instead of using a standard charset translator, we translate only vowels
         name = name.replace("á", "a").replace("é", "e").replace("í", "i")
                 .replace("ó", "o").replace("ú", "u").replace("ü", "u")

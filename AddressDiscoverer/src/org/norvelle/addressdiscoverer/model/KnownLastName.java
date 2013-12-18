@@ -53,6 +53,8 @@ public class KnownLastName {
     }
     
     public static boolean isLastName(String name) {
+        if (name == null) return false;
+        
         // First, check something easy... if the name has a hyphen, it's a last name
         if (name.contains("-")) return true;
         

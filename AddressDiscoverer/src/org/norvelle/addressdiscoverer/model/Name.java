@@ -109,7 +109,7 @@ public class Name {
         String myLastName = parts[0];
         String myTitle = "";
         String mySuffix = "";
-        String myRest = "";
+        String myRest = this.rest;
         
         // First see if we can pull out anything from the first name that
         // is a title
@@ -128,7 +128,7 @@ public class Name {
                 myLastName = myLastName.replace(word, "");
                 mySuffix += word + " ";
             }
-            else if (KnownSpanishWord.isWord(word) || restHasBegun) {
+            else if ((!KnownLastName.isLastName(word) && KnownSpanishWord.isWord(word)) || restHasBegun) {
                 restHasBegun = true;
                 myRest += " " + word;
                 myLastName = myLastName.replace(word, "");
@@ -159,16 +159,20 @@ public class Name {
             // First order of business is to see if we have a title
             if (Constants.possibleTitles.contains(word))
                 myTitle += word + " ";
+            
             // If not, but we are at the first word, we always put it as a first name
             else if (myFirstName.isEmpty())
                 myFirstName = word + " ";
+            
             // Otherwise, if it is a known last name we add it to our last names
             else if (KnownLastName.isLastName(word) || !KnownSpanishWord.isWord(word))
                 myLastName += word + " ";
+            
             // Otherwise, it's not a last name and we haven't seen any last 
             // names yet: it's a firstn name
             else if (myLastName.isEmpty())
                 myFirstName += word + " ";
+            
             // Otherwise, we're past the last names and this should go into our "rest" pile
             else
                 myRest += word + " ";
@@ -215,6 +219,7 @@ public class Name {
                 possibleFirst += word + " ";
                 possibleRest = possibleRest.replace(word, "").trim();
             }
+            else possibleRest += " " + word;
         }
         this.firstName = possibleFirst.trim();
         this.suffix = possibleSuffix.trim();

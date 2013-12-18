@@ -246,6 +246,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     }
     
     private String chop(String text, int length) {
+        if (text == null) return "";
         if (text.length() > length) {
             text = text.substring(0, length) + "...";
         }
@@ -289,7 +290,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             this.jRetrieveHTMLButton.setEnabled(false);
             return;
         }
-        this.jRetrieveHTMLButton.setEnabled(false);
+        this.jRetrieveHTMLButton.setEnabled(true);
         if (this.currentDepartment != null) {
             this.currentDepartment.setWebAddress(newAddress);
             try {

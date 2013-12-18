@@ -27,6 +27,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.gui.MainWindow;
+import org.norvelle.addressdiscoverer.model.Abbreviations;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
@@ -78,6 +79,7 @@ public class AddressDiscoverer {
         KnownLastName.initialize(this.settingsDirname);
         KnownFirstName.initialize(this.settingsDirname);
         KnownSpanishWord.initialize(this.settingsDirname);
+        Abbreviations.initialize(this.settingsDirname);
         
         // Create our GUI
         UIManager.setLookAndFeel(
