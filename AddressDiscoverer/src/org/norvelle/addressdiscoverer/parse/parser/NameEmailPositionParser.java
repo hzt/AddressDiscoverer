@@ -90,7 +90,8 @@ public class NameEmailPositionParser extends Parser {
         // Now that we have a chunk of text with a name, parse it into its parts
         // and create an Individual out of it.
         Name name = new Name(nameChunk);
-        Individual i = new Individual(name, email, "", rest, this.getClass().getSimpleName(), department);
+        Individual i = new Individual(name, email, "", rest + " " + name.getUnprocessed(), 
+                this.getClass().getSimpleName(), department);
         return i;
     }
     

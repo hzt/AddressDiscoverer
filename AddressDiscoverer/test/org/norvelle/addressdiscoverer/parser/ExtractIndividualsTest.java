@@ -245,4 +245,13 @@ public class ExtractIndividualsTest {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
         }
     }
+
+    @Test
+    public void testRafaelcerro() {
+        try {
+            TestUtilities.testOneTr("rafaelcerro@ub.edu", "", "Rafael", "Cerro Narganez", "Personal extern Dept Història Moderna");
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
+        }
+    }
 }
