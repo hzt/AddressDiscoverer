@@ -31,6 +31,8 @@ public class Name {
     private String title = "";
     private String suffix = "";
     
+    private static Pattern hyphenatedPattern = Pattern.compile("^(.*)-(.*)$");
+    
     /**
      * A static method for determining whether a chunk of text is known to
      * contain a name.
@@ -123,16 +125,21 @@ public class Name {
         
         // Next, divide the "last name" into last names, suffix and "rest"
         boolean restHasBegun = false;
+        int wordNum = 1;
         for (String word : StringUtils.split(myLastName)) {
             if (Constants.suffixes.contains(word)) {
                 myLastName = myLastName.replace(word, "");
                 mySuffix += word + " ";
             }
-            else if ((!KnownLastName.isLastName(word) && KnownSpanishWord.isWord(word)) || restHasBegun) {
+            else if ((!KnownLastName.isLastName(word) 
+                        && KnownSpanishWord.isWord(word) && wordNum > 1) 
+                    || restHasBegun) 
+            {
                 restHasBegun = true;
                 myRest += " " + word;
                 myLastName = myLastName.replace(word, "");
             }
+            wordNum ++;
         }
         this.lastName = myLastName.trim();
         this.suffix = mySuffix.trim();
@@ -223,7 +230,7 @@ public class Name {
         }
         this.firstName = possibleFirst.trim();
         this.suffix = possibleSuffix.trim();
-        this.rest = possibleRest.trim();
+        this.rest = (this.rest + " " + possibleRest).trim();
     }
 
     private void moveParensToUnprocessed() {
@@ -254,11 +261,16 @@ public class Name {
     
     private String eliminateWordsWithSymbols(String chunk) {
         String result = "";
+        chunk = chunk.replace("-", "XXXX");
+        chunk = chunk.replace("'", "YYYY");
         chunk = chunk.replace(".", "ZZZZ");
         for (String word : StringUtils.split(chunk)) {
             if (!word.matches(".*(\\p{P}|\\p{S}).*"))
                 result += " " + word;
+            else this.rest += " " + word;
         }
+        result = result.replace("XXXX", "-");
+        result = result.replace("YYYY", "ʼ");
         result = result.replace("ZZZZ", ".");
         return result.trim();
     }
@@ -267,22 +279,39 @@ public class Name {
         String result = chunk.replaceAll("'", "ʼ");
         return result;
     }
+    
+    private String fixOddCapitals(String namePart) {
+        String recapitalized = "";
+        for (String word : StringUtils.split(namePart)) {
+            if (GrammarParticles.isGrammarParticle(word))
+                word = word.toLowerCase();
+            Matcher matcher = Name.hyphenatedPattern.matcher(word);
+            if (matcher.matches())
+                word = matcher.group(1) + "-" + StringUtils.capitalize(matcher.group(2));
+            recapitalized += word + " ";
+        }
+        return recapitalized.trim();
+    }
 
     // ===================== Getters =============================
     
     public String getFirstName() {
         String name = Abbreviations.fixAbbreviations(this.firstName);
         name = name.replaceAll("\\.", ". ").replaceAll("  ", " ");
-        return WordUtils.capitalizeFully(
+        name = WordUtils.capitalizeFully(
             this.eliminateWordsWithSymbols(
                 this.escapeSingleQuotes(name)));
+        name = this.fixOddCapitals(name);
+        return name;
     }
 
     public String getLastName() {
         String name = Abbreviations.fixAbbreviations(this.lastName);
-        return WordUtils.capitalizeFully(
+        name = WordUtils.capitalizeFully(
                 this.eliminateWordsWithSymbols(
                         this.escapeSingleQuotes(name)).toLowerCase());
+        name = this.fixOddCapitals(name);
+        return name;
     }
 
     public String getFullName() {

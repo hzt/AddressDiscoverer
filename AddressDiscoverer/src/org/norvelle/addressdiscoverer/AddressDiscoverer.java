@@ -29,6 +29,7 @@ import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
 import org.norvelle.addressdiscoverer.gui.MainWindow;
 import org.norvelle.addressdiscoverer.model.Abbreviations;
 import org.norvelle.addressdiscoverer.model.Department;
+import org.norvelle.addressdiscoverer.model.GrammarParticles;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
 import org.norvelle.addressdiscoverer.model.KnownFirstName;
@@ -57,6 +58,7 @@ public class AddressDiscoverer {
     private String settingsDirname;
     private Connection connection;
     
+    @SuppressWarnings("LeakingThisInConstructor")
     public AddressDiscoverer() throws Exception {
         AddressDiscoverer.application = this;
         
@@ -80,6 +82,7 @@ public class AddressDiscoverer {
         KnownFirstName.initialize(this.settingsDirname);
         KnownSpanishWord.initialize(this.settingsDirname);
         Abbreviations.initialize(this.settingsDirname);
+        GrammarParticles.initialize(this.settingsDirname);
         
         // Create our GUI
         UIManager.setLookAndFeel(

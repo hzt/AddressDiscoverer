@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
 import junit.framework.Assert;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
@@ -240,7 +239,7 @@ public class ExtractIndividualsTest {
     @Test
     public void testDelval() {
         try {
-            TestUtilities.testOneTr("adeval@unav.es", "", "M. A.", "Alonso Del Val", "email");
+            TestUtilities.testOneTr("adeval@unav.es", "", "María A.", "Alonso Del Val", "email");
         } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
         }
@@ -250,6 +249,24 @@ public class ExtractIndividualsTest {
     public void testRafaelcerro() {
         try {
             TestUtilities.testOneTr("rafaelcerro@ub.edu", "", "Rafael", "Cerro Narganez", "Personal extern Dept Història Moderna");
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testEmilsanchezd() {
+        try {
+            TestUtilities.testOneTr("emilsanchezd@ub.edu", "", "Emili-Miquel", "Sanchez Diaz", "Professor titular d'escola universitària Dep. Teoria Econòmica");
+        } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
+            fail("Couldn't extract individuals due to exception: " + ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testOmascarilla() {
+        try {
+            TestUtilities.testOneTr("omascarilla@ub.edu", "", "Oscar", "Mascarilla Miro", "Professor titular d'universitat Dep. Teoria Econòmica");
         } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
         }

@@ -122,4 +122,18 @@ public class NameChunkTest {
                 "(en ICS)", name.getUnprocessed());
     }
 
+    @Test
+    public void testTextWithGrammarParticles() {
+        String text = "del Val, José María";
+        Name name;
+        try {
+            name = new Name(text);
+        } catch (CantParseIndividualException ex) {
+            fail("Name handler failed: " + ex.getMessage());
+            return;
+        }
+        Assert.assertEquals("The individual's last name should be del Val",
+                "del Val", name.getLastName());
+    }
+
 }
