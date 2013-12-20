@@ -28,6 +28,7 @@ import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.gui.MainWindow;
 import org.norvelle.addressdiscoverer.model.Abbreviations;
 import org.norvelle.addressdiscoverer.model.Department;
+import org.norvelle.addressdiscoverer.model.GenderDeterminer;
 import org.norvelle.addressdiscoverer.model.GrammarParticles;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
@@ -82,6 +83,7 @@ public class AddressDiscoverer {
         KnownSpanishWord.initialize(this.settingsDirname);
         Abbreviations.initialize(this.settingsDirname);
         GrammarParticles.initialize(this.settingsDirname);
+        GenderDeterminer.initialize(this.settingsDirname);
         
         // Create our GUI
         UIManager.setLookAndFeel(
@@ -123,7 +125,8 @@ public class AddressDiscoverer {
     }
     
     private void attachDatabase() 
-            throws CannotLoadJDBCDriverException, SQLException, IOException {
+            throws CannotLoadJDBCDriverException, SQLException, IOException 
+    {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException ex) {
@@ -189,6 +192,10 @@ public class AddressDiscoverer {
 
     public Connection getConnection() {
         return connection;
+    }
+
+    public String getSettingsDirname() {
+        return settingsDirname;
     }
 
     /**

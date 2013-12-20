@@ -93,10 +93,10 @@ public class MainWindow extends javax.swing.JFrame {
         jFileMenu = new javax.swing.JMenu();
         jExportNewMenuItem = new javax.swing.JMenuItem();
         jExportAllMenuItem = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
+        jDatabaseToolsMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jExitMenuItem = new javax.swing.JMenuItem();
-        jEditMenu = new javax.swing.JMenu();
-        jSetGenderMenuItem = new javax.swing.JMenuItem();
         jHelpMenu = new javax.swing.JMenu();
         jAboutMenu = new javax.swing.JMenuItem();
 
@@ -152,6 +152,16 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         jFileMenu.add(jExportAllMenuItem);
+        jFileMenu.add(jSeparator2);
+
+        jDatabaseToolsMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
+        jDatabaseToolsMenuItem.setText("Database Tools");
+        jDatabaseToolsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jDatabaseToolsMenuItemActionPerformed(evt);
+            }
+        });
+        jFileMenu.add(jDatabaseToolsMenuItem);
         jFileMenu.add(jSeparator1);
 
         jExitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.event.InputEvent.CTRL_MASK));
@@ -164,18 +174,6 @@ public class MainWindow extends javax.swing.JFrame {
         jFileMenu.add(jExitMenuItem);
 
         jMainMenuBar.add(jFileMenu);
-
-        jEditMenu.setText("Edit");
-        jEditMenu.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jEditMenuActionPerformed(evt);
-            }
-        });
-
-        jSetGenderMenuItem.setText("Set Gender");
-        jEditMenu.add(jSetGenderMenuItem);
-
-        jMainMenuBar.add(jEditMenu);
 
         jHelpMenu.setText("Help");
 
@@ -254,14 +252,16 @@ public class MainWindow extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jExportNewMenuItemActionPerformed
 
-    private void jEditMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jEditMenuActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jEditMenuActionPerformed
+    private void jDatabaseToolsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDatabaseToolsMenuItemActionPerformed
+        DatabaseToolsForm form = new DatabaseToolsForm(this);
+        form.setLocationRelativeTo(null);
+        form.setVisible(true);
+    }//GEN-LAST:event_jDatabaseToolsMenuItemActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem jAboutMenu;
-    private javax.swing.JMenu jEditMenu;
+    private javax.swing.JMenuItem jDatabaseToolsMenuItem;
     private javax.swing.JMenuItem jExitMenuItem;
     private javax.swing.JMenuItem jExportAllMenuItem;
     private javax.swing.JMenuItem jExportNewMenuItem;
@@ -271,7 +271,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel jMainPanel;
     private javax.swing.JFileChooser jSaveFileChooser;
     private javax.swing.JPopupMenu.Separator jSeparator1;
-    private javax.swing.JMenuItem jSetGenderMenuItem;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JLabel jStatusLabel;
     private javax.swing.JPanel jStatusPanel;
     // End of variables declaration//GEN-END:variables

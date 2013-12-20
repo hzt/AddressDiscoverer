@@ -28,6 +28,7 @@ import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedExcep
 import org.norvelle.addressdiscoverer.gui.threading.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Abbreviations;
 import org.norvelle.addressdiscoverer.model.Department;
+import org.norvelle.addressdiscoverer.model.GenderDeterminer;
 import org.norvelle.addressdiscoverer.model.GrammarParticles;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
@@ -96,6 +97,7 @@ public class TestUtilities {
         KnownSpanishWord.initialize(outputDir);
         Abbreviations.initialize(outputDir);
         GrammarParticles.initialize(outputDir);
+        GenderDeterminer.initialize(outputDir);
         
         return connectionSource;
     }

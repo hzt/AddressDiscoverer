@@ -30,7 +30,7 @@ public class Name {
     private String title = "";
     private String suffix = "";
     
-    private static Pattern hyphenatedPattern = Pattern.compile("^(.*)-(.*)$");
+    private static final Pattern hyphenatedPattern = Pattern.compile("^(.*)-(.*)$");
     
     /**
      * A static method for determining whether a chunk of text is known to

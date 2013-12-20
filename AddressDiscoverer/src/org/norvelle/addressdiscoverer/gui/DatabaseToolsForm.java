@@ -10,18 +10,44 @@
  */
 package org.norvelle.addressdiscoverer.gui;
 
+import javax.swing.JOptionPane;
+import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.gui.threading.DetermineGenderWorker;
+import org.norvelle.utils.Utils;
+
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public class DatabaseToolsForm extends javax.swing.JDialog {
 
+    private boolean genderWorkerWorking = false;
+    private DetermineGenderWorker worker;
+    
     /**
      * Creates new form DatabaseToolsForm
+     * @param parent
      */
-    public DatabaseToolsForm(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    public DatabaseToolsForm(java.awt.Frame parent) {
+        super(parent, true);
         initComponents();
+        
+        String columnNamesSql = "SELECT sql FROM sqlite_master\n" +
+            "WHERE tbl_name = 'individuals' AND type = 'table'";
+        
+    }
+    
+    public void setMaxProgress(int max) {
+        this.jSetGenderProgressBar.setMaximum(max);
+    }
+    
+    public void setCurrProgress(int progress) {
+        this.jSetGenderProgressBar.setValue(progress);
+    }
+    
+    public void setProgressDone() {
+        this.jSetGenderProgressBar.setValue(0);
+        this.jDetermineGenderButton.setText("Set Gender");
     }
 
     /**
@@ -33,8 +59,6 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jDetermineGenderButton = new javax.swing.JButton();
-        jSetGenderProgressBar = new javax.swing.JProgressBar();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jFieldListCombo = new javax.swing.JComboBox();
@@ -46,17 +70,24 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
         jUpdateAffectedButton = new javax.swing.JButton();
         jRunPruneButton = new javax.swing.JButton();
         jCloseButton = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jResetExportFlagsButton = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        jSetGenderProgressBar = new javax.swing.JProgressBar();
+        jDetermineGenderButton = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jOnlyUpdateNonExportedCheckbox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("DAtabase Tools");
-
-        jDetermineGenderButton.setText("Set Gender");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel1.setText("Prune Records");
 
-        jFieldListCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jFieldListCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "firstName", "lastName", "email", "title", "affiliation", "unprocessed", "role", "gender" }));
 
         jLabel2.setText("For field:");
 
@@ -98,7 +129,7 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jUpdateAffectedButton))
                             .addComponent(jRunPruneButton))
-                        .addGap(0, 286, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -125,6 +156,87 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
         );
 
         jCloseButton.setText("Close");
+        jCloseButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCloseButtonActionPerformed(evt);
+            }
+        });
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jLabel5.setText("Reset export flag:");
+
+        jResetExportFlagsButton.setText("Execute");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jResetExportFlagsButton)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(jResetExportFlagsButton))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jDetermineGenderButton.setText("Update Genders");
+        jDetermineGenderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jDetermineGenderButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel6.setText("Update genders according to first names");
+
+        jLabel7.setText("Limit update to unexported Individuals:");
+
+        jOnlyUpdateNonExportedCheckbox.setSelected(true);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jDetermineGenderButton)
+                        .addGap(28, 28, 28)
+                        .addComponent(jSetGenderProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel6)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jOnlyUpdateNonExportedCheckbox)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(jOnlyUpdateNonExportedCheckbox))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jSetGenderProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jDetermineGenderButton))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -134,24 +246,22 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jDetermineGenderButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jSetGenderProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jCloseButton)))
+                        .addComponent(jCloseButton))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jSetGenderProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jDetermineGenderButton))
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jCloseButton)
                 .addContainerGap())
@@ -160,47 +270,39 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(DatabaseToolsForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(DatabaseToolsForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(DatabaseToolsForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(DatabaseToolsForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    private void jDetermineGenderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDetermineGenderButtonActionPerformed
+        if (this.genderWorkerWorking) {
+            this.worker.cancel(true);
+            this.worker = null;
+            this.genderWorkerWorking = false;
+            this.jDetermineGenderButton.setText("Set Gender");
         }
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                DatabaseToolsForm dialog = new DatabaseToolsForm(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
+        else {
+            boolean limitToNonExported = this.jOnlyUpdateNonExportedCheckbox.isSelected();
+            this.worker = new DetermineGenderWorker(this, limitToNonExported);
+            this.jDetermineGenderButton.setText("Cancel");
+            try {
+                this.genderWorkerWorking = true;
+                worker.execute();
+            } catch (Exception ex) {
+                this.jDetermineGenderButton.setEnabled(true);
+                AddressDiscoverer.reportException(ex);
             }
-        });
-    }
+        }
+    }//GEN-LAST:event_jDetermineGenderButtonActionPerformed
+
+    private void jCloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCloseButtonActionPerformed
+        if (this.genderWorkerWorking) {
+            int reply = JOptionPane.showConfirmDialog(null, 
+                    Utils.wordWrapString("The Gender Determiner is running. Do you want to cancel?", 50), 
+                    "Confirm delete", 
+                    JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.NO_OPTION) 
+                return;
+            this.worker.cancel(true);
+        }
+        this.setVisible(false);
+    }//GEN-LAST:event_jCloseButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jCloseButton;
@@ -210,9 +312,16 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JCheckBox jOnlyUpdateNonExportedCheckbox;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JLabel jRecordsAffectedLabel;
     private javax.swing.JTextField jRegexForPruningField;
+    private javax.swing.JButton jResetExportFlagsButton;
     private javax.swing.JButton jRunPruneButton;
     private javax.swing.JProgressBar jSetGenderProgressBar;
     private javax.swing.JButton jUpdateAffectedButton;

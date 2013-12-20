@@ -58,10 +58,7 @@ public class KnownFirstName {
         }
         
         // Instead of using a standard charset translator, we translate only vowels
-        name = name.replace("á", "a").replace("é", "e").replace("í", "i")
-                .replace("ó", "o").replace("ú", "u").replace("ü", "u")
-                .replace("ß", "ss").replace("ö", "o").replace("ü", "u")
-                .replace("ä", "a").replace("ë", "e").replace("è", "e");
+        name = Utils.normalizeName(name);
         boolean isMatch = firstNames.containsKey(name);
         if (isMatch)
             logger.log(Level.FINE, String.format("%s is a first name", name));
