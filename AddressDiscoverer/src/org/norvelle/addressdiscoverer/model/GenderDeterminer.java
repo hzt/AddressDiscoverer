@@ -66,16 +66,32 @@ public class GenderDeterminer {
         // First, normalize our name so we can match it with our database
         name = Utils.normalizeName(name);
         
+        // Handle the case of having a hyphenated name
+        if (name.contains("-")) {
+            String[] nameParts = StringUtils.split(name, "-");
+            name = nameParts[0];
+        }
+        
         // Now, look it up and see if we can match it to a gender.
         boolean isMale = boys.containsKey(name);
         boolean isFemale = girls.containsKey(name);
-        if (isMale && isFemale)
-            return Gender.UNKNOWN;
-        else if (!isMale && !isFemale)
-            return Gender.UNKNOWN;
-        else if (isMale)
+        if (isMale && !isFemale)
             return Gender.MALE;
-        else return Gender.FEMALE;
+        else if (isFemale && !isMale)
+            return Gender.FEMALE;
+        
+        // Apply some tricks
+        if (name.charAt(name.length() - 1) == 'a')
+            return Gender.FEMALE;
+        if (name.charAt(name.length() - 1) == 'o')
+            return Gender.MALE;
+        if (name.startsWith("J."))
+            return Gender.MALE;
+        if (name.startsWith("M."))
+            return Gender.FEMALE;
+        
+        // Otherwise give up.
+        else return Gender.UNKNOWN;
     }
 
 }

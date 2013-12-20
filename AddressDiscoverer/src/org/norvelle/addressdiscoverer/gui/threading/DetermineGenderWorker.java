@@ -54,7 +54,20 @@ public class DetermineGenderWorker
                 i.setGender("F");
             else if (gender == GenderDeterminer.Gender.MALE) 
                 i.setGender("M");
-            else i.setGender("U");
+            else {
+                // If there's a second name, try again with that.
+                if (parts.length > 1) {
+                    GenderDeterminer.Gender gender2 = GenderDeterminer.getGender(parts[1]);
+                    if (gender2 == GenderDeterminer.Gender.FEMALE)
+                        i.setGender("F");
+                    else if (gender2 == GenderDeterminer.Gender.MALE) 
+                        i.setGender("M");
+                    else i.setGender("U");
+                }
+                
+                // Only give up if nothing works.
+                else i.setGender("U");
+            }
             Individual.update(i);
             
             // Tell the GUI how far we've gotten.
