@@ -37,7 +37,6 @@ public class InstitutionListPanel extends javax.swing.JPanel implements IListPan
     /**
      * Creates new form InstitutionListPanel
      * @param parent
-     * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      */
     @SuppressWarnings({"LeakingThisInConstructor", "OverridableMethodCallInConstructor"})
     public InstitutionListPanel(GUIManagementPane parent) {
@@ -64,6 +63,10 @@ public class InstitutionListPanel extends javax.swing.JPanel implements IListPan
         });
         
         this.refreshList();
+    }
+    
+    public void removeSelection() {
+        this.jInstitutionList.clearSelection();
     }
     
     public void notifyInstitutionDeleted() {

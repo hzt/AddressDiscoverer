@@ -29,16 +29,16 @@ import org.norvelle.utils.Utils;
 public class MainWindow extends javax.swing.JFrame {
 
     private final AddressDiscoverer application;
+    private final GUIManagementPane threePane;
     
     /**
      * Creates new form MainWindow
      * @param application
-     * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      */
     public MainWindow(AddressDiscoverer application) {
         this.application = application;
         initComponents();
-        GUIManagementPane threePane = new GUIManagementPane(this, application);
+        threePane = new GUIManagementPane(this, application);
         this.jMainPanel.setLayout(new BorderLayout());
         Toolkit tk = Toolkit.getDefaultToolkit(); 
         this.jMainPanel.add(threePane, BorderLayout.CENTER);
@@ -74,6 +74,11 @@ public class MainWindow extends javax.swing.JFrame {
     
     public void updateStatus(String message) {
         this.jStatusLabel.setText(message);
+    }
+    
+    public void refreshIndividualList() throws SQLException {
+        this.threePane.refreshIndividualList();
+        AddressDiscoverer.application.statusChanged();
     }
 
     /**

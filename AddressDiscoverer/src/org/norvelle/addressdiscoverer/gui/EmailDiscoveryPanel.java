@@ -203,7 +203,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         this.populateResultsTable(this.individuals);
     }
     
-    public void refreshResultsTable() {
+    public void refreshResultsTable() throws SQLException {
+        this.individuals = Individual.getIndividualsForDepartment(this.currentDepartment);
         this.populateResultsTable(this.individuals);
     }
     
@@ -284,7 +285,9 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             return;
         }
         this.jRetrieveHTMLButton.setEnabled(true);
-        if (this.currentDepartment != null) {
+        if (this.currentDepartment != null && 
+                !newAddress.equals(this.currentDepartment.getWebAddress())) 
+        {
             this.currentDepartment.setWebAddress(newAddress);
             try {
                 Department.update(this.currentDepartment);

@@ -57,6 +57,7 @@ public class AddressDiscoverer {
     private String propsFilename;
     private String settingsDirname;
     private Connection connection;
+    private String jdbcUrl;
     
     @SuppressWarnings("LeakingThisInConstructor")
     public AddressDiscoverer() throws Exception {
@@ -137,8 +138,9 @@ public class AddressDiscoverer {
         // create a database connection and initialize our tables.
         // All object persistence is managed via ORMLite.
         String dbFilename = this.settingsDirname + File.separator + "addresses.sqlite";
+        this.jdbcUrl = "jdbc:sqlite:" + dbFilename;
         ConnectionSource connectionSource =
-            new JdbcConnectionSource("jdbc:sqlite:" + dbFilename);
+            new JdbcConnectionSource(this.jdbcUrl);
         Institution.initialize(connectionSource);
         Department.initialize(connectionSource);
         Individual.initialize(connectionSource);
@@ -197,6 +199,11 @@ public class AddressDiscoverer {
     public String getSettingsDirname() {
         return settingsDirname;
     }
+
+    public String getJdbcUrl() {
+        return jdbcUrl;
+    }
+    
 
     /**
      * @param args the command line arguments

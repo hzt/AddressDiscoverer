@@ -19,6 +19,7 @@ package org.norvelle.addressdiscoverer.gui;
 
 import java.awt.BorderLayout;
 import java.io.IOException;
+import java.sql.SQLException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.jdesktop.swingx.JXMultiSplitPane;
@@ -65,8 +66,14 @@ public class GUIManagementPane extends JPanel {
     }
 
     public void setSelectedInstitution(Institution selectedInstitution) {
-        this.departmentListPanel.setInstitution(selectedInstitution);
-        AddressDiscoverer.application.statusChanged();
+        if (selectedInstitution == null && this.institutionListPanel != null) {
+            this.institutionListPanel.removeSelection();
+            this.departmentListPanel.setInstitution(null);
+        }
+        else {
+            this.departmentListPanel.setInstitution(selectedInstitution);
+            AddressDiscoverer.application.statusChanged();
+        }
     }
 
     public void setSelectedDepartment(Department selectedDepartment) {
@@ -76,6 +83,10 @@ public class GUIManagementPane extends JPanel {
         } catch (IOException | SAXException ex) {
             AddressDiscoverer.reportException(ex);
         }
+    }
+    
+    public void refreshIndividualList() throws SQLException {
+        this.emailDiscoveryPanel.refreshResultsTable();
     }
     
 }

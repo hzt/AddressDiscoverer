@@ -247,10 +247,10 @@ public class EditIndividualDialog extends javax.swing.JDialog {
             this.individual.setRole(this.jRoleField.getText());
         try {
             Individual.update(individual);
+            this.parent.refreshResultsTable();
         } catch (SQLException ex) {
             AddressDiscoverer.reportException(ex);
         }
-        this.parent.refreshResultsTable();
         this.setVisible(false);
         this.dispose();
     }//GEN-LAST:event_jOkButtonActionPerformed
@@ -279,10 +279,10 @@ public class EditIndividualDialog extends javax.swing.JDialog {
         try {
             this.parent.notifyIndividualDeleted(individual);
             Individual.delete(this.individual);
+            this.parent.refreshResultsTable();
         } catch (SQLException ex) {
             AddressDiscoverer.reportException(ex);
         }
-        this.parent.refreshResultsTable();
         this.setVisible(false);
         this.dispose();        
     }//GEN-LAST:event_jDeleteIndividualButtonActionPerformed

@@ -10,8 +10,16 @@
  */
 package org.norvelle.addressdiscoverer.gui;
 
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.gui.action.DatabasePruner;
+import org.norvelle.addressdiscoverer.gui.action.ResetExportFlagsAction;
 import org.norvelle.addressdiscoverer.gui.threading.DetermineGenderWorker;
 import org.norvelle.utils.Utils;
 
@@ -21,20 +29,51 @@ import org.norvelle.utils.Utils;
  */
 public class DatabaseToolsForm extends javax.swing.JDialog {
 
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+
     private boolean genderWorkerWorking = false;
     private DetermineGenderWorker worker;
+    private DatabasePruner pruner;
+    private MainWindow parent;
     
     /**
      * Creates new form DatabaseToolsForm
      * @param parent
      */
-    public DatabaseToolsForm(java.awt.Frame parent) {
+    public DatabaseToolsForm(MainWindow parent) {
         super(parent, true);
         initComponents();
+        this.parent = parent;
         
-        String columnNamesSql = "SELECT sql FROM sqlite_master\n" +
-            "WHERE tbl_name = 'individuals' AND type = 'table'";
-        
+        this.jRegexForPruningField.getDocument().addDocumentListener(
+                new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent de) {
+                notifyPruneLikeClauseChanged();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent de) {
+                notifyPruneLikeClauseChanged();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent de) {
+                notifyPruneLikeClauseChanged();
+            }
+        });
+        try {
+            this.pruner = new DatabasePruner();
+        } catch (SQLException | CannotLoadJDBCDriverException ex) {
+            AddressDiscoverer.reportException(ex);
+        }
+    }
+    
+    private void notifyPruneLikeClauseChanged() {
+        this.jUpdateAffectedButton.setEnabled(true);
+        this.jRunPruneButton.setEnabled(false);
     }
     
     public void setMaxProgress(int max) {
@@ -48,6 +87,8 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
     public void setProgressDone() {
         this.jSetGenderProgressBar.setValue(0);
         this.jDetermineGenderButton.setText("Set Gender");
+        this.genderWorkerWorking = false;
+        this.worker = null;
     }
 
     /**
@@ -81,7 +122,7 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
         jOnlyUpdateNonExportedCheckbox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("DAtabase Tools");
+        setTitle("Database Tools");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -100,9 +141,19 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
 
         jUpdateAffectedButton.setText("Update");
         jUpdateAffectedButton.setEnabled(false);
+        jUpdateAffectedButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jUpdateAffectedButtonActionPerformed(evt);
+            }
+        });
 
         jRunPruneButton.setText("Prune Now");
         jRunPruneButton.setEnabled(false);
+        jRunPruneButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRunPruneButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -167,6 +218,11 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
         jLabel5.setText("Reset export flag:");
 
         jResetExportFlagsButton.setText("Execute");
+        jResetExportFlagsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jResetExportFlagsButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -191,7 +247,7 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
 
         jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jDetermineGenderButton.setText("Update Genders");
+        jDetermineGenderButton.setText("Execute");
         jDetermineGenderButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jDetermineGenderButtonActionPerformed(evt);
@@ -213,14 +269,17 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jDetermineGenderButton)
-                        .addGap(28, 28, 28)
-                        .addComponent(jSetGenderProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                        .addComponent(jSetGenderProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jOnlyUpdateNonExportedCheckbox)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jOnlyUpdateNonExportedCheckbox)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -303,6 +362,48 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
         }
         this.setVisible(false);
     }//GEN-LAST:event_jCloseButtonActionPerformed
+
+    private void jResetExportFlagsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jResetExportFlagsButtonActionPerformed
+        ResetExportFlagsAction action = new ResetExportFlagsAction();
+        try {
+            this.jResetExportFlagsButton.setEnabled(false);
+            action.execute();
+        } catch (CannotLoadJDBCDriverException | SQLException ex) {
+            AddressDiscoverer.reportException(ex);
+        }
+        this.jResetExportFlagsButton.setEnabled(true);
+    }//GEN-LAST:event_jResetExportFlagsButtonActionPerformed
+
+    private void jUpdateAffectedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jUpdateAffectedButtonActionPerformed
+        try {
+            int rowsAffected = this.pruner.setLikeClauseAndField(this.jRegexForPruningField.getText(),
+                    (String) this.jFieldListCombo.getSelectedItem());
+            this.jRecordsAffectedLabel.setText(Integer.toString(rowsAffected));
+            this.jRunPruneButton.setEnabled(true);
+        } catch (SQLException ex) {
+            logger.log(Level.SEVERE, ex.getMessage());
+            JOptionPane.showMessageDialog(null,
+                Utils.wordWrapString("SQLite error: " + ex.getMessage(), 60), 
+                "SQLite error", JOptionPane.ERROR_MESSAGE);            
+            this.jRecordsAffectedLabel.setText("Error");
+            this.jRunPruneButton.setEnabled(false);
+        }
+    }//GEN-LAST:event_jUpdateAffectedButtonActionPerformed
+
+    private void jRunPruneButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRunPruneButtonActionPerformed
+        try {
+            this.pruner.runPrune();
+            this.jRunPruneButton.setEnabled(false);
+            this.parent.refreshIndividualList();
+        } catch (SQLException ex) {
+            logger.log(Level.SEVERE, ex.getMessage());
+            JOptionPane.showMessageDialog(null,
+                Utils.wordWrapString("SQLite error: " + ex.getMessage(), 60), 
+                "SQLite error", JOptionPane.ERROR_MESSAGE);            
+            this.jRecordsAffectedLabel.setText("Error");
+        }
+
+    }//GEN-LAST:event_jRunPruneButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jCloseButton;

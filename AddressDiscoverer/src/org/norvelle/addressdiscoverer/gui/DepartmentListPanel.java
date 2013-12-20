@@ -81,6 +81,9 @@ public class DepartmentListPanel extends javax.swing.JPanel implements IListPane
                 for (Department i : sortedDepartments)
                     this.listModel.addElement(i);
             }
+            else {
+                this.parent.setSelectedDepartment(null);
+            }
             this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
         } catch (SQLException ex) {
             AddressDiscoverer.reportException(ex);
