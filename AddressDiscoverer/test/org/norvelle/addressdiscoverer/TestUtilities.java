@@ -25,8 +25,7 @@ import junit.framework.Assert;
 import org.apache.commons.lang3.StringUtils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.gui.StatusReporter;
+import org.norvelle.addressdiscoverer.gui.threading.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Abbreviations;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.GrammarParticles;
@@ -102,7 +101,7 @@ public class TestUtilities {
     }
 
     public static List extractIndividuals(String htmlUri, String outputFile, String encoding) 
-            throws IOException, SQLException, OrmObjectNotConfiguredException, 
+            throws IOException, SQLException,  
             UnsupportedEncodingException, IndividualExtractionFailedException 
     {
         String html;
@@ -116,14 +115,14 @@ public class TestUtilities {
     }
     
     public static List extractIndividuals(String htmlUri, String outputFile) 
-            throws IOException, SQLException, OrmObjectNotConfiguredException, 
+            throws IOException, SQLException,  
             UnsupportedEncodingException, IndividualExtractionFailedException 
     {
         return extractIndividuals(htmlUri, outputFile, "UTF-8");
     }
 
     public static void testOneTr(String email, String title, String first, String last, String rest) 
-            throws IOException, SQLException, OrmObjectNotConfiguredException, 
+            throws IOException, SQLException,  
             UnsupportedEncodingException, IndividualExtractionFailedException 
     {
         List<Individual> individuals;

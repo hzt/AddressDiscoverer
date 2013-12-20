@@ -11,15 +11,12 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.AllIndividualExporter;
-import org.norvelle.addressdiscoverer.IndividualExporter;
+import org.norvelle.addressdiscoverer.gui.action.AllIndividualExportAction;
+import org.norvelle.addressdiscoverer.gui.action.NewIndividualExportAction;
 import org.norvelle.utils.Utils;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
  * Creates and manages the main MDI window of the GUI, with its menu and managed
@@ -38,7 +35,7 @@ public class MainWindow extends javax.swing.JFrame {
      * @param application
      * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      */
-    public MainWindow(AddressDiscoverer application) throws OrmObjectNotConfiguredException {
+    public MainWindow(AddressDiscoverer application) {
         this.application = application;
         initComponents();
         GUIManagementPane threePane = new GUIManagementPane(this, application);
@@ -94,9 +91,12 @@ public class MainWindow extends javax.swing.JFrame {
         jStatusLabel = new javax.swing.JLabel();
         jMainMenuBar = new javax.swing.JMenuBar();
         jFileMenu = new javax.swing.JMenu();
+        jExportNewMenuItem = new javax.swing.JMenuItem();
         jExportAllMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jExitMenuItem = new javax.swing.JMenuItem();
+        jEditMenu = new javax.swing.JMenu();
+        jSetGenderMenuItem = new javax.swing.JMenuItem();
         jHelpMenu = new javax.swing.JMenu();
         jAboutMenu = new javax.swing.JMenuItem();
 
@@ -135,6 +135,16 @@ public class MainWindow extends javax.swing.JFrame {
 
         jFileMenu.setText("File");
 
+        jExportNewMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
+        jExportNewMenuItem.setText("Export New Individuals");
+        jExportNewMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jExportNewMenuItemActionPerformed(evt);
+            }
+        });
+        jFileMenu.add(jExportNewMenuItem);
+
+        jExportAllMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_MASK));
         jExportAllMenuItem.setText("Export All Individuals");
         jExportAllMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -154,6 +164,18 @@ public class MainWindow extends javax.swing.JFrame {
         jFileMenu.add(jExitMenuItem);
 
         jMainMenuBar.add(jFileMenu);
+
+        jEditMenu.setText("Edit");
+        jEditMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jEditMenuActionPerformed(evt);
+            }
+        });
+
+        jSetGenderMenuItem.setText("Set Gender");
+        jEditMenu.add(jSetGenderMenuItem);
+
+        jMainMenuBar.add(jEditMenu);
 
         jHelpMenu.setText("Help");
 
@@ -200,28 +222,56 @@ public class MainWindow extends javax.swing.JFrame {
                 if (reply == JOptionPane.NO_OPTION) 
                     return;
             }
-            AllIndividualExporter exporter = 
-                    new AllIndividualExporter(file);
+            AllIndividualExportAction exporter = 
+                    new AllIndividualExportAction(file);
             try {
                 exporter.export();
-            } catch (IOException | OrmObjectNotConfiguredException | SQLException ex) {
+            } catch (IOException | SQLException ex) {
                 AddressDiscoverer.reportException(ex);
             } 
         }
         
     }//GEN-LAST:event_jExportAllMenuItemActionPerformed
 
+    private void jExportNewMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jExportNewMenuItemActionPerformed
+        int returnVal = this.jSaveFileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = jSaveFileChooser.getSelectedFile();
+            if (file.exists()) {
+                int reply = JOptionPane.showConfirmDialog(null, "File exists. Overwrite?", "Confirm overwrite", 
+                        JOptionPane.YES_NO_OPTION);
+                if (reply == JOptionPane.NO_OPTION) 
+                    return;
+            }
+            NewIndividualExportAction exporter = 
+                    new NewIndividualExportAction(file);
+            try {
+                exporter.export();
+            } catch (IOException | SQLException ex) {
+                AddressDiscoverer.reportException(ex);
+            } 
+        }
+        
+    }//GEN-LAST:event_jExportNewMenuItemActionPerformed
+
+    private void jEditMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jEditMenuActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jEditMenuActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem jAboutMenu;
+    private javax.swing.JMenu jEditMenu;
     private javax.swing.JMenuItem jExitMenuItem;
     private javax.swing.JMenuItem jExportAllMenuItem;
+    private javax.swing.JMenuItem jExportNewMenuItem;
     private javax.swing.JMenu jFileMenu;
     private javax.swing.JMenu jHelpMenu;
     private javax.swing.JMenuBar jMainMenuBar;
     private javax.swing.JPanel jMainPanel;
     private javax.swing.JFileChooser jSaveFileChooser;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JMenuItem jSetGenderMenuItem;
     private javax.swing.JLabel jStatusLabel;
     private javax.swing.JPanel jStatusPanel;
     // End of variables declaration//GEN-END:variables

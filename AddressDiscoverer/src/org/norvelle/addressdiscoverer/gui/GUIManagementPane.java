@@ -19,8 +19,6 @@ package org.norvelle.addressdiscoverer.gui;
 
 import java.awt.BorderLayout;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.jdesktop.swingx.JXMultiSplitPane;
@@ -28,7 +26,6 @@ import org.jdesktop.swingx.MultiSplitLayout.Divider;
 import org.jdesktop.swingx.MultiSplitLayout.Leaf;
 import org.jdesktop.swingx.MultiSplitLayout.Split;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Institution;
 import org.xml.sax.SAXException;
@@ -47,7 +44,7 @@ public class GUIManagementPane extends JPanel {
     private DepartmentListPanel departmentListPanel;
     private InstitutionListPanel institutionListPanel;
     
-    public GUIManagementPane(JFrame parent, AddressDiscoverer application) throws OrmObjectNotConfiguredException
+    public GUIManagementPane(JFrame parent, AddressDiscoverer application) 
     {
         this.mainWindow = parent;
         this.application = application;

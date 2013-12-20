@@ -17,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
  *

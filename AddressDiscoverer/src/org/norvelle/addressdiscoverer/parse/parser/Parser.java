@@ -18,8 +18,7 @@ import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CantExtractMultipleIndividualsException;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.gui.StatusReporter;
+import org.norvelle.addressdiscoverer.gui.threading.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
@@ -45,7 +44,7 @@ public abstract class Parser {
     public Parser() { }
     
     public abstract Individual getIndividual(Element row, Department department) 
-            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException,
+            throws CantParseIndividualException, SQLException, 
             MultipleRecordsInTrException;
     
     // ===================== Static Methods =============================
@@ -72,11 +71,11 @@ public abstract class Parser {
      * @return Individual with most complete profile
      * @throws org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException
      * @throws java.sql.SQLException
-     * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      * @throws org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException
      */
+    @SuppressWarnings("UnnecessaryContinue")
     public static Individual getBestIndividual(Element row, Department department) 
-            throws SQLException, OrmObjectNotConfiguredException, CantParseIndividualException, 
+            throws SQLException,  CantParseIndividualException, 
             MultipleRecordsInTrException
     {
         if (Parser.singleRecordPerTrParsers.isEmpty())
@@ -112,12 +111,11 @@ public abstract class Parser {
      * @param status A StatusReporter that lets us communicate progress to the GUI
      * @return List<Individual> The Individuals we've been able to extract.
      * @throws SQLException
-     * @throws OrmObjectNotConfiguredException
      * @throws CantExtractMultipleIndividualsException 
      */
     public static List<Individual> getMultipleIndividualsFromRow(Element row, 
                 Department department, StatusReporter status) 
-            throws SQLException, OrmObjectNotConfiguredException, 
+            throws SQLException,  
                 CantExtractMultipleIndividualsException
     {
         double topScore = 0.0; 

@@ -29,7 +29,6 @@ import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 import org.norvelle.utils.Utils;
@@ -74,7 +73,7 @@ public class TdContainerParserTest {
         Individual i;
         try {
             i = parser.getIndividual(rows.first(), null);
-        } catch (CantParseIndividualException | SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (CantParseIndividualException | SQLException ex) {
             fail("Problem with parsing: " + ex.getMessage());
             return;
         } catch (MultipleRecordsInTrException ex) {
@@ -100,7 +99,7 @@ public class TdContainerParserTest {
                     "/org/norvelle/addressdiscoverer/resources/lfmugica.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "lfmugica.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+        } catch (IOException | SQLException
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;

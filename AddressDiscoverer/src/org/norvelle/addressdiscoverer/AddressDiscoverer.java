@@ -25,7 +25,6 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.gui.MainWindow;
 import org.norvelle.addressdiscoverer.model.Abbreviations;
 import org.norvelle.addressdiscoverer.model.Department;
@@ -170,7 +169,7 @@ public class AddressDiscoverer {
                     numIndividuals, numDepartments, numInstitutions);
             if (this.window != null)
                 this.window.updateStatus(statusText);
-        } catch (SQLException | OrmObjectNotConfiguredException ex) {
+        } catch (SQLException ex) {
             reportException(ex);
         }
     }

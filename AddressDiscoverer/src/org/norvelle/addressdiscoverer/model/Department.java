@@ -20,7 +20,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.utils.Utils;
 
 /**
  * The Department object represents a department or center associated with an
@@ -70,7 +70,7 @@ public class Department implements Comparable {
     
     @Override
     public String toString() {
-        return this.name;
+        return Utils.chop(this.name, 50);
     }
 
     @Override

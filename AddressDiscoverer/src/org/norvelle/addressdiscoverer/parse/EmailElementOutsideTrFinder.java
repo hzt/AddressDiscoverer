@@ -22,7 +22,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.CannotCreateIndividualTrException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
  * Parses a page to find elements that contain contact elements that are
@@ -113,11 +112,10 @@ public class EmailElementOutsideTrFinder {
      * 
      * @return List<Element> A list of JSoup TR elements with TDs for the individual's info
      * @throws java.sql.SQLException 
-     * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException 
      * @throws java.io.UnsupportedEncodingException 
      */
     public List<Element> getRows() 
-            throws SQLException, OrmObjectNotConfiguredException, UnsupportedEncodingException 
+            throws SQLException, UnsupportedEncodingException 
     {
         List<Element> rows = this.collectIndividualsGoingBackwards();
         return rows;
@@ -129,10 +127,9 @@ public class EmailElementOutsideTrFinder {
      * 
      * @return List<Element> A list of JSoup TR elements with TDs for the individual's info
      * @throws SQLException
-     * @throws OrmObjectNotConfiguredException 
      */
     private List<Element> collectIndividualsGoingBackwards() 
-            throws SQLException, OrmObjectNotConfiguredException, UnsupportedEncodingException 
+            throws SQLException, UnsupportedEncodingException 
     {
         String currEmail = "";
         IndividualCollector currIndividual = null;

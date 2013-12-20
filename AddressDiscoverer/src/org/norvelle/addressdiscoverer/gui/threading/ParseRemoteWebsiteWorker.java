@@ -2,7 +2,7 @@
  * Provides a SwingWorker to run ResearchAssistant and track its progress.
  */
 
-package org.norvelle.addressdiscoverer.gui;
+package org.norvelle.addressdiscoverer.gui.threading;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +12,7 @@ import java.net.URLConnection;
 import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
 import org.norvelle.addressdiscoverer.model.Department;
 
 /**

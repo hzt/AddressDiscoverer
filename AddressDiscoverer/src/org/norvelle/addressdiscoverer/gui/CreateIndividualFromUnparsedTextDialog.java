@@ -17,7 +17,6 @@ import javax.swing.JFrame;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
@@ -200,7 +199,7 @@ public class CreateIndividualFromUnparsedTextDialog extends javax.swing.JDialog 
                 "Hand created", this.department);
         try {
             Individual.store(newIndividual);
-        } catch (SQLException | OrmObjectNotConfiguredException | 
+        } catch (SQLException | 
                 CannotStoreNullIndividualException | IndividualHasNoDepartmentException ex) 
         {
             Logger.getLogger(CreateIndividualFromUnparsedTextDialog.class.getName()).log(Level.SEVERE, null, ex);

@@ -17,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CannotCreateIndividualTrException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.KnownLastName;
 
 /**
@@ -36,7 +35,7 @@ class IndividualCollector {
         this.email = email;
     }
 
-    public void addLine(String line) throws SQLException, OrmObjectNotConfiguredException {
+    public void addLine(String line) throws SQLException {
         if (this.isLastName(line)) {
             if (this.name.isEmpty()) 
                 this.name = line;
@@ -90,7 +89,7 @@ class IndividualCollector {
         return trDocument;
     }
 
-    private boolean isLastName(String line) throws SQLException, OrmObjectNotConfiguredException {
+    private boolean isLastName(String line) throws SQLException {
         String[] words = StringUtils.split(line);
         for (String word : words) {
             if (KnownLastName.isLastName(word)) {

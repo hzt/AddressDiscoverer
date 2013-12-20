@@ -10,7 +10,6 @@
  */
 package org.norvelle.addressdiscoverer.gui;
 
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
@@ -18,11 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.utils.Utils;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Institution;
 
 /**

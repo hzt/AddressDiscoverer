@@ -15,13 +15,12 @@ import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Set;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.utils.Utils;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Institution;
 
@@ -75,10 +74,12 @@ public class DepartmentListPanel extends javax.swing.JPanel implements IListPane
             this.institution = selectedInstitution;
             this.listModel.clear();
             if (selectedInstitution != null) {
-                HashMap<Integer, Department> departments = Department.
-                        getDepartmentsForInstitution(selectedInstitution);
-                for (int key : departments.keySet()) 
-                    this.listModel.addElement(departments.get(key));
+                HashMap<Integer, Department> departments = 
+                        Department.getDepartmentsForInstitution(this.institution);
+                List<Department> sortedDepartments = 
+                        Utils.asSortedList(departments.values(), Utils.ASCENDING_SORT);
+                for (Department i : sortedDepartments)
+                    this.listModel.addElement(i);
             }
             this.jAddModifyDeleteButtonPanel.setNoObjectSelectedCondition();
         } catch (SQLException ex) {

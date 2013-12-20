@@ -16,7 +16,6 @@ import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
  * Represents a single institution. Uses the ORMLite framework for persistence.

@@ -32,7 +32,6 @@ import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 import org.norvelle.addressdiscoverer.parse.EmailElementOutsideTrFinder;
@@ -82,7 +81,7 @@ public class ExtractFromPageWithoutTrsTest {
         List<Element> trs;
         try {
             trs = finder.getRows();
-        } catch (SQLException | OrmObjectNotConfiguredException | UnsupportedEncodingException ex) {
+        } catch (SQLException | UnsupportedEncodingException ex) {
             fail("Couldn't use EmailElementOutsideTrFinder due to exception: " + ex.getMessage());
             return;            
         }
@@ -92,8 +91,7 @@ public class ExtractFromPageWithoutTrsTest {
         for (Element tr : trs) {
             try {
                 individuals.add(Parser.getBestIndividual(tr, null));
-            } catch (SQLException | MultipleRecordsInTrException |
-                    OrmObjectNotConfiguredException ex) {
+            } catch (SQLException | MultipleRecordsInTrException ex) {
                 logger.log(Level.SEVERE, null, ex);
                 logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(ex));
                 fail("Problem parsing TRs: " + ex.getMessage());
@@ -125,7 +123,7 @@ public class ExtractFromPageWithoutTrsTest {
                     "/org/norvelle/addressdiscoverer/resources/navarra_derecho.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "navarra_derecho.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+        } catch (IOException | SQLException
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;

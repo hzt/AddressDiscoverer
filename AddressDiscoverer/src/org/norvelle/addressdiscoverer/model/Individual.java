@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 
 /**
  * Represents an individual found to be associated with a Department; tracks
@@ -60,6 +59,9 @@ public class Individual implements Comparable {
     private String role;
     
     @DatabaseField
+    private String gender;
+    
+    @DatabaseField
     private String unprocessed;
     
     @DatabaseField
@@ -67,6 +69,9 @@ public class Individual implements Comparable {
     
     @DatabaseField
     private String originalText;
+    
+    @DatabaseField
+    private boolean exported;    
 
     @DatabaseField(generatedId = true)
     private int id;
@@ -207,7 +212,22 @@ public class Individual implements Comparable {
     public String getParserName() {
         return parserName;
     }
-    
+
+    public boolean isExported() {
+        return exported;
+    }
+
+    public void setExported(boolean exported) {
+        this.exported = exported;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
 
     // ===================== Static Data Manipulation Methods =============================
     
@@ -217,8 +237,7 @@ public class Individual implements Comparable {
         TableUtils.createTableIfNotExists(connectionSource, Individual.class);
     }
     
-    public static Individual getById(String id) throws SQLException, OrmObjectNotConfiguredException {
-        Individual.checkConfigured();
+    public static Individual getById(String id) throws SQLException {
         return Individual.dao.queryForId(id);
     }
     
@@ -227,19 +246,17 @@ public class Individual implements Comparable {
      * 
      * @param i The Individual to store
      * @throws SQLException
-     * @throws OrmObjectNotConfiguredException
      * @throws IndividualHasNoDepartmentException
      * @throws CannotStoreNullIndividualException 
      */
     public static void store(Individual i) throws SQLException, 
-            OrmObjectNotConfiguredException, IndividualHasNoDepartmentException, 
+            IndividualHasNoDepartmentException, 
             CannotStoreNullIndividualException 
     {
         if (i.getClass().equals(UnparsableIndividual.class))
             throw new CannotStoreNullIndividualException(i);
         if (i.getDepartment() == null) 
             throw new IndividualHasNoDepartmentException();
-        Individual.checkConfigured();
         Individual.dao.create(i);
     }
     
@@ -251,14 +268,8 @@ public class Individual implements Comparable {
         Individual.dao.delete(i);
     }
     
-    private static void checkConfigured() throws OrmObjectNotConfiguredException {
-        if (Individual.dao == null)
-            throw new OrmObjectNotConfiguredException("Individual DAO not configured");
-    }
-    
     public static List<Individual> getIndividualsForDepartment(
-            Department department) throws OrmObjectNotConfiguredException, SQLException {
-        Individual.checkConfigured();
+            Department department) throws SQLException {
         List<Individual> results =
             Individual.dao.queryBuilder().where().
               eq("department_id", department).query();
@@ -268,9 +279,8 @@ public class Individual implements Comparable {
     }
 
     public static List<Individual> getAll() 
-            throws OrmObjectNotConfiguredException, SQLException 
+            throws SQLException 
     {
-        Individual.checkConfigured();
         List<Individual> results = new ArrayList();
         List<Institution> institutions = Institution.getAll();
         for (Institution institution : institutions) {
@@ -288,9 +298,9 @@ public class Individual implements Comparable {
         return results;
     }
 
-    public static void deleteIndividualsForDepartment(
-            Department department) throws OrmObjectNotConfiguredException, SQLException {
-        Individual.checkConfigured();
+    public static void deleteIndividualsForDepartment(Department department) 
+            throws SQLException 
+    {
         List<Individual> results =
             Individual.dao.queryBuilder().where().
               eq("department_id", department).query();
@@ -299,8 +309,7 @@ public class Individual implements Comparable {
         }
     }
     
-    public static long getCount() throws SQLException, OrmObjectNotConfiguredException {
-        Individual.checkConfigured();
+    public static long getCount() throws SQLException {
         long total = Individual.dao.countOf();
         return total;
     }

@@ -25,9 +25,7 @@ import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.EmptyTdException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.gui.IProgressConsumer;
-import org.norvelle.addressdiscoverer.gui.StatusReporter;
+import org.norvelle.addressdiscoverer.gui.threading.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
@@ -61,12 +59,11 @@ public class MultipleRecordsInOneTrParser extends Parser implements IMultipleRec
      * @return An Individual with appropriately filled in details
      * @throws org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException
      * @throws java.sql.SQLException
-     * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      * @throws org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException
      */
     @Override
     public Individual getIndividual(Element row, Department department) 
-            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException,
+            throws CantParseIndividualException, SQLException,
             MultipleRecordsInTrException
     {
         // First, see if we have more than one TD for our row. If so, then we
@@ -111,13 +108,13 @@ public class MultipleRecordsInOneTrParser extends Parser implements IMultipleRec
      * @param department
      * @param status A StatusReporter that lets us communicate progress to the GUI
      * @return List<Individual> All the individuals we could extract from this row.
-     * @throws SQLException
-     * @throws OrmObjectNotConfiguredException 
+     * @throws SQLException 
      */
     @Override
+    @SuppressWarnings("UnnecessaryContinue")
     public List<Individual> getMultipleIndividuals(Element row, Department department, 
             StatusReporter status) 
-            throws SQLException, OrmObjectNotConfiguredException
+            throws SQLException
     {
         this.department = department;
         List<Individual> individuals = new ArrayList<>();
@@ -155,7 +152,7 @@ public class MultipleRecordsInOneTrParser extends Parser implements IMultipleRec
      */
     private Individual extractIndividualFromTd(Element td) 
             throws CantParseIndividualException, SQLException, 
-            OrmObjectNotConfiguredException, EmptyTdException 
+            EmptyTdException 
     {
         // First see if there are multiple P elements
         List<String> chunks = new ArrayList<>();
@@ -203,7 +200,7 @@ public class MultipleRecordsInOneTrParser extends Parser implements IMultipleRec
      */
     private Individual createIndividualFromMultipleChunks(List<String> chunks) 
             throws CantParseIndividualException, SQLException, 
-            OrmObjectNotConfiguredException, EmptyTdException 
+            EmptyTdException 
     {
         // First, throw out any empty chunks
         List<String> noEmptyChunks = new ArrayList<>();
@@ -255,7 +252,7 @@ public class MultipleRecordsInOneTrParser extends Parser implements IMultipleRec
      * @return The Individual created from the info in the chunk
      */
     private Individual createIndividualFromSingleChunk(String chunk) 
-            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException 
+            throws CantParseIndividualException, SQLException 
     {
         NameEmailPositionParser subParser = new NameEmailPositionParser();
         try {                

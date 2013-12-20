@@ -30,8 +30,7 @@ import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.gui.StatusReporter;
+import org.norvelle.addressdiscoverer.gui.threading.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 import org.norvelle.addressdiscoverer.parse.parser.MultipleRecordsInOneTrParser;
@@ -81,8 +80,7 @@ public class ExtractFromTrsWithMultipleRecordsTest {
             try {
                 StatusReporter status = new StatusReporter(StatusReporter.ParsingStages.READING_FILE, null);
                 individuals.addAll(parser.getMultipleIndividuals(tr, null, status));
-            } catch (SQLException | 
-                    OrmObjectNotConfiguredException ex) {
+            } catch (SQLException ex) {
                 logger.log(Level.SEVERE, null, ex);
                 logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(ex));
                 fail("Problem parsing TRs: " + ex.getMessage());
@@ -112,8 +110,7 @@ public class ExtractFromTrsWithMultipleRecordsTest {
                     "/org/norvelle/addressdiscoverer/resources/navarra_historia.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "navarra_historia.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException
-                | IndividualExtractionFailedException ex) {
+        } catch (IOException | SQLException | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
         }

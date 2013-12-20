@@ -19,7 +19,6 @@ import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
@@ -44,12 +43,11 @@ public class EachPartInTdParser extends Parser {
      * @return An Individual with appropriately filled in details
      * @throws org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException
      * @throws java.sql.SQLException
-     * @throws org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      * @throws org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException
      */
     @Override
     public Individual getIndividual(Element row, Department department) 
-            throws CantParseIndividualException, SQLException, OrmObjectNotConfiguredException, 
+            throws CantParseIndividualException, SQLException, 
             MultipleRecordsInTrException
     {
         // First, see if we have more than one TD for our row. If so, then we

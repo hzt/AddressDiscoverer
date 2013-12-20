@@ -4,7 +4,7 @@
  * An interface for classes that listen for updates on processes
  */
 
-package org.norvelle.addressdiscoverer.gui;
+package org.norvelle.addressdiscoverer.gui.threading;
 
 import java.util.EventListener;
 

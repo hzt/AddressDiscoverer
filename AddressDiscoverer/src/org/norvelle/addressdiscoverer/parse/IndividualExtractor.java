@@ -24,8 +24,7 @@ import org.norvelle.addressdiscoverer.exceptions.CantExtractMultipleIndividualsE
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleRecordsInTrException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.gui.StatusReporter;
+import org.norvelle.addressdiscoverer.gui.threading.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
@@ -61,12 +60,10 @@ public class IndividualExtractor {
      * @return List<Individual> The list of Individuals found, if any
      * @throws java.sql.SQLException
      * @throws
-     * org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException
      * @throws java.io.UnsupportedEncodingException
      * @throws org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException
      */
     public List<Individual> parse(String html, String encoding) throws SQLException,
-            OrmObjectNotConfiguredException,
             UnsupportedEncodingException,
             IndividualExtractionFailedException 
     {
@@ -151,7 +148,7 @@ public class IndividualExtractor {
                 in = Parser.getBestIndividual(row, this.department);
             } catch (CantParseIndividualException ex) {
                 in = new UnparsableIndividual(row.text() + ": " + ex.getMessage());
-            } catch (SQLException | OrmObjectNotConfiguredException ex) {
+            } catch (SQLException ex) {
                 AddressDiscoverer.reportException(ex);
                 continue;
             }
@@ -171,8 +168,7 @@ public class IndividualExtractor {
      */
     private List<Individual> getMultipleIndividualsFromTrs(List<Element> tableRows,
             StatusReporter status)
-            throws CantExtractMultipleIndividualsException, SQLException,
-            OrmObjectNotConfiguredException 
+            throws CantExtractMultipleIndividualsException, SQLException
     {
         List<Individual> myIndividuals = new ArrayList<>();
         

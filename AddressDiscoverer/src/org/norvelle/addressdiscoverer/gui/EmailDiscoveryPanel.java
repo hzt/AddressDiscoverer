@@ -10,6 +10,10 @@
  */
 package org.norvelle.addressdiscoverer.gui;
 
+import org.norvelle.addressdiscoverer.gui.threading.StatusReporter;
+import org.norvelle.addressdiscoverer.gui.threading.ParseLocalHtmlFileWorker;
+import org.norvelle.addressdiscoverer.gui.threading.AbstractExtractIndividualWorker;
+import org.norvelle.addressdiscoverer.gui.threading.ParseRemoteWebsiteWorker;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -18,6 +22,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JTable;
@@ -29,11 +34,11 @@ import org.lobobrowser.html.*;
 import org.lobobrowser.html.parser.*;
 import org.lobobrowser.html.test.*;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.IndividualExporter;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
+import org.norvelle.addressdiscoverer.gui.action.IndividualForDepartmentExportAction;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
+import org.norvelle.utils.Utils;
 
 /**
  *
@@ -156,7 +161,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 this.individuals = Individual.getIndividualsForDepartment(department);
                 this.populateResultsTable(this.individuals);
                 this.jSaveResultsButton.setEnabled(true);
-            } catch (OrmObjectNotConfiguredException | SQLException ex) {
+            } catch (SQLException ex) {
                 AddressDiscoverer.reportException(ex);
             }
             
@@ -220,10 +225,10 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 if (!i.getClass().equals(UnparsableIndividual.class)) {
                     model.setValueAt(i.getTitle(), rowCount, 0);
                     model.setValueAt(i.getFirstName(), rowCount, 1);
-                    model.setValueAt(chop(i.getLastName()), rowCount, 2);
+                    model.setValueAt(Utils.chop(i.getLastName()), rowCount, 2);
                     model.setValueAt(i.getEmail(), rowCount, 3);
-                    model.setValueAt(chop(i.getRole(), 20), rowCount, 4);
-                    model.setValueAt(chop(i.getUnprocessed(), 20), rowCount, 5);
+                    model.setValueAt(Utils.chop(i.getRole(), 20), rowCount, 4);
+                    model.setValueAt(Utils.chop(i.getUnprocessed(), 20), rowCount, 5);
                 }
                 else {
                     model.setValueAt("Edit to fix", rowCount, 0);
@@ -241,25 +246,13 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         AddressDiscoverer.application.statusChanged();
     }
     
-    private String chop(String text) {
-        return chop(text, 30);
-    }
-    
-    private String chop(String text, int length) {
-        if (text == null) return "";
-        if (text.length() > length) {
-            text = text.substring(0, length) + "...";
-        }
-        return text;
-    }
-    
     /**
      * Handles turning the HTML retrieved into a W3C Document that can be
      * displayed in the HTML panel.
      * 
      * @param html 
      */
-    void setHTMLPanelContents(String html) {
+    public void setHTMLPanelContents(String html) {
         if (html.isEmpty()) {
             this.jHTMLPanel.setEnabled(false);
             this.jHTMLPanel.clearDocument();
@@ -519,13 +512,13 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         int returnVal = this.jSaveFileChooser.showOpenDialog(this.parent);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = jSaveFileChooser.getSelectedFile();
-            IndividualExporter exporter = 
-                    new IndividualExporter(file, this.individuals, this.currentDepartment);
             try {
+                IndividualForDepartmentExportAction exporter = 
+                        new IndividualForDepartmentExportAction(file, this.currentDepartment);
                 exporter.export();
-            } catch (IOException ex) {
+            } catch (IOException | SQLException ex) {
                 AddressDiscoverer.reportException(ex);
-            }
+            } 
         }
         
     }//GEN-LAST:event_jSaveResultsButtonActionPerformed

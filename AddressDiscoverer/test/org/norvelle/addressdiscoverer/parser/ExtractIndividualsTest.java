@@ -23,7 +23,6 @@ import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 
@@ -60,7 +59,7 @@ public class ExtractIndividualsTest {
                     "/org/norvelle/addressdiscoverer/resources/cmpasamar.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "cmpasamar.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+        } catch (IOException | SQLException
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
@@ -89,7 +88,7 @@ public class ExtractIndividualsTest {
                     "/org/norvelle/addressdiscoverer/resources/mzugasti.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "mzugasti.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+        } catch (IOException | SQLException
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
@@ -121,7 +120,7 @@ public class ExtractIndividualsTest {
                     "/org/norvelle/addressdiscoverer/resources/lflamarique.html",
                     outputFile
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+        } catch (IOException | SQLException
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
@@ -152,7 +151,7 @@ public class ExtractIndividualsTest {
                     "/org/norvelle/addressdiscoverer/resources/olizas.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "olizas.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+        } catch (IOException | SQLException
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
@@ -182,7 +181,7 @@ public class ExtractIndividualsTest {
                     "/org/norvelle/addressdiscoverer/resources/ThreeFieldsAcrossNames.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "individuals.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+        } catch (IOException | SQLException
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
@@ -203,7 +202,7 @@ public class ExtractIndividualsTest {
                     "/org/norvelle/addressdiscoverer/resources/agenciso.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "agenciso.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+        } catch (IOException | SQLException
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
@@ -231,7 +230,7 @@ public class ExtractIndividualsTest {
         try {
             TestUtilities.testOneTr("jalmirallsa@ub.edu", "", "Jaume", "Almirall Sarda", 
                     "Professor associat Dept Filologia Grega");
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
+        } catch (IOException | SQLException | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
         }
     }
@@ -240,7 +239,7 @@ public class ExtractIndividualsTest {
     public void testDelval() {
         try {
             TestUtilities.testOneTr("adeval@unav.es", "", "María A.", "Alonso Del Val", "email");
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
+        } catch (IOException | SQLException | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
         }
     }
@@ -249,7 +248,7 @@ public class ExtractIndividualsTest {
     public void testRafaelcerro() {
         try {
             TestUtilities.testOneTr("rafaelcerro@ub.edu", "", "Rafael", "Cerro Narganez", "Personal extern Dept Història Moderna");
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
+        } catch (IOException | SQLException | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
         }
     }
@@ -258,7 +257,7 @@ public class ExtractIndividualsTest {
     public void testEmilsanchezd() {
         try {
             TestUtilities.testOneTr("emilsanchezd@ub.edu", "", "Emili-Miquel", "Sanchez Diaz", "Professor titular d'escola universitària Dep. Teoria Econòmica");
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
+        } catch (IOException | SQLException | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
         }
     }
@@ -267,7 +266,7 @@ public class ExtractIndividualsTest {
     public void testOmascarilla() {
         try {
             TestUtilities.testOneTr("omascarilla@ub.edu", "", "Oscar", "Mascarilla Miro", "Professor titular d'universitat Dep. Teoria Econòmica");
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException | IndividualExtractionFailedException ex) {
+        } catch (IOException | SQLException | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
         }
     }

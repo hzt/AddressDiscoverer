@@ -29,8 +29,7 @@ import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
-import org.norvelle.addressdiscoverer.exceptions.OrmObjectNotConfiguredException;
-import org.norvelle.addressdiscoverer.gui.StatusReporter;
+import org.norvelle.addressdiscoverer.gui.threading.StatusReporter;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 import org.norvelle.addressdiscoverer.parse.EmailElementViaLinksFinder;
@@ -63,7 +62,7 @@ public class ExtractFromFilesTest {
     }
 
     public static List extractIndividuals(String htmlUri, String outputFile, String encoding) 
-            throws IOException, SQLException, OrmObjectNotConfiguredException, 
+            throws IOException, SQLException,  
             UnsupportedEncodingException, IndividualExtractionFailedException 
     {
         String html;
@@ -89,7 +88,7 @@ public class ExtractFromFilesTest {
                     "/org/norvelle/addressdiscoverer/resources/navarra_filosofia.html",
                     TestUtilities.getTestOutputDirectory() + File.separator + "filosofia.txt"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException
+        } catch (IOException | SQLException
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
@@ -117,7 +116,7 @@ public class ExtractFromFilesTest {
                     "/org/norvelle/addressdiscoverer/resources/navarra_philology.html",
                     logfile, "windows-1252"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException 
+        } catch (IOException | SQLException 
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
@@ -148,7 +147,7 @@ public class ExtractFromFilesTest {
                     TestUtilities.getTestOutputDirectory() + File.separator + "educacion.txt",
                     "iso-8859-1"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException 
+        } catch (IOException | SQLException 
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
@@ -188,7 +187,7 @@ public class ExtractFromFilesTest {
                     "/org/norvelle/addressdiscoverer/resources/navarra_arquitectura.html",
                     outfile, "windows-1252"
             );
-        } catch (IOException | SQLException | OrmObjectNotConfiguredException 
+        } catch (IOException | SQLException 
                 | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
             return;
