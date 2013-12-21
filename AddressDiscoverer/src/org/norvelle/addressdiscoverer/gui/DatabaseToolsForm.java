@@ -118,8 +118,8 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
         jSetGenderProgressBar = new javax.swing.JProgressBar();
         jDetermineGenderButton = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
         jOnlyUpdateNonExportedCheckbox = new javax.swing.JCheckBox();
+        jLimitToUnassignedGenderCheckbox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Database Tools");
@@ -256,9 +256,11 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
 
         jLabel6.setText("Update genders according to first names");
 
-        jLabel7.setText("Limit update to unexported Individuals:");
+        jOnlyUpdateNonExportedCheckbox.setText("Limit to unexported individuals:");
+        jOnlyUpdateNonExportedCheckbox.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
 
-        jOnlyUpdateNonExportedCheckbox.setSelected(true);
+        jLimitToUnassignedGenderCheckbox.setText("Limit to unassigned gender:");
+        jLimitToUnassignedGenderCheckbox.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -269,15 +271,15 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jDetermineGenderButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
                         .addComponent(jSetGenderProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel6)
                             .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jOnlyUpdateNonExportedCheckbox)))
+                                .addComponent(jOnlyUpdateNonExportedCheckbox)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLimitToUnassignedGenderCheckbox)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -288,8 +290,8 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(jOnlyUpdateNonExportedCheckbox))
+                    .addComponent(jOnlyUpdateNonExportedCheckbox)
+                    .addComponent(jLimitToUnassignedGenderCheckbox))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jSetGenderProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -338,7 +340,9 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
         }
         else {
             boolean limitToNonExported = this.jOnlyUpdateNonExportedCheckbox.isSelected();
-            this.worker = new DetermineGenderWorker(this, limitToNonExported);
+            boolean limitToUndeterminedGender = 
+                    this.jLimitToUnassignedGenderCheckbox.isSelected();
+            this.worker = new DetermineGenderWorker(this, limitToNonExported, limitToUndeterminedGender);
             this.jDetermineGenderButton.setText("Cancel");
             try {
                 this.genderWorkerWorking = true;
@@ -415,7 +419,7 @@ public class DatabaseToolsForm extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
+    private javax.swing.JCheckBox jLimitToUnassignedGenderCheckbox;
     private javax.swing.JCheckBox jOnlyUpdateNonExportedCheckbox;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

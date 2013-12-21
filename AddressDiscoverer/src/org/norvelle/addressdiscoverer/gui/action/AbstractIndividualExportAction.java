@@ -28,44 +28,33 @@ import org.norvelle.addressdiscoverer.model.Individual;
 public class AbstractIndividualExportAction {
 
     protected final File file;
+    protected final Connection conn;
     
-    public AbstractIndividualExportAction(File file) {
+    public AbstractIndividualExportAction(File file) throws SQLException {
         this.file = file;
+        this.conn = DriverManager.getConnection(AddressDiscoverer.application.getJdbcUrl());
     }
 
     protected void export(List<Individual> individuals) throws IOException, SQLException {
         StringBuilder csvBuilder = new StringBuilder();
         
         // Create out header
-        csvBuilder.append("First Name(s)").append("\tLast Name(s)").append("\tEmail")
-                .append("\tSalutation").append("\tInstitution").append("\tDepartment")
-                .append("\tRole").append("\tGender").append("\tOther").append("\n");
+        csvBuilder.append("Gender").append("\tFirst Name(s)").append("\tLast Name(s)")
+                .append("\tEmail").append("\tSalutation").append("\tInstitution")
+                .append("\tDepartment").append("\tRole").append("\tOther").append("\n");
         
         // Write all the individuals out in CSV format
         for (Individual i : individuals) {
-            csvBuilder.append(i.getFirstName()).append("\t").append(i.getLastName())
+            csvBuilder.append(i.getGender()).append("\t").append(i.getFirstName())
+                    .append("\t").append(i.getLastName())
                     .append("\t").append(i.getEmail()).append("\t").append(i.getTitle())
                     .append("\t").append(i.getDepartment().getInstitution().toString())
                     .append("\t").append(i.getDepartment().toString())
-                    .append("\t").append(i.getRole()).append("\t").append(i.getGender())
+                    .append(i.getRole()).append("\t")
                     .append("\t").append(i.getUnprocessed()).append("\n");
         }
         FileUtils.write(file, csvBuilder, "UTF-8");
         
-        // Now mark all the exported individuals as having been exported
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(AddressDiscoverer.application.getJdbcUrl());
-            String sql = "UPDATE individual SET exported = 1";
-            Statement stmt = conn.createStatement();
-            stmt.execute(sql);
-            conn.close();
-        } catch (SQLException ex) {
-            if (conn != null)
-                conn.close();
-            throw ex;
-        }
-            
     }
     
 }

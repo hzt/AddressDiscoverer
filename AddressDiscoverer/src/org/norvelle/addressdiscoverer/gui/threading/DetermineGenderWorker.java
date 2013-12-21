@@ -30,10 +30,14 @@ public class DetermineGenderWorker
     static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private final DatabaseToolsForm parent;
     private final boolean limitToNonExported;
+    private final boolean limitToUnassignedGender;
 
-    public DetermineGenderWorker(DatabaseToolsForm parent, boolean limitToNonExported) {
+    public DetermineGenderWorker(DatabaseToolsForm parent, 
+            boolean limitToNonExported, boolean limitToUnassignedGender) 
+    {
         this.parent = parent;
         this.limitToNonExported = limitToNonExported;
+        this.limitToUnassignedGender = limitToUnassignedGender;
     }
 
     @Override
@@ -42,10 +46,18 @@ public class DetermineGenderWorker
         this.parent.setMaxProgress(individuals.size());
         int rowCount = 0;
         for (Individual i : individuals) {
+            // Filter out unwanted Individuals
             if (this.limitToNonExported && i.isExported()) {
                 rowCount ++;
                 continue;
             }
+            if (this.limitToUnassignedGender && 
+                    (i.getGender().equals("F") || i.getGender().equals("M"))) {
+                rowCount ++;
+                continue;
+            }
+            
+            // If we get here, guess the gender and assign it.
             String wholeName = i.getFirstName();
             String[] parts = StringUtils.split(wholeName);
             String firstName = parts[0];

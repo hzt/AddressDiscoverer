@@ -82,4 +82,39 @@ public class GenderDeterminerTest {
         Assert.assertEquals("Gender should be Female", GenderDeterminer.Gender.FEMALE, gender);
     }
     
+    @Test
+    public void testMontserrat() {
+        String name = "Montserrat";
+        GenderDeterminer.Gender gender = GenderDeterminer.getGender(name);
+        Assert.assertEquals("Gender should be Female", GenderDeterminer.Gender.FEMALE, gender);
+    }
+    
+    @Test
+    public void testConcepcion() {
+        String name = "Concepción";
+        GenderDeterminer.Gender gender = GenderDeterminer.getGender(name);
+        Assert.assertEquals("Gender should be Female", GenderDeterminer.Gender.FEMALE, gender);
+    }
+    
+    @Test
+    public void testAsuncion() {
+        String name = "Asunción";
+        GenderDeterminer.Gender gender = GenderDeterminer.getGender(name);
+        Assert.assertEquals("Gender should be Female", GenderDeterminer.Gender.FEMALE, gender);
+    }
+    
+    @Test
+    public void testMiguel() {
+        String name = "Miguel";
+        GenderDeterminer.Gender gender = GenderDeterminer.getGender(name);
+        Assert.assertEquals("Gender should be male", GenderDeterminer.Gender.MALE, gender);
+    }
+    
+    @Test
+    public void testLuis() {
+        String name = "Luis";
+        GenderDeterminer.Gender gender = GenderDeterminer.getGender(name);
+        Assert.assertEquals("Gender should be male", GenderDeterminer.Gender.MALE, gender);
+    }
+    
 }

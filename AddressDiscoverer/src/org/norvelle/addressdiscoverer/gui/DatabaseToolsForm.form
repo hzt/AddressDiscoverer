@@ -268,18 +268,18 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <Component id="jDetermineGenderButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="38" max="32767" attributes="0"/>
+                          <EmptySpace pref="40" max="32767" attributes="0"/>
                           <Component id="jSetGenderProgressBar" min="-2" pref="452" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabel6" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                   <Component id="jOnlyUpdateNonExportedCheckbox" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                                  <Component id="jLimitToUnassignedGenderCheckbox" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -296,8 +296,8 @@
                   <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jOnlyUpdateNonExportedCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLimitToUnassignedGenderCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
@@ -325,14 +325,16 @@
             <Property name="text" type="java.lang.String" value="Update genders according to first names"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel7">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Limit update to unexported Individuals:"/>
-          </Properties>
-        </Component>
         <Component class="javax.swing.JCheckBox" name="jOnlyUpdateNonExportedCheckbox">
           <Properties>
-            <Property name="selected" type="boolean" value="true"/>
+            <Property name="text" type="java.lang.String" value="Limit to unexported individuals:"/>
+            <Property name="horizontalTextPosition" type="int" value="10"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="jLimitToUnassignedGenderCheckbox">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Limit to unassigned gender:"/>
+            <Property name="horizontalTextPosition" type="int" value="10"/>
           </Properties>
         </Component>
       </SubComponents>

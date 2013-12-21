@@ -13,6 +13,7 @@ package org.norvelle.addressdiscoverer.gui.action;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
@@ -25,15 +26,31 @@ import org.norvelle.addressdiscoverer.model.Individual;
 public class IndividualForDepartmentExportAction extends AbstractIndividualExportAction {
     
     private final List<Individual> individuals;
+    private final int departmentId;
     
     public IndividualForDepartmentExportAction(File file, Department department) 
             throws SQLException 
     {
         super(file);
         this.individuals = Individual.getIndividualsForDepartment(department);
+        this.departmentId = department.getId();
     }
     
     public void export() throws IOException, SQLException {
         this.export(this.individuals);
+
+        // Now mark all the exported individuals as having been exported
+        try {
+            String sql = "UPDATE individual SET exported = 1 WHERE department_id = " 
+                    + this.departmentId;
+            Statement stmt = conn.createStatement();
+            stmt.execute(sql);
+            this.conn.close();
+        } catch (SQLException ex) {
+            if (this.conn != null)
+                this.conn.close();
+            throw ex;
+        }
+            
     }
 }

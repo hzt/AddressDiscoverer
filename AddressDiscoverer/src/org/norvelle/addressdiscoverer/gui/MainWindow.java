@@ -225,9 +225,9 @@ public class MainWindow extends javax.swing.JFrame {
                 if (reply == JOptionPane.NO_OPTION) 
                     return;
             }
-            AllIndividualExportAction exporter = 
-                    new AllIndividualExportAction(file);
             try {
+                AllIndividualExportAction exporter = 
+                    new AllIndividualExportAction(file);
                 exporter.export();
             } catch (IOException | SQLException ex) {
                 AddressDiscoverer.reportException(ex);
@@ -246,9 +246,9 @@ public class MainWindow extends javax.swing.JFrame {
                 if (reply == JOptionPane.NO_OPTION) 
                     return;
             }
-            NewIndividualExportAction exporter = 
-                    new NewIndividualExportAction(file);
             try {
+                NewIndividualExportAction exporter = 
+                    new NewIndividualExportAction(file);
                 exporter.export();
             } catch (IOException | SQLException ex) {
                 AddressDiscoverer.reportException(ex);
