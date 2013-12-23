@@ -60,7 +60,7 @@ public class ClassifyPageWorker
             PageClassifier classifier = new PageClassifier(Jsoup.parse(html, charset), charset, this);
             Classification classification = classifier.getClassification();
             publish("Classification is " + classification.toString());
-        } catch (IOException | EndNodeWalkingException ex) {
+        } catch (IOException | EndNodeWalkingException | IllegalStateException ex) {
             PageClassifierApp.reportException(ex);
         } finally {
             try {

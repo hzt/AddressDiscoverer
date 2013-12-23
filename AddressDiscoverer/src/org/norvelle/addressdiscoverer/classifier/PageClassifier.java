@@ -11,12 +11,13 @@
 package org.norvelle.addressdiscoverer.classifier;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.classifier.ClassificationStatusReporter.ClassificationStages;
+import org.norvelle.addressdiscoverer.classifier.EmailElementFinder.ContactInformationType;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 
 /**
@@ -24,7 +25,7 @@ import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public class PageClassifier {
-
+    
     public enum Classification {
         UNSTRUCTURED_P_PAGE, UNSTRUCTURED_TR_PAGE, UNSTRUCTURED_DIV_PAGE,
         TR_STRUCTURED_PAGE, UL_STRUCTURED_PAGE, OL_STRUCTURED_PAGE, UNDETERMINED;
@@ -33,8 +34,9 @@ public class PageClassifier {
     private final Document soup;
     private final String encoding;
     private final ClassificationStatusReporter status;
-    private List<Element> containerElements;
+    private NameElementFinder nameElementFinder;
     private Classification pageClassification;
+    private ContactInformationType contactInformationType;
     
     public PageClassifier(Document soup, String encoding, IProgressConsumer progressConsumer) {
         this.soup = soup;
@@ -52,212 +54,91 @@ public class PageClassifier {
      * @throws EndNodeWalkingException 
      */
     public Classification getClassification() 
-            throws UnsupportedEncodingException, EndNodeWalkingException 
+            throws UnsupportedEncodingException, EndNodeWalkingException, IllegalStateException 
     {
-        BackwardsFlattenedDocumentIterator nameElements = this.getNameElements();
-        this.containerElements = this.findContainerElements(nameElements);
-        nameElements.rewind();
-        HashMap<String, List<Element>> elementsByContainer = this.classifyElementsByContainer(nameElements);
+        this.nameElementFinder = new NameElementFinder(this.soup, this.encoding, this.status);
+        EmailElementFinder emailFinder = new EmailElementFinder(this.nameElementFinder);
+        int numberOfNames = nameElementFinder.getNumberOfNames();
         
         // Calculate the numbers of the distinct kinds of containers we track
-        Approximately.defaultRange = nameElements.size();
-        int numTrs = 0;
-        int numUls = 0;
-        int numOls = 0;
-        int numPs = 0;
-        int numDivs = 0;
-        for (Element containerElement : this.containerElements) {
-            if (containerElement.tagName().equals("tr"))
-                numTrs ++;
-            if (containerElement.tagName().equals("ul"))
-                numUls ++;
-            if (containerElement.tagName().equals("ol"))
-                numOls ++;
-            if (containerElement.tagName().equals("p"))
-                numPs ++;
-            if (containerElement.tagName().equals("div"))
-                numDivs ++;
-        }
+        Approximately.defaultRange = numberOfNames;
         
+        int numTrs = nameElementFinder.getNumTrs();
+        int numUls = nameElementFinder.getNumUls();
+        int numOls = nameElementFinder.getNumOls();
+        int numPs = nameElementFinder.getNumPs();
+        int numDivs = nameElementFinder.getNumDivs();
+
         // Now calculate the percentage "fill" for each kind
-        double elementsPerTr = (double) numTrs / (double) nameElements.size();
-        double elementsPerUl = (double) numUls / (double) nameElements.size();
-        double elementsPerOl = (double) numOls / (double) nameElements.size();
-        double elementsPerP = (double) numPs / (double) nameElements.size();
-        double elementsPerDiv = (double) numDivs / (double) nameElements.size();
+        double namesPerTr = (double) nameElementFinder.getNumTrs() / (double) numberOfNames;
+        double namesPerUl = (double) nameElementFinder.getNumUls() / (double) numberOfNames;
+        double namesPerOl = (double) nameElementFinder.getNumOls() / (double) numberOfNames;
+        double namesPerP = (double) nameElementFinder.getNumPs() / (double) numberOfNames;
+        double namesPerDiv = (double) nameElementFinder.getNumDivs() / (double) numberOfNames;
+        double contactLinksPerTr = (double) emailFinder.linksAssociatedWithName("tr").size() 
+                / (double) nameElementFinder.getNumTrs();
         
         // See how many elements fall outside UL or OL elements
-        int elementsInsideTrs = elementsByContainer.get("tr").size();
-        int elementsOutsideUls = nameElements.size() - elementsByContainer.get("ul").size();
-        int elementsOutsideOls = nameElements.size() - elementsByContainer.get("ol").size();
+        int namesInsideTrs = nameElementFinder.getNameElementsByContainer("tr").size();
+        int namesOutsideUls = numberOfNames - 
+                nameElementFinder.getNameElementsByContainer("ul").size();
+        int namesOutsideOls = numberOfNames - 
+                nameElementFinder.getNameElementsByContainer("ol").size();
         
         StringBuilder sb = new StringBuilder();
         sb.append("Page statistics:\n")
-                .append("Number of elements with names: ").append(nameElements.size()).append("\n")
+                .append("Number of elements with names: ").append(numberOfNames).append("\n")
                 .append("Number of <TRs>: ").append(numTrs).append("\n")
                 .append("Number of <UL>s: ").append(numUls).append("\n")
                 .append("Number of <OL>s: ").append(numOls).append("\n")
                 .append("Number of <P>s: ").append(numPs).append("\n")
                 .append("Number of <DIV>s: ").append(numDivs).append("\n")
-                .append("Elements per <TR>: ").append(Double.toString(elementsPerTr)).append("\n")
-                .append("Elements per <UL>: ").append(Double.toString(elementsPerUl)).append("\n")
-                .append("Elements per <OL>: ").append(Double.toString(elementsPerOl)).append("\n")
-                .append("Elements inside <TR>s: ").append(elementsInsideTrs).append("\n")
-                .append("Elements outside <UL>s: ").append(elementsOutsideUls).append("\n")
-                .append("Elements outside <OL>: ").append(elementsOutsideOls).append("\n")
-                .append("Ratio of <P>s to total elements: ")
-                    .append(Double.toString(elementsPerP)).append("\n")
-                .append("Ratio of <DIV>s to total elements: ")
-                    .append(Double.toString(elementsPerDiv)).append("\n");
+                .append("Names per <TR>: ").append(Double.toString(namesPerTr)).append("\n")
+                .append("Contact links per <TR>: ").append(Double.toString(contactLinksPerTr))
+                    .append("\n")
+                .append("Names per <UL>: ").append(Double.toString(namesPerUl)).append("\n")
+                .append("Names per <OL>: ").append(Double.toString(namesPerOl)).append("\n")
+                .append("Names inside <TR>s: ").append(namesInsideTrs).append("\n")
+                .append("Names outside <UL>s: ").append(namesOutsideUls).append("\n")
+                .append("Names outside <OL>: ").append(namesOutsideOls).append("\n")
+                .append("Ratio of <P>s to total names: ")
+                    .append(Double.toString(namesPerP)).append("\n")
+                .append("Ratio of <DIV>s to total names: ")
+                    .append(Double.toString(namesPerDiv)).append("\n");
         this.status.reportProgressText(sb.toString());
 
         // See if we have a page structured into natural divisions
-        if (Approximately.equals(elementsInsideTrs, nameElements.size()) 
-                && (elementsPerTr <= 1.0 && elementsPerTr > 0.3))
-                this.pageClassification = Classification.TR_STRUCTURED_PAGE;
-        else if (Approximately.equals(elementsOutsideUls, 0) 
-                 && Approximately.equals(elementsPerUl, 1, 1)) // || Approximately.equals(elementsOutsideOls, 0)
+        if (Approximately.equals(namesInsideTrs, numberOfNames) 
+                && (namesPerTr <= 1.0 && namesPerTr > 0.3)
+                && Approximately.equals(contactLinksPerTr, 1))
+            this.pageClassification = Classification.TR_STRUCTURED_PAGE;
+        else if (Approximately.equals(namesOutsideUls, 0)) // && Approximately.equals(namesPerUl, 1, 1)
                 this.pageClassification = Classification.UL_STRUCTURED_PAGE;
-        else if (Approximately.equals(elementsOutsideOls, 0) 
-                && Approximately.equals(elementsPerOl, 1, 1)) // || Approximately.equals(elementsOutsideOls, 0)
+        else if (Approximately.equals(namesOutsideOls, 0)) //  && Approximately.equals(namesPerOl, 1, 1)
                 this.pageClassification = Classification.OL_STRUCTURED_PAGE;
-       
+
         // See if we have an unstructured page
-        else if (Approximately.equals(numTrs, nameElements.size()))
+        else if (Approximately.equals(numTrs, numberOfNames))
             this.pageClassification = Classification.UNSTRUCTURED_TR_PAGE;
-        else if (Approximately.equals(numPs, nameElements.size()) ||
-                (elementsPerP < 1.0 && elementsPerP > 0.3))
+        else if (Approximately.equals(numPs, numberOfNames) ||
+                (namesPerP < 1.0 && namesPerP > 0.3))
             this.pageClassification = Classification.UNSTRUCTURED_P_PAGE;
-        else if (Approximately.equals(numDivs, nameElements.size()) ||
-                (elementsPerDiv < 1.0 && elementsPerDiv > 0.3))
+        else if (Approximately.equals(numDivs, numberOfNames) ||
+                (namesPerDiv < 1.0 && namesPerDiv > 0.3))
             this.pageClassification = Classification.UNSTRUCTURED_DIV_PAGE;
         
         // Otherwise, we give up
         else this.pageClassification = Classification.UNDETERMINED;
-        
+                
         return this.pageClassification;
     }
     
-    /**
-     * Walk the document tree backwards and create an iterator that contains all
-     * of the Elements whose contents are flagged as names.
-     * 
-     * @return
-     * @throws UnsupportedEncodingException 
-     * @throws org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException 
-     */
-    public BackwardsFlattenedDocumentIterator getNameElements() 
-            throws UnsupportedEncodingException, EndNodeWalkingException 
-    {
-        BackwardsFlattenedDocumentIterator iterator = 
-                new BackwardsFlattenedDocumentIterator(this.soup, this.encoding, this.status);
-        return iterator;
-    }
-    
-    private HashMap<String, List<Element>> classifyElementsByContainer(BackwardsFlattenedDocumentIterator nameElements) {
-        HashMap<String, List<Element>> containers = new HashMap<>();
-        containers.put("tr", new ArrayList<Element>());
-        containers.put("ul", new ArrayList<Element>());
-        containers.put("ol", new ArrayList<Element>());
-        containers.put("p", new ArrayList<Element>());
-        containers.put("div", new ArrayList<Element>());
-        for (Element element : nameElements) {
-            Element containingElement = this.getContainerElement(element);
-            
-            // Elements not in one of the approved containers are ignored.
-            if (containingElement == null)
-                continue;
-            
-            // Otherwise, we store the container element if it's not already there.
-            containers.get(containingElement.tagName()).add(element);
-        }
-        return containers;
-    }
-
-    /**
-     * Given a backwards document iterator, we find container elements for each of the
-     * name-containing elements we find in the document.
-     * 
-     */
-    private List<Element> findContainerElements(BackwardsFlattenedDocumentIterator nameElements) {
-        List<Element> containers = new ArrayList<>();
-        for (Element element : nameElements) {
-            Element containingElement = this.getContainerElement(element);
-            
-            // Elements not in one of the approved containers are ignored.
-            if (containingElement == null)
-                continue;
-            
-            // Otherwise, we store the container element if it's not already there.
-            if (!containers.contains(containingElement))
-                containers.add(containingElement);
-        }
-        return containers;
-    }
-
-    /**
-     * Given an element, find the TR, UL, OL or P or DIV that most immediately contains it.
-     * 
-     * @param element
-     * @return 
-     */
-    private Element getContainerElement(Element element) {
-        // First, see if we can find a TR... giving TRs priority over Ps and other containers
-        Element currElement = element.parent();
-        Element trContainer = null;
-        while (currElement != null) {
-            if (currElement.tagName().equals("tr")) {
-                trContainer = currElement;
-                break;
-            }
-            currElement = currElement.parent();
-        }
-        
-        // Next we check for a P, UL, OL or DIV that contains the current element
-        Element otherContainer = null;
-        if (element.tagName().equals("p") || element.tagName().equals("div") 
-                || element.tagName().equals("ul")
-                || element.tagName().equals("ol"))
-            otherContainer = element;
-        currElement = element.parent();
-        if (otherContainer == null)
-            while (currElement != null) {
-                if (currElement.tagName().equals("p") || currElement.tagName().equals("div") 
-                    || element.tagName().equals("ul")
-                    || element.tagName().equals("ol"))
-                {
-                    otherContainer = currElement;
-                    break;
-                }
-                currElement = currElement.parent();
-            }
-        
-        // Now, return the element that best fits the criterion of being the parent
-        if (trContainer == null && otherContainer == null)
-            return null;
-        if (trContainer != null && otherContainer == null)
-            return trContainer;
-        if (trContainer == null && otherContainer != null)
-            return otherContainer;
-        if (this.isParentOf(trContainer, otherContainer))
-            return otherContainer;
-        
-        return trContainer;         
-    }
 
     public List<Element> getContainerElements() {
-        return containerElements;
+        return this.nameElementFinder.getContainerElements();
     }
 
-    private boolean isParentOf(Element trContainer, Element otherContainer) {
-        Element currElement = otherContainer;
-        while (currElement != null) {
-            if (currElement == trContainer) 
-                return true;
-            currElement = currElement.parent();
-        }
-        return false;
+    public ContactInformationType getContactInfoType() {
+        return this.contactInformationType;
     }
-
-    
 }
