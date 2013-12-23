@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -94,6 +95,8 @@ public class BackwardsFlattenedDocumentIterator
                     isName = Name.isName(processedString);
                 }
                 catch (Exception ex) {
+                    logger.log(Level.SEVERE, ex.getMessage());
+                    logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(ex));
                     throw new EndNodeWalkingException("Could not test for nameness: " + ex.getMessage());
                 }
                 if (!this.elementsWithNames.contains((Element) currNode) && isName) {

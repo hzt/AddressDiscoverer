@@ -52,10 +52,12 @@ public class KnownFirstName {
     
     public static boolean isFirstName(String name) {
         if (name == null) return false;
-        if (name.contains("-") && !name.equals("-")) {
+        if (name.contains("-") && !name.endsWith("-")) {
             String[] splitNames = StringUtils.split(name, "-");
             return isFirstName(splitNames[0]) || isFirstName(splitNames[1]);
         }
+        else if (name.endsWith("-")) 
+            name = name.replace("-", "");
         
         // Instead of using a standard charset translator, we translate only vowels
         name = Utils.normalizeName(name);

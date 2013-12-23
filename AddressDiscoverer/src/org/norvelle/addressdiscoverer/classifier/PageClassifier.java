@@ -26,12 +26,15 @@ import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 public class PageClassifier {
 
     public enum Classification {
-        UNSTRUCTURED_PAGE, TR_STRUCTURED_PAGE, LI_STRUCTURED_PAGE, UNDETERMINED;
+        UNSTRUCTURED_P_PAGE, UNSTRUCTURED_TR_PAGE, UNSTRUCTURED_DIV_PAGE,
+        TR_STRUCTURED_PAGE, UL_STRUCTURED_PAGE, OL_STRUCTURED_PAGE, UNDETERMINED;
     }
     
     private final Document soup;
     private final String encoding;
     private final ClassificationStatusReporter status;
+    private List<Element> containerElements;
+    private Classification pageClassification;
     
     public PageClassifier(Document soup, String encoding, IProgressConsumer progressConsumer) {
         this.soup = soup;
@@ -52,18 +55,18 @@ public class PageClassifier {
             throws UnsupportedEncodingException, EndNodeWalkingException 
     {
         BackwardsFlattenedDocumentIterator nameElements = this.getNameElements();
-        List<Element> containerElements = this.findContainerElements(nameElements);
+        this.containerElements = this.findContainerElements(nameElements);
         nameElements.rewind();
         HashMap<String, List<Element>> elementsByContainer = this.classifyElementsByContainer(nameElements);
         
         // Calculate the numbers of the distinct kinds of containers we track
-        Approximately.range = nameElements.size();
+        Approximately.defaultRange = nameElements.size();
         int numTrs = 0;
         int numUls = 0;
         int numOls = 0;
         int numPs = 0;
         int numDivs = 0;
-        for (Element containerElement : containerElements) {
+        for (Element containerElement : this.containerElements) {
             if (containerElement.tagName().equals("tr"))
                 numTrs ++;
             if (containerElement.tagName().equals("ul"))
@@ -77,7 +80,11 @@ public class PageClassifier {
         }
         
         // Now calculate the percentage "fill" for each kind
-        double elementsPerTr = numTrs / nameElements.size();
+        double elementsPerTr = (double) numTrs / (double) nameElements.size();
+        double elementsPerUl = (double) numUls / (double) nameElements.size();
+        double elementsPerOl = (double) numOls / (double) nameElements.size();
+        double elementsPerP = (double) numPs / (double) nameElements.size();
+        double elementsPerDiv = (double) numDivs / (double) nameElements.size();
         
         // See how many elements fall outside UL or OL elements
         int elementsInsideTrs = elementsByContainer.get("tr").size();
@@ -93,28 +100,42 @@ public class PageClassifier {
                 .append("Number of <P>s: ").append(numPs).append("\n")
                 .append("Number of <DIV>s: ").append(numDivs).append("\n")
                 .append("Elements per <TR>: ").append(Double.toString(elementsPerTr)).append("\n")
+                .append("Elements per <UL>: ").append(Double.toString(elementsPerUl)).append("\n")
+                .append("Elements per <OL>: ").append(Double.toString(elementsPerOl)).append("\n")
                 .append("Elements inside <TR>s: ").append(elementsInsideTrs).append("\n")
                 .append("Elements outside <UL>s: ").append(elementsOutsideUls).append("\n")
                 .append("Elements outside <OL>: ").append(elementsOutsideOls).append("\n")
                 .append("Ratio of <P>s to total elements: ")
-                    .append(Double.toString(numPs / nameElements.size())).append("\n")
+                    .append(Double.toString(elementsPerP)).append("\n")
                 .append("Ratio of <DIV>s to total elements: ")
-                    .append(Double.toString(numDivs / nameElements.size())).append("\n");
+                    .append(Double.toString(elementsPerDiv)).append("\n");
         this.status.reportProgressText(sb.toString());
 
         // See if we have a page structured into natural divisions
-        if (Approximately.equals(elementsInsideTrs, nameElements.size()))
-            if (Approximately.equals(elementsPerTr, 1) || Approximately.equals(elementsPerTr, 2) 
-                    || Approximately.equals(elementsPerTr, 3))
-                return Classification.TR_STRUCTURED_PAGE;
-        if (Approximately.equals(elementsOutsideUls, 0) ) // || Approximately.equals(elementsOutsideOls, 0)
-                return Classification.LI_STRUCTURED_PAGE;
+        if (Approximately.equals(elementsInsideTrs, nameElements.size()) 
+                && (elementsPerTr <= 1.0 && elementsPerTr > 0.3))
+                this.pageClassification = Classification.TR_STRUCTURED_PAGE;
+        else if (Approximately.equals(elementsOutsideUls, 0) 
+                 && Approximately.equals(elementsPerUl, 1, 1)) // || Approximately.equals(elementsOutsideOls, 0)
+                this.pageClassification = Classification.UL_STRUCTURED_PAGE;
+        else if (Approximately.equals(elementsOutsideOls, 0) 
+                && Approximately.equals(elementsPerOl, 1, 1)) // || Approximately.equals(elementsOutsideOls, 0)
+                this.pageClassification = Classification.OL_STRUCTURED_PAGE;
        
         // See if we have an unstructured page
-        if (Approximately.equals(numPs, nameElements.size()) || Approximately.equals(numDivs, nameElements.size()))
-            return Classification.UNSTRUCTURED_PAGE;
+        else if (Approximately.equals(numTrs, nameElements.size()))
+            this.pageClassification = Classification.UNSTRUCTURED_TR_PAGE;
+        else if (Approximately.equals(numPs, nameElements.size()) ||
+                (elementsPerP < 1.0 && elementsPerP > 0.3))
+            this.pageClassification = Classification.UNSTRUCTURED_P_PAGE;
+        else if (Approximately.equals(numDivs, nameElements.size()) ||
+                (elementsPerDiv < 1.0 && elementsPerDiv > 0.3))
+            this.pageClassification = Classification.UNSTRUCTURED_DIV_PAGE;
         
-        return Classification.UNDETERMINED;
+        // Otherwise, we give up
+        else this.pageClassification = Classification.UNDETERMINED;
+        
+        return this.pageClassification;
     }
     
     /**
@@ -181,26 +202,62 @@ public class PageClassifier {
      * @return 
      */
     private Element getContainerElement(Element element) {
-        // First, see if we can find a multiple-element container like a TR or a UL
+        // First, see if we can find a TR... giving TRs priority over Ps and other containers
         Element currElement = element.parent();
+        Element trContainer = null;
         while (currElement != null) {
-            if (currElement.tagName().equals("tr") || currElement.tagName().equals("ul")
-                    || currElement.tagName().equals("ol"))
-                return currElement;
+            if (currElement.tagName().equals("tr")) {
+                trContainer = currElement;
+                break;
+            }
             currElement = currElement.parent();
         }
         
-        // If not, then we see if we can find a P  or a DIV that we can put this in
-        if (element.tagName().equals("p") || element.tagName().equals("div"))
-            return element;
+        // Next we check for a P, UL, OL or DIV that contains the current element
+        Element otherContainer = null;
+        if (element.tagName().equals("p") || element.tagName().equals("div") 
+                || element.tagName().equals("ul")
+                || element.tagName().equals("ol"))
+            otherContainer = element;
         currElement = element.parent();
-        while (currElement != null) {
-            if (currElement.tagName().equals("p") || currElement.tagName().equals("div"))
-                return currElement;
-            currElement = currElement.parent();
-        }
+        if (otherContainer == null)
+            while (currElement != null) {
+                if (currElement.tagName().equals("p") || currElement.tagName().equals("div") 
+                    || element.tagName().equals("ul")
+                    || element.tagName().equals("ol"))
+                {
+                    otherContainer = currElement;
+                    break;
+                }
+                currElement = currElement.parent();
+            }
         
-        return null;         
+        // Now, return the element that best fits the criterion of being the parent
+        if (trContainer == null && otherContainer == null)
+            return null;
+        if (trContainer != null && otherContainer == null)
+            return trContainer;
+        if (trContainer == null && otherContainer != null)
+            return otherContainer;
+        if (this.isParentOf(trContainer, otherContainer))
+            return otherContainer;
+        
+        return trContainer;         
     }
 
+    public List<Element> getContainerElements() {
+        return containerElements;
+    }
+
+    private boolean isParentOf(Element trContainer, Element otherContainer) {
+        Element currElement = otherContainer;
+        while (currElement != null) {
+            if (currElement == trContainer) 
+                return true;
+            currElement = currElement.parent();
+        }
+        return false;
+    }
+
+    
 }

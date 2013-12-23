@@ -14,6 +14,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,6 +25,7 @@ import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.classifier.ClassificationStatusReporter.ClassificationStages;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.utils.Utils;
 
 /**
@@ -68,7 +70,7 @@ public class BackwardsIteratorTest {
         try { 
             ClassificationStatusReporter status = new ClassificationStatusReporter(ClassificationStages.CREATING_ITERATOR, null);
             iterator = new BackwardsFlattenedDocumentIterator(soup, "iso-8859-1", status);
-        } catch (UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems iterating over document: " + ex.getMessage());
             return;
         }

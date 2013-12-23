@@ -20,18 +20,26 @@ import java.util.logging.Logger;
 public class Approximately {
     
     static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    public static int range = 10000000;
+    public static int defaultRange = 10000000;
     
     public static boolean equals(int value1, int value2) {
+        return equals(value1, value2, defaultRange);
+    }
+    
+    public static boolean equals(int value1, int value2, int range) {
         double difference = ((double) Math.abs(value1 - value2)) / (double) range;
         logger.log(Level.INFO, String.format("Comparing %d to %d, difference = %f", value1, value2, difference));
-        return difference < 0.1;
+        return difference < 0.15;
     }
     
     public static boolean equals(double value1, double value2) {
+        return equals(value1, value2, defaultRange);
+    }
+    
+    public static boolean equals(double value1, double value2, int range) {
         double difference = Math.abs(value1 - value2) / range;
         logger.log(Level.INFO, String.format("Comparing %f to %f, difference = %f", value1, value2, difference));
-        return difference < 0.1;
+        return difference < 0.15;
     }
     
     
