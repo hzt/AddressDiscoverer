@@ -12,7 +12,7 @@ package org.norvelle.addressdiscoverer.classifier;
 
 import java.io.UnsupportedEncodingException;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
+import org.norvelle.addressdiscoverer.classifier.ClassificationStatusReporter.ClassificationStages;
 
 /**
  *
@@ -26,12 +26,13 @@ public class PageClassifier {
     
     private final Document soup;
     private final String encoding;
-    private final IProgressConsumer progressConsumer;
+    private final ClassificationStatusReporter status;
     
     public PageClassifier(Document soup, String encoding, IProgressConsumer progressConsumer) {
         this.soup = soup;
         this.encoding = encoding;
-        this.progressConsumer = progressConsumer;
+        this.status = new ClassificationStatusReporter(
+            ClassificationStages.CREATING_ITERATOR, progressConsumer);
     }
     
     public Classification getClassification() throws UnsupportedEncodingException {
@@ -51,7 +52,7 @@ public class PageClassifier {
             throws UnsupportedEncodingException 
     {
         BackwardsFlattenedDocumentIterator iterator = 
-                new BackwardsFlattenedDocumentIterator(this.soup, this.encoding);
+                new BackwardsFlattenedDocumentIterator(this.soup, this.encoding, this.status);
         return iterator;
     }
     

@@ -10,9 +10,9 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
 import org.norvelle.addressdiscoverer.model.Department;
+import org.norvelle.utils.Utils;
 
 /**
  * Provides a SwingWorker to run ResearchAssistant and track its progress.
@@ -52,7 +52,7 @@ public class ParseLocalHtmlFileWorker extends AbstractExtractIndividualWorker {
         try {
             StatusReporter status = new StatusReporter(StatusReporter.ParsingStages.READING_FILE, this);
             InputStream in = new FileInputStream(this.localFile);
-            String charset = this.getCharsetFromStream(in);
+            String charset = Utils.getCharsetFromStream(in);
             String html = FileUtils.readFileToString(this.localFile, Charset.forName(charset));
             this.updateDepartmentHTML(html);
             this.panel.setHTMLPanelContents(html); 

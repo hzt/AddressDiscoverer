@@ -16,6 +16,6 @@ package org.norvelle.addressdiscoverer.classifier;
  */
 public interface IProgressConsumer {
     
-    public void reportProgress(String line);
+    public void reportProgressStage(ClassificationStatusReporter progress);
     
 }

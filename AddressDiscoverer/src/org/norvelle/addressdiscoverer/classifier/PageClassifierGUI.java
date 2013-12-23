@@ -10,6 +10,8 @@
  */
 package org.norvelle.addressdiscoverer.classifier;
 
+import java.io.File;
+import javax.swing.JFileChooser;
 import org.norvelle.addressdiscoverer.PageClassifier;
 
 /**
@@ -42,6 +44,7 @@ public class PageClassifierGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jOpenFileChooser = new javax.swing.JFileChooser();
         jLabel1 = new javax.swing.JLabel();
         jWebAddressField = new javax.swing.JTextField();
         jClassifyPageButton = new javax.swing.JButton();
@@ -52,7 +55,7 @@ public class PageClassifierGUI extends javax.swing.JFrame {
 
         jLabel1.setText("Webpage:");
 
-        jClassifyPageButton.setText("Run Classifier");
+        jClassifyPageButton.setText("Choose File");
         jClassifyPageButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jClassifyPageButtonActionPerformed(evt);
@@ -73,7 +76,7 @@ public class PageClassifierGUI extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jWebAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
+                        .addComponent(jWebAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jClassifyPageButton))
                     .addComponent(jScrollPane2))
@@ -96,12 +99,18 @@ public class PageClassifierGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jClassifyPageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jClassifyPageButtonActionPerformed
-        // TODO add your handling code here:
+        int returnVal = this.jOpenFileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = jOpenFileChooser.getSelectedFile();
+            ClassifyPageWorker worker = new ClassifyPageWorker(this, file);
+            worker.execute();
+        }        
     }//GEN-LAST:event_jClassifyPageButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jClassifyPageButton;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JFileChooser jOpenFileChooser;
     private javax.swing.JTextArea jOutputTextArea;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;

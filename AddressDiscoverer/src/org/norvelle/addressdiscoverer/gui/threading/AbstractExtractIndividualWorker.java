@@ -92,35 +92,6 @@ public abstract class AbstractExtractIndividualWorker
         } 
     }
 
-    protected String getCharsetFromStream(InputStream in) throws IOException {
-        String charset = "";
-        StringWriter writer = new StringWriter();
-        IOUtils.copy(in, writer, Charset.forName("UTF-8"));
-        String html = writer.toString();
-        Pattern charsetPattern = Pattern.compile("charset=(.*?)\"");
-        Matcher charsetMatcher = charsetPattern.matcher(html);
-        while (charsetMatcher.find()) {
-            charset = charsetMatcher.group(1);
-            break;
-        }
-        // Check to see if the charset found is valid
-        boolean charsetNotValid = true;
-        if (!charset.isEmpty()) {
-            try {
-                Charset c = Charset.forName(charset);
-                charsetNotValid = false;
-                charset = c.displayName();
-            } catch (IllegalCharsetNameException e) {
-                charset = "";
-            }
-        }
-        if (charset.isEmpty() || charsetNotValid) {
-            charset = "UTF-8";
-        }
-        logger.log(Level.INFO, "Found charset: {0}", charset);
-        return charset;
-    }
-
     /**
      * Given new HTML that has been retrieved, update the Department object to
      * store it.

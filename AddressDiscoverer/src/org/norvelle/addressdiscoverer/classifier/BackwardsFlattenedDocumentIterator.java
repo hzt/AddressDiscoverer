@@ -39,10 +39,24 @@ public class BackwardsFlattenedDocumentIterator
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
     private final List<Element> elementsWithNames = new ArrayList<>(); 
     private int currPosition;
+    private final ClassificationStatusReporter status;
 
-    public BackwardsFlattenedDocumentIterator(Document soup, String encoding) 
+    /**
+     * Generate the iterator and position its pointer so it can be walked backward
+     * using next()
+     * 
+     * @param soup
+     * @param encoding
+     * @param status
+     * @throws java.io.UnsupportedEncodingException
+     */
+    public BackwardsFlattenedDocumentIterator(Document soup, String encoding, 
+            ClassificationStatusReporter status) 
             throws UnsupportedEncodingException 
     {
+        this.status = status;
+        this.status.setTotalNumericSteps(soup.getAllElements().size());
+        
         // First we generate the flattened list of elements
         this.walkNodeBackwards(soup, encoding);
         logger.log(Level.FINE, "Flattened document: \n{0}", StringUtils.join(this.elementsWithNames, "\n"));
@@ -59,13 +73,14 @@ public class BackwardsFlattenedDocumentIterator
     private void walkNodeBackwards(Node currNode, String encoding) 
             throws UnsupportedEncodingException 
     {
+        this.status.incrementNumericProgress();
         List<Node> children = currNode.childNodes();
         for (int i = children.size() - 1; i >= 0; i --) {
             Node child = children.get(i);
             if (!child.getClass().equals(TextNode.class))
                 this.walkNodeBackwards(child, encoding);
             else {
-                String content = currNode.toString();
+                String content = child.toString();
                 if (!this.elementsWithNames.contains((Element) currNode) && Name.isName(content))
                     this.elementsWithNames.add(0, (Element) currNode);
             }
@@ -90,6 +105,10 @@ public class BackwardsFlattenedDocumentIterator
     @Override
     public Iterator<Element> iterator() {
         return this;
+    }
+    
+    public int size() {
+        return this.elementsWithNames.size();
     }
     
 }

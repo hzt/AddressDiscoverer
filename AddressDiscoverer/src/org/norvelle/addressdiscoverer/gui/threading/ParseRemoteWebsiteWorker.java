@@ -14,6 +14,7 @@ import org.apache.commons.io.IOUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
 import org.norvelle.addressdiscoverer.model.Department;
+import org.norvelle.utils.Utils;
 
 /**
  * Provides a SwingWorker to run ResearchAssistant and track its progress.
@@ -55,7 +56,7 @@ public class ParseRemoteWebsiteWorker extends AbstractExtractIndividualWorker {
             URLConnection connection = url.openConnection();
             InputStream in = connection.getInputStream();
             in.mark(500000);
-            String charset = getCharsetFromStream(in);
+            String charset = Utils.getCharsetFromStream(in);
             in.reset();
             StringWriter writer = new StringWriter();
             IOUtils.copy(in, writer, Charset.forName(charset));

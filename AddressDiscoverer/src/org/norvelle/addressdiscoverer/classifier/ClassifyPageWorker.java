@@ -11,9 +11,15 @@
 package org.norvelle.addressdiscoverer.classifier;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.SwingWorker;
+import org.apache.commons.io.FileUtils;
+import org.jsoup.Jsoup;
+import org.norvelle.utils.Utils;
 
 /**
  * A SwingWorker to handle setting genders for all Individuals in the background,
@@ -36,13 +42,17 @@ public class ClassifyPageWorker
 
     @Override
     protected String doInBackground() throws Exception {
+        InputStream in = new FileInputStream(this.fileToClassify);
+        String charset = Utils.getCharsetFromStream(in);
+        String html = FileUtils.readFileToString(this.fileToClassify, Charset.forName(charset));
+        PageClassifier classifier = new PageClassifier(Jsoup.parse(html, charset), charset, this);
         
         return "";
     }
     
     @Override
-    public void reportProgress(String line) {
-        publish(line);
+    public void reportProgressStage(ClassificationStatusReporter progress) {
+        publish(progress.toString());
     }
 
     /**

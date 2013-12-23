@@ -16,10 +16,16 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.norvelle.addressdiscoverer.classifier.BackwardsIteratorTest;
+import org.norvelle.addressdiscoverer.model.AbbreviationsTest;
+import org.norvelle.addressdiscoverer.model.GenderDeterminerTest;
+import org.norvelle.addressdiscoverer.model.KnownLastNameTest;
+import org.norvelle.addressdiscoverer.model.KnownSpanishWordTest;
 import org.norvelle.addressdiscoverer.model.NameTest;
 import org.norvelle.addressdiscoverer.parser.NameChunkTest;
 import org.norvelle.addressdiscoverer.parser.EmailElementFinderTest;
 import org.norvelle.addressdiscoverer.parser.ExtractFromFilesTest;
+import org.norvelle.addressdiscoverer.parser.ExtractFromPageWithoutTrsTest;
 import org.norvelle.addressdiscoverer.parser.ExtractFromTrsWithMultipleRecordsTest;
 import org.norvelle.addressdiscoverer.parser.ExtractIndividualsTest;
 import org.norvelle.addressdiscoverer.parser.JSoupTest;
@@ -38,7 +44,13 @@ import org.norvelle.addressdiscoverer.parser.TdContainerParserTest;
     NameTest.class,
     JSoupTest.class,
     TdContainerParserTest.class,
-    ExtractFromTrsWithMultipleRecordsTest.class
+    ExtractFromTrsWithMultipleRecordsTest.class,
+    ExtractFromPageWithoutTrsTest.class,
+    AbbreviationsTest.class,
+    GenderDeterminerTest.class,
+    KnownLastNameTest.class,
+    KnownSpanishWordTest.class,
+    BackwardsIteratorTest.class
 })
 
 public class AddressDiscovererTestSuite {
