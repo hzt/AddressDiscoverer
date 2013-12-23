@@ -126,6 +126,10 @@ public class BackwardsFlattenedDocumentIterator
         return this;
     }
     
+    public void rewind() {
+        this.currPosition = this.elementsWithNames.size() - 1;
+    }
+    
     public int size() {
         return this.elementsWithNames.size();
     }

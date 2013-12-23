@@ -16,34 +16,17 @@ package org.norvelle.addressdiscoverer.classifier;
  */
 public class Approximately {
     
-    public static boolean equals(int value1, int value2) {
-        if (value1 == 0 || value2 == 0)
-            return false;
-        double percentDifference = Math.abs(value1 - value2) / Math.max(value1, value2);
-        return percentDifference > 0.9;
-    }
+    public static int range = 10000000;
     
-    public static boolean equals(int value1, int[] values2) {
-        for (int value2 : values2) {
-            if (Approximately.equals(value1, value2))
-                return true;
-        }
-        return false;
+    public static boolean equals(int value1, int value2) {
+        double difference = (Math.abs(value1 - value2) / Math.max(value1, value2)) / range;
+        return difference < 0.1;
     }
     
     public static boolean equals(double value1, double value2) {
-        if (value1 == 0.0 || value2 == 0.0)
-            return false;
-        double percentDifference = Math.abs(value1 - value2) / Math.max(value1, value2);
-        return percentDifference > 0.9;
+        double difference = (Math.abs(value1 - value2) / Math.max(Math.abs(value1), Math.abs(value2))) / range;
+        return difference < 0.1;
     }
     
-    public static boolean equals(double value1, double[] values2) {
-        for (double value2 : values2) {
-            if (Approximately.equals(value1, value2))
-                return true;
-        }
-        return false;
-    }
     
 }

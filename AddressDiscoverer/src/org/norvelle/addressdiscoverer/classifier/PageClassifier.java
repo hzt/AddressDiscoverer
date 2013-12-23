@@ -12,6 +12,7 @@ package org.norvelle.addressdiscoverer.classifier;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -52,8 +53,11 @@ public class PageClassifier {
     {
         BackwardsFlattenedDocumentIterator nameElements = this.getNameElements();
         List<Element> containerElements = this.findContainerElements(nameElements);
+        nameElements.rewind();
+        HashMap<String, List<Element>> elementsByContainer = this.classifyElementsByContainer(nameElements);
         
         // Calculate the numbers of the distinct kinds of containers we track
+        Approximately.range = nameElements.size();
         int numTrs = 0;
         int numUls = 0;
         int numOls = 0;
@@ -74,8 +78,11 @@ public class PageClassifier {
         
         // Now calculate the percentage "fill" for each kind
         double elementsPerTr = numTrs / nameElements.size();
-        double elementsPerUl = numUls / nameElements.size();
-        double elementsPerOl = numOls / nameElements.size();
+        
+        // See how many elements fall outside UL or OL elements
+        int elementsInsideTrs = elementsByContainer.get("tr").size();
+        int elementsOutsideUls = nameElements.size() - elementsByContainer.get("ul").size();
+        int elementsOutsideOls = nameElements.size() - elementsByContainer.get("ol").size();
         
         StringBuilder sb = new StringBuilder();
         sb.append("Page statistics:\n")
@@ -86,21 +93,21 @@ public class PageClassifier {
                 .append("Number of <P>s: ").append(numPs).append("\n")
                 .append("Number of <DIV>s: ").append(numDivs).append("\n")
                 .append("Elements per <TR>: ").append(elementsPerTr).append("\n")
-                .append("Elements per <UL>: ").append(elementsPerUl).append("\n")
-                .append("Elements per <OL>: ").append(elementsPerOl).append("\n")
+                .append("Elements inside <TR>s: ").append(elementsInsideTrs).append("\n")
+                .append("Elements outside <UL>s: ").append(elementsOutsideUls).append("\n")
+                .append("Elements outside <OL>: ").append(elementsOutsideOls).append("\n")
                 .append("Ratio of <P>s to total elements: ").append(numPs / nameElements.size()).append("\n")
                 .append("Ratio of <DIV>s to total elements: ").append(numDivs / nameElements.size()).append("\n");
         this.status.reportProgressText(sb.toString());
 
         // See if we have a page structured into natural divisions
-        if (Approximately.equals(elementsPerTr, 1) || Approximately.equals(elementsPerTr, 2) 
-                || Approximately.equals(elementsPerTr, 3))
-            return Classification.TR_STRUCTURED_PAGE;
-        if (elementsPerUl != 0 && Approximately.equals(1 / elementsPerUl, new double[]{1.0, 2.0, 3.0, 4.0, 5.0}))
-            return Classification.LI_STRUCTURED_PAGE;
-        if (elementsPerOl != 0 && Approximately.equals(1 / elementsPerOl, new double[]{1.0, 2.0, 3.0, 4.0, 5.0}))
-            return Classification.LI_STRUCTURED_PAGE;
-      
+        if (Approximately.equals(elementsInsideTrs, nameElements.size()))
+            if (Approximately.equals(elementsPerTr, 1) || Approximately.equals(elementsPerTr, 2) 
+                    || Approximately.equals(elementsPerTr, 3))
+                return Classification.TR_STRUCTURED_PAGE;
+        if (Approximately.equals(elementsOutsideUls, 0) ) // || Approximately.equals(elementsOutsideOls, 0)
+                return Classification.LI_STRUCTURED_PAGE;
+       
         // See if we have an unstructured page
         if (Approximately.equals(numPs, nameElements.size()) || Approximately.equals(numDivs, nameElements.size()))
             return Classification.UNSTRUCTURED_PAGE;
@@ -124,6 +131,26 @@ public class PageClassifier {
         return iterator;
     }
     
+    private HashMap<String, List<Element>> classifyElementsByContainer(BackwardsFlattenedDocumentIterator nameElements) {
+        HashMap<String, List<Element>> containers = new HashMap<>();
+        containers.put("tr", new ArrayList<Element>());
+        containers.put("ul", new ArrayList<Element>());
+        containers.put("ol", new ArrayList<Element>());
+        containers.put("p", new ArrayList<Element>());
+        containers.put("div", new ArrayList<Element>());
+        for (Element element : nameElements) {
+            Element containingElement = this.getContainerElement(element);
+            
+            // Elements not in one of the approved containers are ignored.
+            if (containingElement == null)
+                continue;
+            
+            // Otherwise, we store the container element if it's not already there.
+            containers.get(containingElement.tagName()).add(element);
+        }
+        return containers;
+    }
+
     /**
      * Given a backwards document iterator, we find container elements for each of the
      * name-containing elements we find in the document.
