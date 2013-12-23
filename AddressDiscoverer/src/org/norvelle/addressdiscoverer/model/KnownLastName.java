@@ -12,10 +12,7 @@ package org.norvelle.addressdiscoverer.model;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
@@ -57,7 +54,7 @@ public class KnownLastName {
         if (name == null) return false;
         
         // First, check something easy... if the name has a hyphen, it's a last name
-        if (name.contains("-")) return true;
+        if (name.contains("-") && !name.equals("-")) return true;
         
         // Instead of using a standard charset translator, we translate only vowels
         name = Utils.normalizeName(name);

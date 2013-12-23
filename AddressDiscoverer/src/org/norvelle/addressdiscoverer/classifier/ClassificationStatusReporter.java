@@ -50,6 +50,7 @@ public class ClassificationStatusReporter {
     private int totalNumericSteps = 1;
     private int currentNumericStep;
     private final IProgressConsumer progressConsumer;
+    private int lastPercentReported = -1;
    
     /**
      * Constructor
@@ -89,8 +90,17 @@ public class ClassificationStatusReporter {
         int percentComplete = (int) (((double) this.currentNumericStep / 
                 (double) this.totalNumericSteps) * 100.0);
         this.label = String.format("%s: %2d%% complete", this.baseLabel, percentComplete);
-        if (this.progressConsumer != null && percentComplete % 10 == 0)
+        int tensPlace = percentComplete % 10;
+        if (this.progressConsumer != null && tensPlace == 0 && 
+                this.lastPercentReported != percentComplete) 
+        {
             this.progressConsumer.reportProgressStage(this);
+            this.lastPercentReported = percentComplete;
+        }
+    }
+    
+    public void reportProgressText(String text) {
+        this.progressConsumer.reportText(text);
     }
     
     public int getStage() {
@@ -114,6 +124,6 @@ public class ClassificationStatusReporter {
     
     @Override
     public String toString() {
-        return String.format("Stage %d: %s", this.stage.ordinal(), this.label);
+        return String.format("Stage %d: %s", this.stage.ordinal() + 1, this.label);
     }
 }

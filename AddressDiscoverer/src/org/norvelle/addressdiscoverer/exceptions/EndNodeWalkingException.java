@@ -8,16 +8,28 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.classifier;
+package org.norvelle.addressdiscoverer.exceptions;
 
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public interface IProgressConsumer {
-    
-    public void reportProgressStage(ClassificationStatusReporter progress);
-    
-    public void reportText(String text);
-    
+public class EndNodeWalkingException extends Exception {
+
+    /**
+     * Creates a new instance of <code>EndNodeWalkingException</code> without
+     * detail message.
+     */
+    public EndNodeWalkingException() {
+    }
+
+    /**
+     * Constructs an instance of <code>EndNodeWalkingException</code> with the
+     * specified detail message.
+     *
+     * @param msg the detail message.
+     */
+    public EndNodeWalkingException(String msg) {
+        super(msg);
+    }
 }

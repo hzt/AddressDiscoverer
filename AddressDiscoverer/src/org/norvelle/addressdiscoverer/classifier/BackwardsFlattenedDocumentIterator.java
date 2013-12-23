@@ -17,11 +17,15 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
+import org.norvelle.addressdiscoverer.PageClassifierApp;
+import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.model.Name;
+import org.norvelle.utils.Utils;
 
 /**
  * Given a standard tree-shaped JSoup Document, create a flattened list of
@@ -49,16 +53,18 @@ public class BackwardsFlattenedDocumentIterator
      * @param encoding
      * @param status
      * @throws java.io.UnsupportedEncodingException
+     * @throws org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException
      */
     public BackwardsFlattenedDocumentIterator(Document soup, String encoding, 
             ClassificationStatusReporter status) 
-            throws UnsupportedEncodingException 
+            throws UnsupportedEncodingException, EndNodeWalkingException 
     {
         this.status = status;
         this.status.setTotalNumericSteps(soup.getAllElements().size());
         
         // First we generate the flattened list of elements
         this.walkNodeBackwards(soup, encoding);
+        this.status.reportProgressText("Backwards document iterator created successfully");
         logger.log(Level.FINE, "Flattened document: \n{0}", StringUtils.join(this.elementsWithNames, "\n"));
         
         // Now, we set the cursor to the end so we can iterate backwards
@@ -71,18 +77,31 @@ public class BackwardsFlattenedDocumentIterator
      * @param currNode 
      */
     private void walkNodeBackwards(Node currNode, String encoding) 
-            throws UnsupportedEncodingException 
+            throws UnsupportedEncodingException, EndNodeWalkingException 
     {
         this.status.incrementNumericProgress();
+        //this.status.reportProgressText(String.format("Analyzing node <%s>", currNode.nodeName()));
         List<Node> children = currNode.childNodes();
         for (int i = children.size() - 1; i >= 0; i --) {
             Node child = children.get(i);
             if (!child.getClass().equals(TextNode.class))
                 this.walkNodeBackwards(child, encoding);
             else {
-                String content = child.toString();
-                if (!this.elementsWithNames.contains((Element) currNode) && Name.isName(content))
+                String htmlEncodedString = WordUtils.capitalizeFully(child.toString());
+                String processedString = Utils.decodeHtml(htmlEncodedString, encoding);
+                boolean isName;
+                try {
+                    isName = Name.isName(processedString);
+                }
+                catch (Exception ex) {
+                    throw new EndNodeWalkingException("Could not test for nameness: " + ex.getMessage());
+                }
+                if (!this.elementsWithNames.contains((Element) currNode) && isName) {
                     this.elementsWithNames.add(0, (Element) currNode);
+                    /*this.status.reportProgressText(
+                            String.format(" Adding <%s> with content '%s'", 
+                                    currNode.nodeName(), processedString)); */
+                }
             }
         }
     }

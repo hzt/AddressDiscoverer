@@ -52,7 +52,7 @@ public class KnownFirstName {
     
     public static boolean isFirstName(String name) {
         if (name == null) return false;
-        if (name.contains("-")) {
+        if (name.contains("-") && !name.equals("-")) {
             String[] splitNames = StringUtils.split(name, "-");
             return isFirstName(splitNames[0]) || isFirstName(splitNames[1]);
         }

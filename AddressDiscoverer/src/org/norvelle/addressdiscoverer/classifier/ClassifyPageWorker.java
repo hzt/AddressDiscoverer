@@ -12,18 +12,25 @@ package org.norvelle.addressdiscoverer.classifier;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
+import org.norvelle.addressdiscoverer.PageClassifierApp;
+import org.norvelle.addressdiscoverer.classifier.PageClassifier.Classification;
+import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.utils.Utils;
 
 /**
- * A SwingWorker to handle setting genders for all Individuals in the background,
- * allowing the progress bar to be painted while the operation is ongoing.
+ * A SwingWorker to handle background processing of the page classification
+ * process. 
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
@@ -31,9 +38,15 @@ public class ClassifyPageWorker
     extends SwingWorker<String, String> implements IProgressConsumer
 {
     static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private final File fileToClassify;
+    protected File fileToClassify;
     private final PageClassifierGUI parent;
 
+    /**
+     * Run the classification process on the contents of a file in the filesystem
+     * 
+     * @param parent
+     * @param fileToClassify
+     */
     public ClassifyPageWorker(PageClassifierGUI parent, File fileToClassify) 
     {
         this.parent = parent;
@@ -42,17 +55,35 @@ public class ClassifyPageWorker
 
     @Override
     protected String doInBackground() throws Exception {
-        InputStream in = new FileInputStream(this.fileToClassify);
-        String charset = Utils.getCharsetFromStream(in);
-        String html = FileUtils.readFileToString(this.fileToClassify, Charset.forName(charset));
-        PageClassifier classifier = new PageClassifier(Jsoup.parse(html, charset), charset, this);
-        
+        InputStream in = null;
+        try {
+            in = new FileInputStream(this.fileToClassify);
+            String charset = Utils.getCharsetFromStream(in);
+            String html = FileUtils.readFileToString(this.fileToClassify, Charset.forName(charset));
+            PageClassifier classifier = new PageClassifier(Jsoup.parse(html, charset), charset, this);
+            Classification classification = classifier.getClassification();
+            publish("Classification is " + classification.toString());
+        } catch (IOException | EndNodeWalkingException ex) {
+            PageClassifierApp.reportException(ex);
+        } finally {
+            try {
+                if (in != null)
+                    in.close();
+            } catch (IOException ex) {
+                PageClassifierApp.reportException(ex);
+            }
+        }
         return "";
     }
     
     @Override
     public void reportProgressStage(ClassificationStatusReporter progress) {
         publish(progress.toString());
+    }
+    
+    @Override
+    public void reportText(String text) {
+        publish(text);
     }
 
     /**

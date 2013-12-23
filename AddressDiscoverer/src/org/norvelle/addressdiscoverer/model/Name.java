@@ -11,6 +11,8 @@
 package org.norvelle.addressdiscoverer.model;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +34,9 @@ public class Name {
     
     private static final Pattern hyphenatedPattern = Pattern.compile("^(.*)-(.*)$");
     
+    // A logger instance
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+
     /**
      * A static method for determining whether a chunk of text is known to
      * contain a name.
@@ -43,8 +48,14 @@ public class Name {
         String[] words = StringUtils.split(chunk);
         for (String word : words) {
             word = word.trim();
-            if (KnownFirstName.isFirstName(word)) return true;
-            if (KnownLastName.isLastName(word)) return true;
+            if (KnownFirstName.isFirstName(word)) {
+                logger.log(Level.FINE, String.format("Word '%s' is a first name", word));
+                return true;
+            }
+            if (KnownLastName.isLastName(word)) {
+                logger.log(Level.FINE, String.format("Word '%s' is a last name", word));
+                return true;
+            }
         }
         return false;
     }

@@ -40,16 +40,17 @@ import org.norvelle.addressdiscoverer.model.KnownSpanishWord;
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class PageClassifier {
+public class PageClassifierApp {
 
     // Property keys
     private static final String DUMMY_PROPERTY = "DummyProperty";
+    public static final String URI_PROPERTY = "UriProperty";
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     // Our "singleton" application instance
-    public static PageClassifier application;
+    public static PageClassifierApp application;
     
     // Private variables for the application
     private final PageClassifierGUI window;
@@ -60,15 +61,15 @@ public class PageClassifier {
     private String jdbcUrl;
     
     @SuppressWarnings("LeakingThisInConstructor")
-    public PageClassifier() throws Exception {
-        PageClassifier.application = this;
+    public PageClassifierApp() throws Exception {
+        PageClassifierApp.application = this;
         
         // First setup our logger. The ORMLite logger is prolix and useless,
         // so we redirect it to a temp file.
         System.setProperty(LocalLog.LOCAL_LOG_FILE_PROPERTY, System.getProperty("java.io.tmpdir") 
                 + File.separator + "pageclassifier.ormlite.log");        
         this.checkSettingsDirExists();
-        logger.setLevel(Level.SEVERE);
+        logger.setLevel(Level.INFO);
         FileHandler fh = new FileHandler(this.settingsDirname + File.separator + "pageclassifier.log", 
                 8096, 1, true);  
         logger.addHandler(fh);
@@ -91,15 +92,14 @@ public class PageClassifier {
             UIManager.getSystemLookAndFeelClassName());
         window = new PageClassifierGUI(this);
         window.setTitle("PageClassifier"); 
-        window.setExtendedState( window.getExtendedState() | java.awt.Frame.MAXIMIZED_BOTH );
+        window.setLocationRelativeTo(null);
+        //window.setExtendedState( window.getExtendedState() | java.awt.Frame.MAXIMIZED_BOTH );
         window.setVisible(true);
     }
 
     public void shutdown()  {
         try {
             this.saveProperties();
-            KnownLastName.store();
-            KnownFirstName.store();
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null,
                     Utils.wordWrapString("Could not store properties or names files: " 
@@ -197,7 +197,7 @@ public class PageClassifier {
      */
     public static void main(String[] args) {
         try {
-            PageClassifier.application = new PageClassifier();
+            PageClassifierApp.application = new PageClassifierApp();
         } catch (Exception ex) {
             logger.log(Level.SEVERE, null, ex);
             logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(ex));

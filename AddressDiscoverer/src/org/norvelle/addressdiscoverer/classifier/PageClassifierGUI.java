@@ -11,8 +11,12 @@
 package org.norvelle.addressdiscoverer.classifier;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import javax.swing.JFileChooser;
-import org.norvelle.addressdiscoverer.PageClassifier;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import org.norvelle.addressdiscoverer.PageClassifierApp;
 
 /**
  *
@@ -20,19 +24,50 @@ import org.norvelle.addressdiscoverer.PageClassifier;
  */
 public class PageClassifierGUI extends javax.swing.JFrame {
 
-    private final PageClassifier parent;
+    private final PageClassifierApp parent;
     
     /**
      * Creates new form PageClassifierGUI
      * @param parent
      */
-    public PageClassifierGUI(PageClassifier parent) {
+    public PageClassifierGUI(PageClassifierApp parent) {
         this.parent = parent;
         initComponents();
+        String oldWebAddress = this.parent.getProps().getProperty(PageClassifierApp.URI_PROPERTY);
+        if (oldWebAddress != null) {
+            this.jWebAddressField.setText(oldWebAddress);
+            this.jRunClassifierButton.setEnabled(true);
+        }
+
+        this.jWebAddressField.getDocument().addDocumentListener(
+                new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent de) {
+                updateWebAddress();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent de) {
+                updateWebAddress();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent de) {
+                updateWebAddress();
+            }
+        });
+        
     }
     
     public void addToOutput(String line) {
-        this.jOutputTextArea.append(line);
+        this.jOutputTextArea.append(line + "\n");
+    }
+    
+    private void updateWebAddress() {
+        this.parent.getProps().setProperty(PageClassifierApp.URI_PROPERTY, 
+                this.jWebAddressField.getText());
+        this.jRunClassifierButton.setEnabled(true);
     }
 
     /**
@@ -50,8 +85,14 @@ public class PageClassifierGUI extends javax.swing.JFrame {
         jClassifyPageButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jOutputTextArea = new javax.swing.JTextArea();
+        jRunClassifierButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jLabel1.setText("Webpage:");
 
@@ -66,6 +107,14 @@ public class PageClassifierGUI extends javax.swing.JFrame {
         jOutputTextArea.setRows(5);
         jScrollPane2.setViewportView(jOutputTextArea);
 
+        jRunClassifierButton.setText("Run Classifier");
+        jRunClassifierButton.setEnabled(false);
+        jRunClassifierButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRunClassifierButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -76,10 +125,12 @@ public class PageClassifierGUI extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jWebAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
+                        .addComponent(jWebAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 392, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jClassifyPageButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jClassifyPageButton))
-                    .addComponent(jScrollPane2))
+                        .addComponent(jRunClassifierButton))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 720, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -89,9 +140,10 @@ public class PageClassifierGUI extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jWebAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jClassifyPageButton))
+                    .addComponent(jClassifyPageButton)
+                    .addComponent(jRunClassifierButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 564, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -102,16 +154,48 @@ public class PageClassifierGUI extends javax.swing.JFrame {
         int returnVal = this.jOpenFileChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = jOpenFileChooser.getSelectedFile();
-            ClassifyPageWorker worker = new ClassifyPageWorker(this, file);
-            worker.execute();
+            this.jWebAddressField.setText(file.getAbsolutePath());
         }        
     }//GEN-LAST:event_jClassifyPageButtonActionPerformed
+
+    private void jRunClassifierButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRunClassifierButtonActionPerformed
+        String myURI = this.jWebAddressField.getText();
+        if (!myURI.isEmpty()) {
+            File file = new File(myURI);
+            ClassifyPageWorker worker;
+            this.jOutputTextArea.setText("");
+            
+            // If the user has specified a local file, we use that to fetch HTML
+            if (file.exists()) {
+                worker = new ClassifyPageWorker(this, file);
+            } // if file.exists()
+            
+            // Otherwise we fetch the HTML from the website via HTTP
+            else {
+                try {
+                    worker = new UrlSourcedClassifyPageWorker(this, myURI);
+                } // else
+                catch (URISyntaxException | IOException ex) {
+                    PageClassifierApp.reportException(ex);
+                    return;
+                }                
+            }
+
+            worker.execute();
+        } // if (!myURI
+
+    }//GEN-LAST:event_jRunClassifierButtonActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        this.parent.shutdown();
+    }//GEN-LAST:event_formWindowClosing
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jClassifyPageButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JFileChooser jOpenFileChooser;
     private javax.swing.JTextArea jOutputTextArea;
+    private javax.swing.JButton jRunClassifierButton;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField jWebAddressField;

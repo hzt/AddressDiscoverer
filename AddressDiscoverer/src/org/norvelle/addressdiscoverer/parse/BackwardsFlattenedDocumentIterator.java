@@ -11,19 +11,18 @@
 package org.norvelle.addressdiscoverer.parse;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.norvelle.addressdiscoverer.Constants;
+import org.norvelle.utils.Utils;
 
 /**
  * Given a standard tree-shaped JSoup Document, create a flattened list of
@@ -73,10 +72,7 @@ public class BackwardsFlattenedDocumentIterator implements Iterable<String>, Ite
         }
         if (currNode.getClass().equals(TextNode.class) && !currNode.toString().trim().isEmpty()) {
             String htmlEncodedString = currNode.toString();
-            String processedString = htmlEncodedString.replace("&nbsp;", " ");
-            processedString = URLDecoder.decode(processedString, encoding);
-            processedString = StringEscapeUtils.unescapeHtml4(processedString);
-            processedString = processedString.replaceAll("[_]", "");
+            String processedString = Utils.decodeHtml(htmlEncodedString, encoding);
             if (!processedString.trim().isEmpty())
                 this.textNodes.add(0, processedString.trim());
         }
