@@ -49,11 +49,11 @@ public class Name {
         for (String word : words) {
             word = word.trim();
             if (KnownFirstName.isFirstName(word)) {
-                logger.log(Level.FINE, String.format("Word '%s' is a first name", word));
+                logger.log(Level.INFO, String.format("Word '%s' is a first name", word));
                 return true;
             }
             if (KnownLastName.isLastName(word)) {
-                logger.log(Level.FINE, String.format("Word '%s' is a last name", word));
+                logger.log(Level.INFO, String.format("Word '%s' is a last name", word));
                 return true;
             }
         }

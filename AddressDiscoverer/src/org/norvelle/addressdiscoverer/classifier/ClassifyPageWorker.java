@@ -12,13 +12,10 @@ package org.norvelle.addressdiscoverer.classifier;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 import org.apache.commons.io.FileUtils;

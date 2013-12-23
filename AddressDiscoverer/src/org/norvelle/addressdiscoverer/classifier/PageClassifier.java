@@ -92,12 +92,14 @@ public class PageClassifier {
                 .append("Number of <OL>s: ").append(numOls).append("\n")
                 .append("Number of <P>s: ").append(numPs).append("\n")
                 .append("Number of <DIV>s: ").append(numDivs).append("\n")
-                .append("Elements per <TR>: ").append(elementsPerTr).append("\n")
+                .append("Elements per <TR>: ").append(Double.toString(elementsPerTr)).append("\n")
                 .append("Elements inside <TR>s: ").append(elementsInsideTrs).append("\n")
                 .append("Elements outside <UL>s: ").append(elementsOutsideUls).append("\n")
                 .append("Elements outside <OL>: ").append(elementsOutsideOls).append("\n")
-                .append("Ratio of <P>s to total elements: ").append(numPs / nameElements.size()).append("\n")
-                .append("Ratio of <DIV>s to total elements: ").append(numDivs / nameElements.size()).append("\n");
+                .append("Ratio of <P>s to total elements: ")
+                    .append(Double.toString(numPs / nameElements.size())).append("\n")
+                .append("Ratio of <DIV>s to total elements: ")
+                    .append(Double.toString(numDivs / nameElements.size())).append("\n");
         this.status.reportProgressText(sb.toString());
 
         // See if we have a page structured into natural divisions

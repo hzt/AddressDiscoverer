@@ -54,7 +54,10 @@ public class KnownLastName {
         if (name == null) return false;
         
         // First, check something easy... if the name has a hyphen, it's a last name
-        if (name.contains("-") && !name.equals("-")) return true;
+        if (name.contains("-") && !name.equals("-")) {
+            String[] splitNames = StringUtils.split(name, "-");
+            return isLastName(splitNames[0]) || isLastName(splitNames[1]);
+        }
         
         // Instead of using a standard charset translator, we translate only vowels
         name = Utils.normalizeName(name);

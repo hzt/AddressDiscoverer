@@ -10,21 +10,27 @@
  */
 package org.norvelle.addressdiscoverer.classifier;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public class Approximately {
     
+    static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     public static int range = 10000000;
     
     public static boolean equals(int value1, int value2) {
-        double difference = (Math.abs(value1 - value2) / Math.max(value1, value2)) / range;
+        double difference = ((double) Math.abs(value1 - value2)) / (double) range;
+        logger.log(Level.INFO, String.format("Comparing %d to %d, difference = %f", value1, value2, difference));
         return difference < 0.1;
     }
     
     public static boolean equals(double value1, double value2) {
-        double difference = (Math.abs(value1 - value2) / Math.max(Math.abs(value1), Math.abs(value2))) / range;
+        double difference = Math.abs(value1 - value2) / range;
+        logger.log(Level.INFO, String.format("Comparing %f to %f, difference = %f", value1, value2, difference));
         return difference < 0.1;
     }
     
