@@ -25,44 +25,55 @@ import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
  */
 public class NameElementFinder {
     
-    private final List<Element> containerElements;
-    private final HashMap<String, List<Element>> nameElementsByContainer;
+    private final List<NameElement> nameElements;
+    private final HashMap<NameElement, String> nameElementsAndContainerTypes;
     private final int numberOfNames;
     private int numTrs = 0;
     private int numUls = 0;
     private int numOls = 0;
     private int numPs = 0;
     private int numDivs = 0;
+    private HashMap<String, List<Element>> containerTypesWithContainerElements;
+    
+    private final ArrayList<String> containerTypes = new ArrayList<String>() {
+        {
+            add("tr");
+            add("ul");
+            add("ol");
+            add("p");
+            add("div");
+        }
+    };
 
     public NameElementFinder(Document soup, String encoding, 
             ClassificationStatusReporter status) 
             throws UnsupportedEncodingException, EndNodeWalkingException 
     {
-        BackwardsFlattenedDocumentIterator nameElements = 
+        BackwardsFlattenedDocumentIterator nameNodes = 
                 new BackwardsFlattenedDocumentIterator(soup, encoding, status);
-        this.containerElements = this.findContainerElements(nameElements);
-        nameElements.rewind();
-        this.nameElementsByContainer = this.classifyElementsByContainer(nameElements);
+        this.nameElements = this.generateNameElements(nameNodes);
+        this.nameElementsAndContainerTypes = new HashMap<>();
         this.numberOfNames = nameElements.size();
-
-        for (Element containerElement : this.containerElements) {
-            if (containerElement.tagName().equals("tr"))
+        
+        for (NameElement nameElement : nameElements) {
+            if (nameElement.getContainerElement().tagName().equals("tr"))
                 numTrs ++;
-            if (containerElement.tagName().equals("ul"))
+            if (nameElement.getContainerElement().tagName().equals("ul"))
                 numUls ++;
-            if (containerElement.tagName().equals("ol"))
+            if (nameElement.getContainerElement().tagName().equals("ol"))
                 numOls ++;
-            if (containerElement.tagName().equals("p"))
+            if (nameElement.getContainerElement().tagName().equals("p"))
                 numPs ++;
-            if (containerElement.tagName().equals("div"))
+            if (nameElement.getContainerElement().tagName().equals("div"))
                 numDivs ++;
         }
+        
+        // Initialize our mapping between container types and the name elements
+        // they contain.
+        for (String containerType : this.containerTypes) 
+            this.containerTypesWithContainerElements.put(containerType, new ArrayList<NameElement>());
     }
-    
-    public List<Element> getNameElementsByContainer(String containerType) {
-        return this.nameElementsByContainer.get(containerType);
-    }
-    
+        
     public int getNumberOfNames() {
         return this.numberOfNames;
     }
@@ -86,100 +97,65 @@ public class NameElementFinder {
     public int getNumDivs() {
         return numDivs;
     }
-
-    public List<Element> getContainerElements() {
-        return containerElements;
-    }
-
+    
     /**
-     * Given a backwards document iterator, we find container elements for each of the
-     * name-containing elements we find in the document.
-     *
+     * Given a container type, find and return all the NameElements that have that
+     * container type as an ancestor.
+     * 
+     * @param containerType String identifying the container type
+     * @return List<NameElement> A List of the NameElements that have that container type as an ancestor.
      */
-    private List findContainerElements(BackwardsFlattenedDocumentIterator nameElements) {
-        List<Element> containers = new ArrayList<>();
-        for (Element element : nameElements) {
-            List<Element> myContainerElements = this.getContainerElement(element);
-            if (myContainerElements.isEmpty()) {
-                continue;
-            }
-            for (Element containingElement : myContainerElements) {
-                if (!containers.contains(containingElement)) {
-                    containers.add(containingElement);
-                }
-            }
+    public List<NameElement> getNameElementsByContainer(String containerType) {
+        List<NameElement> nameElementsForContainer = new ArrayList<>();
+        for (NameElement nameElement : this.nameElementsAndContainerTypes.keySet()) {
+            if (nameElement.getContainerElement().tagName().equals(containerType))
+                nameElementsForContainer.add(nameElement);
         }
-        return containers;
-    }
-
-    private HashMap classifyElementsByContainer(BackwardsFlattenedDocumentIterator nameElements) {
-        HashMap<String, List<Element>> containers = new HashMap<>();
-        containers.put("tr", new ArrayList<Element>());
-        containers.put("ul", new ArrayList<Element>());
-        containers.put("ol", new ArrayList<Element>());
-        containers.put("p", new ArrayList<Element>());
-        containers.put("div", new ArrayList<Element>());
-        for (Element element : nameElements) {
-            List<Element> myContainerElements = this.getContainerElement(element);
-            if (myContainerElements.isEmpty()) {
-                continue;
-            }
-            for (Element containingElement : myContainerElements) {
-                containers.get(containingElement.tagName()).add(element);
-            }
-        }
-        return containers;
+        return nameElementsForContainer;
     }
     
     /**
-     * Given an element, find the TR, UL, OL or P or DIV that most immediately contains it.
+     * Return a List of all of the ContactLink objects that we have found. If a
+     * contact link could not be found for a particular name-containing element,
+     * we return null.
      * 
-     * @param element
      * @return 
      */
-    private List<Element> getContainerElement(Element element) {
-        List<Element> myContainerElements = new ArrayList<>();
-        
-        // First, see if we can find a TR... giving TRs priority over Ps and other containers
-        Element currElement = element.parent();
-        Element trContainer = null;
-        while (currElement != null) {
-            if (currElement.tagName().equals("tr")) {
-                trContainer = currElement;
-                break;
-            }
-            currElement = currElement.parent();
+    public List<ContactLink> getContactLinks() {
+        List<ContactLink> contactLinks = new ArrayList<ContactLink>();
+        for (NameElement nameElement : this.nameElements) {
+            ContactLink link = nameElement.getContactLink();
+            if (link != null)
+                contactLinks.add(link);
         }
-        
-        // Next we check for a P, UL, OL or DIV that contains the current element
-        Element otherContainer = null;
-        if (element.tagName().equals("p") || element.tagName().equals("div") 
-                || element.tagName().equals("ul")
-                || element.tagName().equals("ol"))
-            otherContainer = element;
-        currElement = element.parent();
-        if (otherContainer == null)
-            while (currElement != null) {
-                if (currElement.tagName().equals("p") || currElement.tagName().equals("div") 
-                    || currElement.tagName().equals("ul")
-                    || currElement.tagName().equals("ol"))
-                {
-                    otherContainer = currElement;
-                    break;
-                }
-                currElement = currElement.parent();
-            }
-        
-        // Now, return the element that best fits the criterion of being the parent
-        if (trContainer == null && otherContainer == null)
-            return myContainerElements;
-        if (trContainer != null)
-            myContainerElements.add(trContainer);
-        if (otherContainer != null)
-            myContainerElements.add(otherContainer);
-        
-        return myContainerElements;         
+        return contactLinks;
     }
 
-    
+    /**
+     * Given the BackwardsFlattenedDocumentIterator that holds our Jsoup Element
+     * objects that have names as their contents, generate our intelligent
+     * NameElement objects for each of them, and return these new objects in
+     * a list.
+     * 
+     * @param jsoupNameElementIterator
+     * @return 
+     */
+    private List<NameElement> generateNameElements(
+            BackwardsFlattenedDocumentIterator jsoupNameElementIterator) 
+    {
+        List<NameElement> myNameElements = new ArrayList<>();
+        
+        for (Element jsoupNameElement : jsoupNameElementIterator) {
+            NameElement nameElement = new NameElement(jsoupNameElement);
+            myNameElements.add(nameElement);
+            this.nameElementsAndContainerTypes.put(nameElement, 
+                    nameElement.getContainerElement().tagName());
+            List<Element> containerElementsForContainerType = 
+                this.containerTypesWithContainerElements.get(
+                    nameElement.getContainerElement().tagName());
+            containerElementsForContainerType.add(nameElement.getContainerElement());
+        }
+        
+        return myNameElements;
+    }
 }

@@ -12,10 +12,8 @@ package org.norvelle.addressdiscoverer.classifier;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.regex.Pattern;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.classifier.ClassificationStatusReporter.ClassificationStages;
 import org.norvelle.addressdiscoverer.classifier.EmailElementFinder.ContactInformationType;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
@@ -56,11 +54,13 @@ public class PageClassifier {
     public Classification getClassification() 
             throws UnsupportedEncodingException, EndNodeWalkingException, IllegalStateException 
     {
-        this.nameElementFinder = new NameElementFinder(this.soup, this.encoding, this.status);
-        EmailElementFinder emailFinder = new EmailElementFinder(this.nameElementFinder);
-        int numberOfNames = nameElementFinder.getNumberOfNames();
+        NameElementFinder nameElementFinder = 
+                new NameElementFinder(this.soup, this.encoding, this.status);
+        EmailElementFinder emailElementFinder = 
+                new EmailElementFinder(nameElementFinder);
         
         // Calculate the numbers of the distinct kinds of containers we track
+        int numberOfNames = nameElementFinder.getNumberOfNames();
         Approximately.defaultRange = numberOfNames;
         
         int numTrs = nameElementFinder.getNumTrs();
@@ -75,7 +75,7 @@ public class PageClassifier {
         double namesPerOl = (double) nameElementFinder.getNumOls() / (double) numberOfNames;
         double namesPerP = (double) nameElementFinder.getNumPs() / (double) numberOfNames;
         double namesPerDiv = (double) nameElementFinder.getNumDivs() / (double) numberOfNames;
-        double contactLinksPerTr = (double) emailFinder.linksAssociatedWithName("tr").size() 
+        double contactLinksPerTr = (double) nameElementFinder.getContactLinks().size() 
                 / (double) nameElementFinder.getNumTrs();
         
         // See how many elements fall outside UL or OL elements
