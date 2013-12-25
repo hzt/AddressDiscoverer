@@ -12,9 +12,7 @@ package org.norvelle.addressdiscoverer.classifier;
 
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,7 +21,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
-import org.norvelle.addressdiscoverer.classifier.ClassificationStatusReporter.ClassificationStages;
 import org.norvelle.addressdiscoverer.classifier.PageClassifier.Classification;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;

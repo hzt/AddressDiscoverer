@@ -26,16 +26,17 @@ import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 public class NameElementFinder {
     
     private final List<NameElement> nameElements;
-    private final HashMap<NameElement, String> nameElementsAndContainerTypes;
+    //
     private final int numberOfNames;
     private int numTrs = 0;
     private int numUls = 0;
     private int numOls = 0;
     private int numPs = 0;
     private int numDivs = 0;
-    private HashMap<String, List<Element>> containerTypesWithContainerElements;
+    private final HashMap<String, ArrayList<NameElement>> nameElementsByContainerTypes;
+    private final HashMap<String, ArrayList<Element>> containerElementsMap;
     
-    private final ArrayList<String> containerTypes = new ArrayList<String>() {
+    public final ArrayList<String> containerTypes = new ArrayList<String>() {
         {
             add("tr");
             add("ul");
@@ -52,26 +53,20 @@ public class NameElementFinder {
         BackwardsFlattenedDocumentIterator nameNodes = 
                 new BackwardsFlattenedDocumentIterator(soup, encoding, status);
         this.nameElements = this.generateNameElements(nameNodes);
-        this.nameElementsAndContainerTypes = new HashMap<>();
         this.numberOfNames = nameElements.size();
         
-        for (NameElement nameElement : nameElements) {
-            if (nameElement.getContainerElement().tagName().equals("tr"))
-                numTrs ++;
-            if (nameElement.getContainerElement().tagName().equals("ul"))
-                numUls ++;
-            if (nameElement.getContainerElement().tagName().equals("ol"))
-                numOls ++;
-            if (nameElement.getContainerElement().tagName().equals("p"))
-                numPs ++;
-            if (nameElement.getContainerElement().tagName().equals("div"))
-                numDivs ++;
-        }
-        
-        // Initialize our mapping between container types and the name elements
+        // Create a mapping between container types and lists of the container 
+        // themselves
+        this.containerElementsMap = this.createContainerElementMap();
+
+        // Create our mapping between container types and the name elements
         // they contain.
-        for (String containerType : this.containerTypes) 
-            this.containerTypesWithContainerElements.put(containerType, new ArrayList<NameElement>());
+        this.nameElementsByContainerTypes = this.sortNameElementsByContainer();
+        numTrs = this.nameElementsByContainerTypes.get("tr").size();
+        numUls = this.nameElementsByContainerTypes.get("ul").size();
+        numOls = this.nameElementsByContainerTypes.get("ol").size();
+        numPs = this.nameElementsByContainerTypes.get("p").size();
+        numDivs = this.nameElementsByContainerTypes.get("div").size();
     }
         
     public int getNumberOfNames() {
@@ -106,12 +101,7 @@ public class NameElementFinder {
      * @return List<NameElement> A List of the NameElements that have that container type as an ancestor.
      */
     public List<NameElement> getNameElementsByContainer(String containerType) {
-        List<NameElement> nameElementsForContainer = new ArrayList<>();
-        for (NameElement nameElement : this.nameElementsAndContainerTypes.keySet()) {
-            if (nameElement.getContainerElement().tagName().equals(containerType))
-                nameElementsForContainer.add(nameElement);
-        }
-        return nameElementsForContainer;
+        return this.nameElementsByContainerTypes.get(containerType);
     }
     
     /**
@@ -122,7 +112,7 @@ public class NameElementFinder {
      * @return 
      */
     public List<ContactLink> getContactLinks() {
-        List<ContactLink> contactLinks = new ArrayList<ContactLink>();
+        List<ContactLink> contactLinks = new ArrayList<>();
         for (NameElement nameElement : this.nameElements) {
             ContactLink link = nameElement.getContactLink();
             if (link != null)
@@ -148,14 +138,47 @@ public class NameElementFinder {
         for (Element jsoupNameElement : jsoupNameElementIterator) {
             NameElement nameElement = new NameElement(jsoupNameElement);
             myNameElements.add(nameElement);
-            this.nameElementsAndContainerTypes.put(nameElement, 
-                    nameElement.getContainerElement().tagName());
-            List<Element> containerElementsForContainerType = 
-                this.containerTypesWithContainerElements.get(
-                    nameElement.getContainerElement().tagName());
-            containerElementsForContainerType.add(nameElement.getContainerElement());
         }
         
         return myNameElements;
+    }
+
+    private HashMap<String, ArrayList<NameElement>> sortNameElementsByContainer() {
+        HashMap<String, ArrayList<NameElement>> myNameElementsByContainer = new HashMap<>();
+        myNameElementsByContainer.put("tr", new ArrayList());
+        myNameElementsByContainer.put("ul", new ArrayList());
+        myNameElementsByContainer.put("ol", new ArrayList());
+        myNameElementsByContainer.put("p", new ArrayList());
+        myNameElementsByContainer.put("div", new ArrayList());
+        
+        for (NameElement nm : this.nameElements) {
+            List<Element> containers = nm.getContainerElements();
+            for (Element container : containers) {
+                ArrayList<NameElement> myNameElements = 
+                    myNameElementsByContainer.get(container.tagName());
+                if (!myNameElements.contains(nm))
+                    myNameElements.add(nm);
+            }
+        }
+        return myNameElementsByContainer;
+    }
+
+    private HashMap<String, ArrayList<Element>> createContainerElementMap() {
+        HashMap<String, ArrayList<Element>> myNameElementsByContainer = new HashMap<>();
+        myNameElementsByContainer.put("tr", new ArrayList());
+        myNameElementsByContainer.put("ul", new ArrayList());
+        myNameElementsByContainer.put("ol", new ArrayList());
+        myNameElementsByContainer.put("p", new ArrayList());
+        myNameElementsByContainer.put("div", new ArrayList());
+        
+        for (NameElement nm : this.nameElements) {
+            List<Element> containers = nm.getContainerElements();
+            for (Element container : containers) {
+                ArrayList<Element> myNameElements = 
+                        myNameElementsByContainer.get(container.tagName());
+                myNameElements.add(container);
+            }
+        }
+        return myNameElementsByContainer;
     }
 }

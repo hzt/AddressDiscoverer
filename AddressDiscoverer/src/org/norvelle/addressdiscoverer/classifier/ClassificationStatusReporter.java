@@ -87,6 +87,8 @@ public class ClassificationStatusReporter {
     }
 
     private void reportNumericProgress() {
+        if (this.progressConsumer == null) return;
+        
         int percentComplete = (int) (((double) this.currentNumericStep / 
                 (double) this.totalNumericSteps) * 100.0);
         this.label = String.format("%s: %2d%% complete", this.baseLabel, percentComplete);
@@ -100,7 +102,8 @@ public class ClassificationStatusReporter {
     }
     
     public void reportProgressText(String text) {
-        this.progressConsumer.reportText(text);
+        if (this.progressConsumer != null)
+            this.progressConsumer.reportText(text);
     }
     
     public int getStage() {

@@ -11,11 +11,9 @@
 package org.norvelle.addressdiscoverer.classifier;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.classifier.ClassificationStatusReporter.ClassificationStages;
-import org.norvelle.addressdiscoverer.classifier.EmailElementFinder.ContactInformationType;
+import org.norvelle.addressdiscoverer.classifier.ContactLink.ContactType;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 
 /**
@@ -34,7 +32,7 @@ public class PageClassifier {
     private final ClassificationStatusReporter status;
     private NameElementFinder nameElementFinder;
     private Classification pageClassification;
-    private ContactInformationType contactInformationType;
+    private ContactType contactInformationType;
     
     public PageClassifier(Document soup, String encoding, IProgressConsumer progressConsumer) {
         this.soup = soup;
@@ -54,36 +52,34 @@ public class PageClassifier {
     public Classification getClassification() 
             throws UnsupportedEncodingException, EndNodeWalkingException, IllegalStateException 
     {
-        NameElementFinder nameElementFinder = 
+        this.nameElementFinder = 
                 new NameElementFinder(this.soup, this.encoding, this.status);
-        EmailElementFinder emailElementFinder = 
-                new EmailElementFinder(nameElementFinder);
         
         // Calculate the numbers of the distinct kinds of containers we track
-        int numberOfNames = nameElementFinder.getNumberOfNames();
+        int numberOfNames = this.nameElementFinder.getNumberOfNames();
         Approximately.defaultRange = numberOfNames;
         
-        int numTrs = nameElementFinder.getNumTrs();
-        int numUls = nameElementFinder.getNumUls();
-        int numOls = nameElementFinder.getNumOls();
-        int numPs = nameElementFinder.getNumPs();
-        int numDivs = nameElementFinder.getNumDivs();
+        int numTrs = this.nameElementFinder.getNumTrs();
+        int numUls = this.nameElementFinder.getNumUls();
+        int numOls = this.nameElementFinder.getNumOls();
+        int numPs = this.nameElementFinder.getNumPs();
+        int numDivs = this.nameElementFinder.getNumDivs();
 
         // Now calculate the percentage "fill" for each kind
-        double namesPerTr = (double) nameElementFinder.getNumTrs() / (double) numberOfNames;
-        double namesPerUl = (double) nameElementFinder.getNumUls() / (double) numberOfNames;
-        double namesPerOl = (double) nameElementFinder.getNumOls() / (double) numberOfNames;
-        double namesPerP = (double) nameElementFinder.getNumPs() / (double) numberOfNames;
-        double namesPerDiv = (double) nameElementFinder.getNumDivs() / (double) numberOfNames;
-        double contactLinksPerTr = (double) nameElementFinder.getContactLinks().size() 
-                / (double) nameElementFinder.getNumTrs();
+        double namesPerTr = (double) this.nameElementFinder.getNumTrs() / (double) numberOfNames;
+        double namesPerUl = (double) this.nameElementFinder.getNumUls() / (double) numberOfNames;
+        double namesPerOl = (double) this.nameElementFinder.getNumOls() / (double) numberOfNames;
+        double namesPerP = (double) this.nameElementFinder.getNumPs() / (double) numberOfNames;
+        double namesPerDiv = (double) this.nameElementFinder.getNumDivs() / (double) numberOfNames;
+        //double contactLinksPerTr = (double) this.nameElementFinder.getContactLinks().size() 
+        //        / (double) this.nameElementFinder.getNumTrs();
         
         // See how many elements fall outside UL or OL elements
-        int namesInsideTrs = nameElementFinder.getNameElementsByContainer("tr").size();
+        int namesInsideTrs = this.nameElementFinder.getNameElementsByContainer("tr").size();
         int namesOutsideUls = numberOfNames - 
-                nameElementFinder.getNameElementsByContainer("ul").size();
+                this.nameElementFinder.getNameElementsByContainer("ul").size();
         int namesOutsideOls = numberOfNames - 
-                nameElementFinder.getNameElementsByContainer("ol").size();
+                this.nameElementFinder.getNameElementsByContainer("ol").size();
         
         StringBuilder sb = new StringBuilder();
         sb.append("Page statistics:\n")
@@ -94,8 +90,8 @@ public class PageClassifier {
                 .append("Number of <P>s: ").append(numPs).append("\n")
                 .append("Number of <DIV>s: ").append(numDivs).append("\n")
                 .append("Names per <TR>: ").append(Double.toString(namesPerTr)).append("\n")
-                .append("Contact links per <TR>: ").append(Double.toString(contactLinksPerTr))
-                    .append("\n")
+                //.append("Contact links per <TR>: ").append(Double.toString(contactLinksPerTr))
+                //    .append("\n")
                 .append("Names per <UL>: ").append(Double.toString(namesPerUl)).append("\n")
                 .append("Names per <OL>: ").append(Double.toString(namesPerOl)).append("\n")
                 .append("Names inside <TR>s: ").append(namesInsideTrs).append("\n")
@@ -109,8 +105,8 @@ public class PageClassifier {
 
         // See if we have a page structured into natural divisions
         if (Approximately.equals(namesInsideTrs, numberOfNames) 
-                && (namesPerTr <= 1.0 && namesPerTr > 0.3)
-                && Approximately.equals(contactLinksPerTr, 1))
+                && (namesPerTr <= 1.0 && namesPerTr > 0.3))
+                //&& Approximately.equals(contactLinksPerTr, 1))
             this.pageClassification = Classification.TR_STRUCTURED_PAGE;
         else if (Approximately.equals(namesOutsideUls, 0)) // && Approximately.equals(namesPerUl, 1, 1)
                 this.pageClassification = Classification.UL_STRUCTURED_PAGE;
@@ -134,11 +130,11 @@ public class PageClassifier {
     }
     
 
-    public List<Element> getContainerElements() {
+    /*public List<Element> getContainerElements() {
         return this.nameElementFinder.getContainerElements();
-    }
+    }*/
 
-    public ContactInformationType getContactInfoType() {
+    public ContactType getContactInfoType() {
         return this.contactInformationType;
     }
 }

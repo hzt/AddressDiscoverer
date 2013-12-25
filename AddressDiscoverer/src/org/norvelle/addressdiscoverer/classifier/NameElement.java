@@ -10,7 +10,10 @@
  */
 package org.norvelle.addressdiscoverer.classifier;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.jsoup.nodes.Element;
+import org.norvelle.addressdiscoverer.model.Name;
 
 /**
  *
@@ -24,12 +27,66 @@ public class NameElement {
         this.nameContainingJsoupElement = element;
     }
     
-    public String getAssociatedContactLink() {
-        
+    public ContactLink getContactLink() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    public Element getContainerElement() {
-        
+    public Name getName() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    /**
+     * Given an element, find the TR, UL, OL or P or DIV that most immediately contains it.
+     * 
+     * @return 
+     */
+    public List<Element> getContainerElements() {
+        List<Element> myContainerElements = new ArrayList<>();
+        
+        // First, see if we can find a TR... giving TRs priority over Ps and other containers
+        Element currElement = nameContainingJsoupElement.parent();
+        Element trContainer = null;
+        while (currElement != null) {
+            if (currElement.tagName().equals("tr")) {
+                trContainer = currElement;
+                break;
+            }
+            currElement = currElement.parent();
+        }
+        
+        // Next we check for a P, UL, OL or DIV that contains the current element
+        Element otherContainer = null;
+        if (nameContainingJsoupElement.tagName().equals("p") 
+                || nameContainingJsoupElement.tagName().equals("div") 
+                || nameContainingJsoupElement.tagName().equals("ul")
+                || nameContainingJsoupElement.tagName().equals("ol")
+           ) 
+        {
+            otherContainer = nameContainingJsoupElement;
+        }
+        currElement = nameContainingJsoupElement.parent();
+        if (otherContainer == null)
+            while (currElement != null) {
+                if (currElement.tagName().equals("p") || currElement.tagName().equals("div") 
+                    || currElement.tagName().equals("ul")
+                    || currElement.tagName().equals("ol"))
+                {
+                    otherContainer = currElement;
+                    break;
+                }
+                currElement = currElement.parent();
+            }
+        
+        // Now, return the element that best fits the criterion of being the parent
+        if (trContainer == null && otherContainer == null)
+            return myContainerElements;
+        if (trContainer != null)
+            myContainerElements.add(trContainer);
+        if (otherContainer != null)
+            myContainerElements.add(otherContainer);
+        
+        return myContainerElements;         
+    }
+
     
 }

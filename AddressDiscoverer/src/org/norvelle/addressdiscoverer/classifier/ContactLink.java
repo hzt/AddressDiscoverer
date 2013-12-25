@@ -14,10 +14,22 @@ package org.norvelle.addressdiscoverer.classifier;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-class ContactLink {
+public class ContactLink {
  
+    public enum ContactType {
+        EMAILS_IN_CONTENT, EMAILS_IN_HREFS, LINKS_TO_DETAIL_PAGE, NO_CONTACT_INFO_FOUND;
+    }
+    
     public ContactLink() {
         
+    }
+    
+    public String getAddress() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.        
+    }
+    
+    public ContactType getType() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.        
     }
     
 }
