@@ -21,10 +21,12 @@ import org.norvelle.addressdiscoverer.model.Name;
  */
 public class NameElement {
     
-    Element nameContainingJsoupElement;
+    private final Element nameContainingJsoupElement;
+    private final List<Element> containerElements;
     
     public NameElement(Element element) {
         this.nameContainingJsoupElement = element;
+        this.containerElements = this.locateContainerElements();
     }
     
     public ContactLink getContactLink() {
@@ -35,12 +37,16 @@ public class NameElement {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    public List<Element> getContainerElements() {
+        return this.containerElements;
+    }
+
     /**
      * Given an element, find the TR, UL, OL or P or DIV that most immediately contains it.
      * 
      * @return 
      */
-    public List<Element> getContainerElements() {
+    private List<Element> locateContainerElements() {
         List<Element> myContainerElements = new ArrayList<>();
         
         // First, see if we can find a TR... giving TRs priority over Ps and other containers
@@ -88,5 +94,9 @@ public class NameElement {
         return myContainerElements;         
     }
 
+    @Override
+    public String toString() {
+        return this.nameContainingJsoupElement.ownText();
+    }
     
 }

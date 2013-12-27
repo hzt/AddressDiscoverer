@@ -72,6 +72,10 @@ public class NameElementFinder {
     public int getNumberOfNames() {
         return this.numberOfNames;
     }
+    
+    public List<NameElement> getNameElements() {
+        return this.nameElements;
+    }
 
     public int getNumTrs() {
         return numTrs;
@@ -104,23 +108,6 @@ public class NameElementFinder {
         return this.nameElementsByContainerTypes.get(containerType);
     }
     
-    /**
-     * Return a List of all of the ContactLink objects that we have found. If a
-     * contact link could not be found for a particular name-containing element,
-     * we return null.
-     * 
-     * @return 
-     */
-    public List<ContactLink> getContactLinks() {
-        List<ContactLink> contactLinks = new ArrayList<>();
-        for (NameElement nameElement : this.nameElements) {
-            ContactLink link = nameElement.getContactLink();
-            if (link != null)
-                contactLinks.add(link);
-        }
-        return contactLinks;
-    }
-
     /**
      * Given the BackwardsFlattenedDocumentIterator that holds our Jsoup Element
      * objects that have names as their contents, generate our intelligent

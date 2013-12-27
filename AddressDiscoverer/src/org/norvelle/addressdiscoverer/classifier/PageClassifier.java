@@ -14,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import org.jsoup.nodes.Document;
 import org.norvelle.addressdiscoverer.classifier.ClassificationStatusReporter.ClassificationStages;
 import org.norvelle.addressdiscoverer.classifier.ContactLink.ContactType;
+import org.norvelle.addressdiscoverer.classifier.ContactLinkFinder.PageContactType;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 
 /**
@@ -54,11 +55,13 @@ public class PageClassifier {
     {
         this.nameElementFinder = 
                 new NameElementFinder(this.soup, this.encoding, this.status);
-        
-        // Calculate the numbers of the distinct kinds of containers we track
         int numberOfNames = this.nameElementFinder.getNumberOfNames();
         Approximately.defaultRange = numberOfNames;
-        
+        ContactLinkFinder clFinder = new ContactLinkFinder(
+                this.nameElementFinder.getNameElements(), soup, null);
+        PageContactType contactType = clFinder.getPageContactType();
+               
+        // Calculate the numbers of the distinct kinds of containers we track
         int numTrs = this.nameElementFinder.getNumTrs();
         int numUls = this.nameElementFinder.getNumUls();
         int numOls = this.nameElementFinder.getNumOls();
@@ -71,8 +74,6 @@ public class PageClassifier {
         double namesPerOl = (double) this.nameElementFinder.getNumOls() / (double) numberOfNames;
         double namesPerP = (double) this.nameElementFinder.getNumPs() / (double) numberOfNames;
         double namesPerDiv = (double) this.nameElementFinder.getNumDivs() / (double) numberOfNames;
-        //double contactLinksPerTr = (double) this.nameElementFinder.getContactLinks().size() 
-        //        / (double) this.nameElementFinder.getNumTrs();
         
         // See how many elements fall outside UL or OL elements
         int namesInsideTrs = this.nameElementFinder.getNameElementsByContainer("tr").size();
@@ -90,8 +91,7 @@ public class PageClassifier {
                 .append("Number of <P>s: ").append(numPs).append("\n")
                 .append("Number of <DIV>s: ").append(numDivs).append("\n")
                 .append("Names per <TR>: ").append(Double.toString(namesPerTr)).append("\n")
-                //.append("Contact links per <TR>: ").append(Double.toString(contactLinksPerTr))
-                //    .append("\n")
+                .append("Contact types on page: ").append(contactType).append("\n")
                 .append("Names per <UL>: ").append(Double.toString(namesPerUl)).append("\n")
                 .append("Names per <OL>: ").append(Double.toString(namesPerOl)).append("\n")
                 .append("Names inside <TR>s: ").append(namesInsideTrs).append("\n")
@@ -105,8 +105,8 @@ public class PageClassifier {
 
         // See if we have a page structured into natural divisions
         if (Approximately.equals(namesInsideTrs, numberOfNames) 
-                && (namesPerTr <= 1.0 && namesPerTr > 0.3))
-                //&& Approximately.equals(contactLinksPerTr, 1))
+                && (namesPerTr <= 1.0 && namesPerTr > 0.3)
+                && contactType == PageContactType.HAS_ASSOCIATED_CONTACT_INFO)
             this.pageClassification = Classification.TR_STRUCTURED_PAGE;
         else if (Approximately.equals(namesOutsideUls, 0)) // && Approximately.equals(namesPerUl, 1, 1)
                 this.pageClassification = Classification.UL_STRUCTURED_PAGE;

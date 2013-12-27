@@ -26,6 +26,7 @@ public class ClassificationStatusReporter {
     public enum ClassificationStages {
 
         CREATING_ITERATOR(1), 
+        FINDING_CONTACT_LINKS(2),
         SAVING(8);
 
         private final int value;
@@ -41,6 +42,7 @@ public class ClassificationStatusReporter {
     private final Map<Integer, String> classificationStages = new HashMap<Integer, String>()
     {{
          put(ClassificationStages.CREATING_ITERATOR.ordinal(), "Creating backwards iterator");
+         put(ClassificationStages.FINDING_CONTACT_LINKS.ordinal(), "Finding contact links");
          put(ClassificationStages.SAVING.ordinal(), "Saving");
     }};
     

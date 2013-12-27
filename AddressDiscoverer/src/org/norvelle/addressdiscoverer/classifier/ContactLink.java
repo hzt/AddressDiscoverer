@@ -10,26 +10,61 @@
  */
 package org.norvelle.addressdiscoverer.classifier;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.jsoup.nodes.Element;
+import org.norvelle.addressdiscoverer.Constants;
+import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
+
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public class ContactLink {
- 
+    
+    private static final Pattern regexPattern = Pattern.compile(Constants.emailRegex);
+    private String address;
+    private ContactType type;
+    
     public enum ContactType {
-        EMAILS_IN_CONTENT, EMAILS_IN_HREFS, LINKS_TO_DETAIL_PAGE, NO_CONTACT_INFO_FOUND;
+        EMAIL_IN_CONTENT, EMAIL_IN_HREF, LINK_TO_DETAIL_PAGE, NO_CONTACT_INFO_FOUND;
     }
     
-    public ContactLink() {
+    public ContactLink(Element element) throws DoesNotContainContactLinkException {
+        String content = element.ownText();
+        Matcher contentMatcher = regexPattern.matcher(content);
+        if (contentMatcher.lookingAt()) {
+            this.type = ContactType.EMAIL_IN_CONTENT;
+            this.address = contentMatcher.group();
+            return;
+        }
+        if (element.hasAttr("href")) {
+            String href = element.attr("href");
+            if (href.startsWith("mailto:")) {
+                Matcher hrefMatcher = regexPattern.matcher(href);
+                if (hrefMatcher.lookingAt()) {
+                    this.type = ContactType.EMAIL_IN_HREF;
+                    this.address = hrefMatcher.group();
+                    return;
+                }
+            }
+            else {
+                this.type = ContactType.LINK_TO_DETAIL_PAGE;
+                this.address = href;
+                return;
+            }
+        } 
         
+        // If we get here, no contact info was found.
+        throw new DoesNotContainContactLinkException();        
     }
     
     public String getAddress() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.        
+        return this.address;
     }
     
     public ContactType getType() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.        
+        return this.type;
     }
     
 }
