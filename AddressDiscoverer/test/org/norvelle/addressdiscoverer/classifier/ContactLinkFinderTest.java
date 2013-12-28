@@ -47,12 +47,12 @@ public class ContactLinkFinderTest implements IProgressConsumer {
 
     @Override
     public void reportProgressStage(ClassificationStatusReporter progress) {
-        System.out.println(progress.toString());
+        //System.out.println(progress.toString());
     }
     
     @Override
     public void reportText(String text) {
-        System.out.println(text);
+        //System.out.println(text);
     }
 
     @BeforeClass
@@ -149,6 +149,26 @@ public class ContactLinkFinderTest implements IProgressConsumer {
     }
     
     @Test
+    public void testContactLinkFinderOnInfoInSuccessivePsNoDivisions() {
+        try {
+            String htmlUri = "/org/norvelle/addressdiscoverer/resources/InfoInSuccessivePsNoDivisions.html";
+            String html = Utils.loadStringFromResource(htmlUri, "UTF-8");
+            Document soup = Jsoup.parse(html);
+            ClassificationStatusReporter status = new ClassificationStatusReporter(
+                    ClassificationStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
+            NameElementFinder nameElementFinder = 
+                new NameElementFinder(soup, "iso-8859-1", status);
+            List<NameElement> nameElements = nameElementFinder.getNameElements();
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElements, soup, status);
+            PageContactType contactType = clFinder.getPageContactType();
+            Assert.assertEquals("Page contact type should be HAS_ASSOCIATED_CONTACT_INFO", 
+                    PageContactType.HAS_ASSOCIATED_CONTACT_INFO, contactType);
+        } catch (IOException | EndNodeWalkingException ex) {
+            fail("Encountered problems reading file: " + ex.getMessage());
+        } 
+    }
+    
+    @Test
     public void testContactLinkFinderOnMultipleTdsForSingleRecordPerTr() {
         try {
             String htmlUri = "/org/norvelle/addressdiscoverer/resources/MultipleTdsForSingleRecordPerTr.html";
@@ -160,7 +180,7 @@ public class ContactLinkFinderTest implements IProgressConsumer {
                 new NameElementFinder(soup, "iso-8859-1", status);
             List<NameElement> nameElements = nameElementFinder.getNameElements();
             String nameString = StringUtils.join(nameElements, "\n");
-            logger.log(Level.INFO, nameString);
+            //logger.log(Level.INFO, nameString);
             ContactLinkFinder clFinder = new ContactLinkFinder(nameElements, soup, status);
             PageContactType contactType = clFinder.getPageContactType();
             Assert.assertEquals("Page contact type should be HAS_ASSOCIATED_CONTACT_INFO", 

@@ -52,18 +52,18 @@ public class KnownFirstName {
     
     public static boolean isFirstName(String name) {
         if (name == null) return false;
-        if (name.contains("-") && !name.endsWith("-")) {
+        if (name.contains("-") && !name.endsWith("-") && !name.startsWith("-")) {
             String[] splitNames = StringUtils.split(name, "-");
             return isFirstName(splitNames[0]) || isFirstName(splitNames[1]);
         }
-        else if (name.endsWith("-")) 
+        else if (name.endsWith("-") || name.startsWith("-")) 
             name = name.replace("-", "");
         
         // Instead of using a standard charset translator, we translate only vowels
         name = Utils.normalizeName(name);
         boolean isMatch = firstNames.containsKey(name);
         if (isMatch)
-            logger.log(Level.FINE, String.format("%s is a first name", name));
+            logger.log(Level.INFO, String.format("%s is a first name", name));
         else
             logger.log(Level.FINE, String.format("%s is NOT a first name", name));
         return isMatch;

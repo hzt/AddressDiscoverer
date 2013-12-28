@@ -65,7 +65,7 @@ public class KnownLastName {
         name = Utils.normalizeName(name);
         boolean isMatch = hasLastName(name);
         if (isMatch)
-            logger.log(Level.FINE, String.format("%s is a last name", name));
+            logger.log(Level.INFO, String.format("%s is a last name", name));
         else
             logger.log(Level.FINE, String.format("%s is NOT a last name", name));
         return isMatch;

@@ -13,14 +13,13 @@ package org.norvelle.addressdiscoverer.classifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.Constants;
-import static org.norvelle.addressdiscoverer.classifier.Approximately.logger;
 import org.norvelle.addressdiscoverer.classifier.ClassificationStatusReporter.ClassificationStages;
+import org.norvelle.addressdiscoverer.classifier.ContactLink.ContactType;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 
 /**
@@ -65,8 +64,12 @@ public class ContactLinkFinder {
         
         // Figure out how to characterize the page. If more or less each name element
         // has an associated contact link, characterize it as an "associated" page
-        if (Approximately.equals(this.associatedContactLinksFound, emailElements.size()))
+        if (Order.of(this.associatedContactLinksFound, emailElements.size()))
             this.pageContactType = PageContactType.HAS_ASSOCIATED_CONTACT_INFO;
+        
+        // If there are lots of emails and few contact links, this is a non-associatec page.
+        else if (emailElements.size() / 4 > this.associatedContactLinksFound)
+            this.pageContactType = PageContactType.NO_ASSOCIATED_CONTACT_INFO;
         
         // Otherwise, if we have lots of email links but few associations, it's a
         // non-associated page.
@@ -100,22 +103,32 @@ public class ContactLinkFinder {
         
         // Check all the container's children to see if we can find an 
         // Element with readable contact info.
+        List<ContactLink> candidateLinks = new ArrayList<>();
         Elements allChildren = realContainer.getAllElements();
         for (Element child : allChildren) {
             try {
                 ContactLink cl = new ContactLink(child);
-                return cl;
+                candidateLinks.add(cl);
             }
             catch (DoesNotContainContactLinkException ex) {
                 //
             }
         }
         
-        return null;
+        // If we have found various links, prioritize the email link
+        ContactLink hrefLink = null;
+        for (ContactLink cl : candidateLinks) {
+            if (cl.getType() == ContactType.EMAIL_IN_CONTENT || 
+                    cl.getType() == ContactType.EMAIL_IN_HREF)
+                return cl;
+            else hrefLink = cl;
+        }
+        
+        return hrefLink;
     }
 
     private Element selectRealContainer(List<Element> possibleContainers) {
-        if (possibleContainers.size() == 0)
+        if (possibleContainers.isEmpty())
             return null;
         
         Element el1 = possibleContainers.get(0);
@@ -155,7 +168,7 @@ public class ContactLinkFinder {
         List<Element> allEmailElements = new ArrayList<>();
         Elements elementsWithEmails = soup.select(
                 String.format("tr:matches(%s)", Constants.emailRegex));
-        for (Element element: elementsWithEmails)
+        for (Element element: elementsWithEmails) 
             allEmailElements.add(element);
 
         Elements elementsWithEmailAttributes = soup.select(

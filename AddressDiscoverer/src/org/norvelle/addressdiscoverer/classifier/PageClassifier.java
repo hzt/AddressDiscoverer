@@ -25,7 +25,8 @@ public class PageClassifier {
     
     public enum Classification {
         UNSTRUCTURED_P_PAGE, UNSTRUCTURED_TR_PAGE, UNSTRUCTURED_DIV_PAGE,
-        TR_STRUCTURED_PAGE, UL_STRUCTURED_PAGE, OL_STRUCTURED_PAGE, UNDETERMINED;
+        TR_STRUCTURED_PAGE, UL_STRUCTURED_PAGE, OL_STRUCTURED_PAGE, 
+        STRUCTURED_P_PAGE, UNDETERMINED;
     }
     
     private final Document soup;
@@ -58,7 +59,7 @@ public class PageClassifier {
         int numberOfNames = this.nameElementFinder.getNumberOfNames();
         Approximately.defaultRange = numberOfNames;
         ContactLinkFinder clFinder = new ContactLinkFinder(
-                this.nameElementFinder.getNameElements(), soup, null);
+                this.nameElementFinder.getNameElements(), soup, this.status);
         PageContactType contactType = clFinder.getPageContactType();
                
         // Calculate the numbers of the distinct kinds of containers we track
@@ -118,7 +119,12 @@ public class PageClassifier {
             this.pageClassification = Classification.UNSTRUCTURED_TR_PAGE;
         else if (Approximately.equals(numPs, numberOfNames) ||
                 (namesPerP < 1.0 && namesPerP > 0.3))
-            this.pageClassification = Classification.UNSTRUCTURED_P_PAGE;
+        {
+            if (contactType == PageContactType.HAS_ASSOCIATED_CONTACT_INFO)
+                this.pageClassification = Classification.STRUCTURED_P_PAGE;
+            else 
+                this.pageClassification = Classification.UNSTRUCTURED_P_PAGE;
+        }
         else if (Approximately.equals(numDivs, numberOfNames) ||
                 (namesPerDiv < 1.0 && namesPerDiv > 0.3))
             this.pageClassification = Classification.UNSTRUCTURED_DIV_PAGE;
