@@ -108,6 +108,33 @@ public class NameElementFinder {
         return this.nameElementsByContainerTypes.get(containerType);
     }
     
+    public NameElementPath getPathToNameElements() {
+        HashMap<String, Integer> namePathsToFrequencies = new HashMap<>();
+        HashMap<String, NameElementPath> namePathsBySignatures = new HashMap<>();
+        for (NameElement nm : this.getNameElements()) {
+            NameElementPath path = new NameElementPath(nm);
+            String signature = path.getSignature();
+            namePathsBySignatures.put(signature, path);
+            int currScore;
+            if (namePathsToFrequencies.containsKey(signature))
+                currScore = namePathsToFrequencies.get(signature);
+            else currScore = 0;
+            namePathsToFrequencies.put(signature, currScore + 1);
+        }
+        
+        // Now, find the path with the highest score and return that.
+        int highScore = 0;
+        NameElementPath highestScoringPath = null;
+        for (String signature : namePathsToFrequencies.keySet()) {
+            int currScore = namePathsToFrequencies.get(signature);
+            if (currScore > highScore) {
+                highScore = currScore;
+                highestScoringPath = namePathsBySignatures.get(signature);
+            }
+        }
+        return highestScoringPath;
+    }
+
     /**
      * Given the BackwardsFlattenedDocumentIterator that holds our Jsoup Element
      * objects that have names as their contents, generate our intelligent
@@ -139,13 +166,11 @@ public class NameElementFinder {
         myNameElementsByContainer.put("div", new ArrayList());
         
         for (NameElement nm : this.nameElements) {
-            List<Element> containers = nm.getContainerElements();
-            for (Element container : containers) {
-                ArrayList<NameElement> myNameElements = 
-                    myNameElementsByContainer.get(container.tagName());
-                if (!myNameElements.contains(nm))
-                    myNameElements.add(nm);
-            }
+            Element container = nm.getContainer();
+            ArrayList<NameElement> myNameElements = 
+                myNameElementsByContainer.get(container.tagName());
+            if (!myNameElements.contains(nm))
+                myNameElements.add(nm);
         }
         return myNameElementsByContainer;
     }
@@ -159,12 +184,10 @@ public class NameElementFinder {
         myNameElementsByContainer.put("div", new ArrayList());
         
         for (NameElement nm : this.nameElements) {
-            List<Element> containers = nm.getContainerElements();
-            for (Element container : containers) {
-                ArrayList<Element> myNameElements = 
-                        myNameElementsByContainer.get(container.tagName());
-                myNameElements.add(container);
-            }
+            Element container = nm.getContainer();
+            ArrayList<Element> myNameElements = 
+                    myNameElementsByContainer.get(container.tagName());
+            myNameElements.add(container);
         }
         return myNameElementsByContainer;
     }

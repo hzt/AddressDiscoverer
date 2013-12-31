@@ -11,8 +11,6 @@
 package org.norvelle.addressdiscoverer.classifier;
 
 import java.io.UnsupportedEncodingException;
-import org.jsoup.nodes.Document;
-import org.norvelle.addressdiscoverer.classifier.ClassificationStatusReporter.ClassificationStages;
 import org.norvelle.addressdiscoverer.classifier.ContactLink.ContactType;
 import org.norvelle.addressdiscoverer.classifier.ContactLinkFinder.PageContactType;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
@@ -24,23 +22,21 @@ import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 public class PageClassifier {
     
     public enum Classification {
-        UNSTRUCTURED_P_PAGE, UNSTRUCTURED_TR_PAGE, UNSTRUCTURED_DIV_PAGE,
-        TR_STRUCTURED_PAGE, UL_STRUCTURED_PAGE, OL_STRUCTURED_PAGE, 
-        STRUCTURED_P_PAGE, UNDETERMINED;
+        UNSTRUCTURED, STRUCTURED, UNDETERMINED;
     }
     
-    private final Document soup;
-    private final String encoding;
+    private final NameElementFinder nameElementFinder;
+    private final ContactLinkFinder clFinder;
     private final ClassificationStatusReporter status;
-    private NameElementFinder nameElementFinder;
     private Classification pageClassification;
     private ContactType contactInformationType;
     
-    public PageClassifier(Document soup, String encoding, IProgressConsumer progressConsumer) {
-        this.soup = soup;
-        this.encoding = encoding;
-        this.status = new ClassificationStatusReporter(
-            ClassificationStages.CREATING_ITERATOR, progressConsumer);
+    public PageClassifier(NameElementFinder nameElementFinder, 
+            ContactLinkFinder clFinder, ClassificationStatusReporter status) 
+    {
+        this.nameElementFinder = nameElementFinder;
+        this.clFinder = clFinder;
+        this.status = status;
     }
     
     /**
@@ -54,13 +50,9 @@ public class PageClassifier {
     public Classification getClassification() 
             throws UnsupportedEncodingException, EndNodeWalkingException, IllegalStateException 
     {
-        this.nameElementFinder = 
-                new NameElementFinder(this.soup, this.encoding, this.status);
         int numberOfNames = this.nameElementFinder.getNumberOfNames();
         Approximately.defaultRange = numberOfNames;
-        ContactLinkFinder clFinder = new ContactLinkFinder(
-                this.nameElementFinder.getNameElements(), soup, this.status);
-        PageContactType contactType = clFinder.getPageContactType();
+        PageContactType contactType = this.clFinder.getPageContactType();
                
         // Calculate the numbers of the distinct kinds of containers we track
         int numTrs = this.nameElementFinder.getNumTrs();
@@ -108,26 +100,26 @@ public class PageClassifier {
         if (Approximately.equals(namesInsideTrs, numberOfNames) 
                 && (namesPerTr <= 1.0 && namesPerTr > 0.3)
                 && contactType == PageContactType.HAS_ASSOCIATED_CONTACT_INFO)
-            this.pageClassification = Classification.TR_STRUCTURED_PAGE;
+            this.pageClassification = Classification.STRUCTURED;
         else if (Approximately.equals(namesOutsideUls, 0)) // && Approximately.equals(namesPerUl, 1, 1)
-                this.pageClassification = Classification.UL_STRUCTURED_PAGE;
+                this.pageClassification = Classification.STRUCTURED;
         else if (Approximately.equals(namesOutsideOls, 0)) //  && Approximately.equals(namesPerOl, 1, 1)
-                this.pageClassification = Classification.OL_STRUCTURED_PAGE;
+                this.pageClassification = Classification.STRUCTURED;
 
         // See if we have an unstructured page
         else if (Approximately.equals(numTrs, numberOfNames))
-            this.pageClassification = Classification.UNSTRUCTURED_TR_PAGE;
+            this.pageClassification = Classification.UNSTRUCTURED;
         else if (Approximately.equals(numPs, numberOfNames) ||
                 (namesPerP < 1.0 && namesPerP > 0.3))
         {
             if (contactType == PageContactType.HAS_ASSOCIATED_CONTACT_INFO)
-                this.pageClassification = Classification.STRUCTURED_P_PAGE;
+                this.pageClassification = Classification.STRUCTURED;
             else 
-                this.pageClassification = Classification.UNSTRUCTURED_P_PAGE;
+                this.pageClassification = Classification.UNSTRUCTURED;
         }
         else if (Approximately.equals(numDivs, numberOfNames) ||
                 (namesPerDiv < 1.0 && namesPerDiv > 0.3))
-            this.pageClassification = Classification.UNSTRUCTURED_DIV_PAGE;
+            this.pageClassification = Classification.UNSTRUCTURED;
         
         // Otherwise, we give up
         else this.pageClassification = Classification.UNDETERMINED;

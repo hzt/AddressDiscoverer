@@ -12,6 +12,7 @@ package org.norvelle.addressdiscoverer.classifier;
 
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,10 +80,12 @@ public class ContactLinkFinderTest implements IProgressConsumer {
             List<NameElement> dummy = new ArrayList<>();
             ClassificationStatusReporter status = new ClassificationStatusReporter(
                     ClassificationStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
-            ContactLinkFinder lf = new ContactLinkFinder(dummy, soup, status);
-            boolean isAncestorToSelf = lf.isElementOneAncestorOfElementTwo(strong, strong);
+            NameElementFinder nameElementFinder = 
+                new NameElementFinder(soup, "iso-8859-1", status);
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
+            boolean isAncestorToSelf = NameElement.isElementOneAncestorOfElementTwo(strong, strong);
             Assert.assertFalse("Strong cannot be ancestor to Strong", isAncestorToSelf);
-        } catch (IOException ex) {
+        } catch (IOException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
     }
@@ -99,10 +102,12 @@ public class ContactLinkFinderTest implements IProgressConsumer {
             List<NameElement> dummy = new ArrayList<>();
             ClassificationStatusReporter status = new ClassificationStatusReporter(
                     ClassificationStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
-            ContactLinkFinder lf = new ContactLinkFinder(dummy, soup, status);
-            boolean distantAncestorIsParent = lf.isElementOneAncestorOfElementTwo(distantAncestor, strong);
+            NameElementFinder nameElementFinder = 
+                new NameElementFinder(soup, "iso-8859-1", status);
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
+            boolean distantAncestorIsParent = NameElement.isElementOneAncestorOfElementTwo(distantAncestor, strong);
             Assert.assertTrue("Distant ancestor is ancestor to strong", distantAncestorIsParent);
-        } catch (IOException ex) {
+        } catch (IOException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
     }
@@ -120,10 +125,12 @@ public class ContactLinkFinderTest implements IProgressConsumer {
             List<NameElement> dummy = new ArrayList<>();
             ClassificationStatusReporter status = new ClassificationStatusReporter(
                     ClassificationStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
-            ContactLinkFinder lf = new ContactLinkFinder(dummy, soup, status);
-            boolean distantAncestorIsParent = lf.isElementOneAncestorOfElementTwo(otherElement, strong);
+            NameElementFinder nameElementFinder = 
+                new NameElementFinder(soup, "iso-8859-1", status);
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
+            boolean distantAncestorIsParent = NameElement.isElementOneAncestorOfElementTwo(otherElement, strong);
             Assert.assertFalse("Other element cannot be ancestor to strong", distantAncestorIsParent);
-        } catch (IOException ex) {
+        } catch (IOException | EndNodeWalkingException  ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
     }
@@ -138,8 +145,7 @@ public class ContactLinkFinderTest implements IProgressConsumer {
                     ClassificationStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
             NameElementFinder nameElementFinder = 
                 new NameElementFinder(soup, "iso-8859-1", status);
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            ContactLinkFinder clFinder = new ContactLinkFinder(nameElements, soup, status);
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
             PageContactType contactType = clFinder.getPageContactType();
             Assert.assertEquals("Page contact type should be NO_ASSOCIATED_CONTACT_INFO", 
                     PageContactType.NO_ASSOCIATED_CONTACT_INFO, contactType);
@@ -158,8 +164,7 @@ public class ContactLinkFinderTest implements IProgressConsumer {
                     ClassificationStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
             NameElementFinder nameElementFinder = 
                 new NameElementFinder(soup, "iso-8859-1", status);
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            ContactLinkFinder clFinder = new ContactLinkFinder(nameElements, soup, status);
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
             PageContactType contactType = clFinder.getPageContactType();
             Assert.assertEquals("Page contact type should be HAS_ASSOCIATED_CONTACT_INFO", 
                     PageContactType.HAS_ASSOCIATED_CONTACT_INFO, contactType);
@@ -181,7 +186,7 @@ public class ContactLinkFinderTest implements IProgressConsumer {
             List<NameElement> nameElements = nameElementFinder.getNameElements();
             String nameString = StringUtils.join(nameElements, "\n");
             //logger.log(Level.INFO, nameString);
-            ContactLinkFinder clFinder = new ContactLinkFinder(nameElements, soup, status);
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
             PageContactType contactType = clFinder.getPageContactType();
             Assert.assertEquals("Page contact type should be HAS_ASSOCIATED_CONTACT_INFO", 
                     PageContactType.HAS_ASSOCIATED_CONTACT_INFO, contactType);

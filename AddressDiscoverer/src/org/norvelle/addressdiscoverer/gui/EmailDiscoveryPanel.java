@@ -11,18 +11,15 @@
 package org.norvelle.addressdiscoverer.gui;
 
 import org.norvelle.addressdiscoverer.gui.threading.StatusReporter;
-import org.norvelle.addressdiscoverer.gui.threading.ParseLocalHtmlFileWorker;
-import org.norvelle.addressdiscoverer.gui.threading.AbstractExtractIndividualWorker;
-import org.norvelle.addressdiscoverer.gui.threading.ParseRemoteWebsiteWorker;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JTable;
@@ -34,7 +31,10 @@ import org.lobobrowser.html.*;
 import org.lobobrowser.html.parser.*;
 import org.lobobrowser.html.test.*;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.PageClassifierApp;
 import org.norvelle.addressdiscoverer.gui.action.IndividualForDepartmentExportAction;
+import org.norvelle.addressdiscoverer.gui.threading.ClassifyPageWorker;
+import org.norvelle.addressdiscoverer.gui.threading.UrlSourcedClassifyPageWorker;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
@@ -54,7 +54,6 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private final UserAgentContext ucontext;
     private final HtmlRendererContext rendererContext;
     private final DocumentBuilderImpl dbi;
-    private AbstractExtractIndividualWorker worker;
     private List<Individual> individuals;
     
     /**
@@ -179,21 +178,27 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         final String myURI = this.jWebAddressField.getText();
         this.populateResultsTable(null);
         if (!myURI.isEmpty()) {
-            final File file = new File(myURI);
+            File file = new File(myURI);
+            ClassifyPageWorker worker;
+            this.jDebugOutputTextArea.setText("");
             
             // If the user has specified a local file, we use that to fetch HTML
             if (file.exists()) {
-                this.worker = new ParseLocalHtmlFileWorker(this.currentDepartment, 
-                    file, this) ;
-                this.worker.execute();
+                worker = new ClassifyPageWorker(this, file);
             } // if file.exists()
             
             // Otherwise we fetch the HTML from the website via HTTP
             else {
-                this.worker = new ParseRemoteWebsiteWorker(this.currentDepartment, 
-                    myURI, this) ;
-                this.worker.execute();
-            } // else
+                try {
+                    worker = new UrlSourcedClassifyPageWorker(this, myURI);
+                } // else
+                catch (URISyntaxException | IOException ex) {
+                    PageClassifierApp.reportException(ex);
+                    return;
+                }                
+            }
+
+            worker.execute();
         } // if (!myURI
     }
     
@@ -312,6 +317,10 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         this.jStageNameLabel.setText(status.getLabel());
     }
     
+    public void addToOutput(String line) {
+        this.jDebugOutputTextArea.append(line + "\n");
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -331,15 +340,17 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jBytesReceivedLabel = new javax.swing.JLabel();
         jOpenFileButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jAddressesFoundTable = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jSaveResultsButton = new javax.swing.JButton();
         jStageNameLabel = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jDebugOutputTextArea = new javax.swing.JTextArea();
         jPageContentTab = new javax.swing.JPanel();
         jPageContentPanel = new javax.swing.JPanel();
         jHTMLPanel = new org.lobobrowser.html.gui.HtmlPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jAddressesFoundTable = new javax.swing.JTable();
 
         jLabel1.setText("Web address:");
 
@@ -368,24 +379,6 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             }
         });
 
-        jAddressesFoundTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "First Name", "Last Name", "Email", "Title"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(jAddressesFoundTable);
-
         jLabel3.setText("Addresses found:");
 
         jLabel4.setText("Parsing progress:");
@@ -402,6 +395,10 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jStageNameLabel.setText("Finding Emails in Links");
         jStageNameLabel.setEnabled(false);
 
+        jDebugOutputTextArea.setColumns(20);
+        jDebugOutputTextArea.setRows(5);
+        jScrollPane2.setViewportView(jDebugOutputTextArea);
+
         javax.swing.GroupLayout jEmailSourceTabLayout = new javax.swing.GroupLayout(jEmailSourceTab);
         jEmailSourceTab.setLayout(jEmailSourceTabLayout);
         jEmailSourceTabLayout.setHorizontalGroup(
@@ -409,12 +406,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             .addGroup(jEmailSourceTabLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 716, Short.MAX_VALUE)
-                    .addGroup(jEmailSourceTabLayout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jStageNameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jEmailSourceTabLayout.createSequentialGroup()
                         .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jEmailSourceTabLayout.createSequentialGroup()
@@ -431,7 +423,12 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jWebAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 519, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jOpenFileButton)))
+                        .addComponent(jOpenFileButton))
+                    .addGroup(jEmailSourceTabLayout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jStageNameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jEmailSourceTabLayout.setVerticalGroup(
@@ -454,14 +451,35 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                     .addComponent(jStageNameLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         jHTMLRenderPanel.addTab("Source Page", jEmailSourceTab);
 
         jPageContentPanel.setLayout(new java.awt.BorderLayout());
+
+        jAddressesFoundTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "First Name", "Last Name", "Email", "Title"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(jAddressesFoundTable);
+
+        jHTMLPanel.add(jScrollPane1);
+
         jPageContentPanel.add(jHTMLPanel, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout jPageContentTabLayout = new javax.swing.GroupLayout(jPageContentTab);
@@ -530,6 +548,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable jAddressesFoundTable;
     private javax.swing.JLabel jBytesReceivedLabel;
+    private javax.swing.JTextArea jDebugOutputTextArea;
     private javax.swing.JPanel jEmailSourceTab;
     private org.lobobrowser.html.gui.HtmlPanel jHTMLPanel;
     private javax.swing.JTabbedPane jHTMLRenderPanel;
@@ -545,6 +564,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private javax.swing.JFileChooser jSaveFileChooser;
     private javax.swing.JButton jSaveResultsButton;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel jStageNameLabel;
     private javax.swing.JTextField jWebAddressField;
     // End of variables declaration//GEN-END:variables

@@ -67,11 +67,18 @@ public class PageClassifierTest implements IProgressConsumer {
             String htmlUri = "/org/norvelle/addressdiscoverer/resources/MultipleTdsWithRecordsPerTr.html";
             String html = Utils.loadStringFromResource(htmlUri, "iso-8859-1");
             Document soup = Jsoup.parse(html);
-            PageClassifier classifier = new PageClassifier(soup, "iso-8859-1", this);
+
+            // Classify the page to discover its structure
+            ClassificationStatusReporter status = new ClassificationStatusReporter(
+                ClassificationStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
+            NameElementFinder nameElementFinder = 
+                new NameElementFinder(soup, "iso-8859-1", status);
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
+            PageClassifier classifier = new PageClassifier(nameElementFinder, clFinder, status);
             
             PageClassifier.Classification classification = classifier.getClassification();
             Assert.assertEquals("The classification should be TR structured page", 
-                    Classification.TR_STRUCTURED_PAGE, classification);
+                    Classification.STRUCTURED, classification);
         } catch (IOException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -83,11 +90,18 @@ public class PageClassifierTest implements IProgressConsumer {
             String htmlUri = "/org/norvelle/addressdiscoverer/resources/MultipleTdsForSingleRecordPerTr.html";
             String html = Utils.loadStringFromResource(htmlUri, "iso-8859-1");
             Document soup = Jsoup.parse(html);
-            PageClassifier classifier = new PageClassifier(soup, "iso-8859-1", this);
+
+            // Classify the page to discover its structure
+            ClassificationStatusReporter status = new ClassificationStatusReporter(
+                ClassificationStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
+            NameElementFinder nameElementFinder = 
+                new NameElementFinder(soup, "iso-8859-1", status);
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
+            PageClassifier classifier = new PageClassifier(nameElementFinder, clFinder, status);
             
             PageClassifier.Classification classification = classifier.getClassification();
             Assert.assertEquals("The classification should be TR structured page", 
-                    Classification.TR_STRUCTURED_PAGE, classification);
+                    Classification.STRUCTURED, classification);
         } catch (IOException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -99,11 +113,18 @@ public class PageClassifierTest implements IProgressConsumer {
             String htmlUri = "/org/norvelle/addressdiscoverer/resources/SingleRecordPerLi.html";
             String html = Utils.loadStringFromResource(htmlUri, "iso-8859-1");
             Document soup = Jsoup.parse(html);
-            PageClassifier classifier = new PageClassifier(soup, "iso-8859-1", this);
+
+            // Classify the page to discover its structure
+            ClassificationStatusReporter status = new ClassificationStatusReporter(
+                ClassificationStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
+            NameElementFinder nameElementFinder = 
+                new NameElementFinder(soup, "iso-8859-1", status);
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
+            PageClassifier classifier = new PageClassifier(nameElementFinder, clFinder, status);
             
             PageClassifier.Classification classification = classifier.getClassification();
             Assert.assertEquals("The classification should be TR structured page", 
-                    Classification.UL_STRUCTURED_PAGE, classification);
+                    Classification.STRUCTURED, classification);
         } catch (IOException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -115,11 +136,18 @@ public class PageClassifierTest implements IProgressConsumer {
             String htmlUri = "/org/norvelle/addressdiscoverer/resources/InfoInSuccessiveTdsAndTrsNoDivisions.html";
             String html = Utils.loadStringFromResource(htmlUri, "iso-8859-1");
             Document soup = Jsoup.parse(html);
-            PageClassifier classifier = new PageClassifier(soup, "iso-8859-1", this);
+
+            // Classify the page to discover its structure
+            ClassificationStatusReporter status = new ClassificationStatusReporter(
+                ClassificationStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
+            NameElementFinder nameElementFinder = 
+                new NameElementFinder(soup, "iso-8859-1", status);
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
+            PageClassifier classifier = new PageClassifier(nameElementFinder, clFinder, status);
             
             PageClassifier.Classification classification = classifier.getClassification();
             Assert.assertEquals("The classification should be TR structured page", 
-                    Classification.UNSTRUCTURED_TR_PAGE, classification);
+                    Classification.UNSTRUCTURED, classification);
         } catch (IOException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -131,11 +159,18 @@ public class PageClassifierTest implements IProgressConsumer {
             String htmlUri = "/org/norvelle/addressdiscoverer/resources/InfoInSuccessivePsNoDivisions.html";
             String html = Utils.loadStringFromResource(htmlUri, "iso-8859-1");
             Document soup = Jsoup.parse(html);
-            PageClassifier classifier = new PageClassifier(soup, "iso-8859-1", this);
+
+            // Classify the page to discover its structure
+            ClassificationStatusReporter status = new ClassificationStatusReporter(
+                ClassificationStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
+            NameElementFinder nameElementFinder = 
+                new NameElementFinder(soup, "iso-8859-1", status);
+            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
+            PageClassifier classifier = new PageClassifier(nameElementFinder, clFinder, status);
             
             PageClassifier.Classification classification = classifier.getClassification();
             Assert.assertEquals("The classification should be TR structured page", 
-                    Classification.UNSTRUCTURED_P_PAGE, classification);
+                    Classification.STRUCTURED, classification);
         } catch (IOException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }

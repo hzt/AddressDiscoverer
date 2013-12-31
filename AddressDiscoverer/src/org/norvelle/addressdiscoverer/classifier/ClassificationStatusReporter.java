@@ -27,6 +27,7 @@ public class ClassificationStatusReporter {
 
         CREATING_ITERATOR(1), 
         FINDING_CONTACT_LINKS(2),
+        FETCHING_EMAILS_FROM_WEBLINKS(3),
         SAVING(8);
 
         private final int value;
@@ -43,6 +44,7 @@ public class ClassificationStatusReporter {
     {{
          put(ClassificationStages.CREATING_ITERATOR.ordinal(), "Creating backwards iterator");
          put(ClassificationStages.FINDING_CONTACT_LINKS.ordinal(), "Finding contact links");
+         put(ClassificationStages.FETCHING_EMAILS_FROM_WEBLINKS.ordinal(), "Fetching emails from weblinks");
          put(ClassificationStages.SAVING.ordinal(), "Saving");
     }};
     

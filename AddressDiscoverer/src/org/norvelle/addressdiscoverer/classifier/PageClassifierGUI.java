@@ -10,6 +10,8 @@
  */
 package org.norvelle.addressdiscoverer.classifier;
 
+import org.norvelle.addressdiscoverer.gui.threading.UrlSourcedClassifyPageWorker;
+import org.norvelle.addressdiscoverer.gui.threading.ClassifyPageWorker;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -166,7 +168,7 @@ public class PageClassifierGUI extends javax.swing.JFrame {
             this.jOutputTextArea.setText("");
             
             // If the user has specified a local file, we use that to fetch HTML
-            if (file.exists()) {
+/*            if (file.exists()) {
                 worker = new ClassifyPageWorker(this, file);
             } // if file.exists()
             
@@ -182,7 +184,7 @@ public class PageClassifierGUI extends javax.swing.JFrame {
             }
 
             worker.execute();
-        } // if (!myURI
+*/        } // if (!myURI
 
     }//GEN-LAST:event_jRunClassifierButtonActionPerformed
 

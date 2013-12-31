@@ -10,11 +10,21 @@
  */
 package org.norvelle.addressdiscoverer.classifier;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.io.IOUtils;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
+import org.norvelle.addressdiscoverer.exceptions.NoEmailRetrievedFromWeblinkException;
 
 /**
  *
@@ -22,17 +32,19 @@ import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkExcept
  */
 public class ContactLink {
     
-    private static final Pattern regexPattern = Pattern.compile(Constants.emailRegex);
+    private static final Pattern emailPattern = Pattern.compile(Constants.emailRegex);
     private String address;
     private ContactType type;
+    private final Element originalElement;
     
     public enum ContactType {
         EMAIL_IN_CONTENT, EMAIL_IN_HREF, LINK_TO_DETAIL_PAGE, NO_CONTACT_INFO_FOUND;
     }
     
     public ContactLink(Element element) throws DoesNotContainContactLinkException {
+        this.originalElement = element;
         String content = element.ownText();
-        Matcher contentMatcher = regexPattern.matcher(content);
+        Matcher contentMatcher = emailPattern.matcher(content);
         if (contentMatcher.lookingAt()) {
             this.type = ContactType.EMAIL_IN_CONTENT;
             this.address = contentMatcher.group();
@@ -41,7 +53,7 @@ public class ContactLink {
         if (element.hasAttr("href")) {
             String href = element.attr("href");
             if (href.startsWith("mailto:")) {
-                Matcher hrefMatcher = regexPattern.matcher(href);
+                Matcher hrefMatcher = emailPattern.matcher(href);
                 if (hrefMatcher.lookingAt()) {
                     this.type = ContactType.EMAIL_IN_HREF;
                     this.address = hrefMatcher.group();
@@ -57,6 +69,44 @@ public class ContactLink {
         
         // If we get here, no contact info was found.
         throw new DoesNotContainContactLinkException();        
+    }
+    
+    /**
+     * Fetches the web page specified by the contact weblink and extracts
+     * an email from it. The email gets stored in the address field for retrieval
+     * by the Individual extractor.
+     * 
+     * @throws NoEmailRetrievedFromWeblinkException 
+     */
+    public void fetchEmailFromWeblink()  {
+        String body;
+        
+        // Try to fetch the webpage linked to
+        try {
+            URL u = new URL(this.address); // this would check for the protocol
+            u.toURI();
+            URLConnection con = u.openConnection();
+            InputStream in = con.getInputStream();
+            String encoding = con.getContentEncoding();
+            encoding = encoding == null ? "UTF-8" : encoding;
+            body = IOUtils.toString(in, encoding);
+        } catch (URISyntaxException | IOException ex) {
+            this.type = ContactType.NO_CONTACT_INFO_FOUND;
+            return;
+        }
+        
+        // Now, extract the email if we can.
+        Matcher emailMatcher = emailPattern.matcher(body);
+        if (!emailMatcher.lookingAt()) {
+            this.type = ContactType.NO_CONTACT_INFO_FOUND;
+            return;                
+        }
+        this.address = emailMatcher.group();
+        this.type = ContactType.EMAIL_IN_CONTENT;
+    }
+
+    public Element getOriginalElement() {
+        return originalElement;
     }
     
     public String getAddress() {

@@ -39,14 +39,14 @@ public class ContactLinkFinder {
     private int associatedContactLinksFound = 0;
     private final PageContactType pageContactType;
     
-    public ContactLinkFinder(List<NameElement> nameElements, 
+    public ContactLinkFinder(NameElementFinder nameElementFinder, 
             Document soup, ClassificationStatusReporter status) 
     {
+        this.nameElements = nameElementFinder.getNameElements();
+        this.nameToContactMap = new HashMap<>();
         status.setStage(ClassificationStages.FINDING_CONTACT_LINKS);
         status.setTotalNumericSteps(nameElements.size());
         Approximately.defaultRange = nameElements.size();
-        this.nameElements = nameElements;
-        this.nameToContactMap = new HashMap<>();
         
         // First, figure out how many email addresses there are on the page
         List<Element> emailElements = this.findEmailContainingElements(soup);
@@ -94,10 +94,16 @@ public class ContactLinkFinder {
     public int getNumContactLinksFound() {
         return associatedContactLinksFound;
     }
-        
-    private ContactLink findContactLinkForNameElement(NameElement nm) {
-        List<Element> possibleContainers = nm.getContainerElements();
-        Element realContainer = this.selectRealContainer(possibleContainers);
+    
+    /**
+     * Given a NameElement, find the contact-containing element for it, and
+     * return a ContactLink object containing all its information.
+     * 
+     * @param nm
+     * @return 
+     */
+    public ContactLink findContactLinkForNameElement(NameElement nm) {
+        Element realContainer = nm.getContainer();
         if (realContainer == null)
             return null;
         
@@ -125,43 +131,6 @@ public class ContactLinkFinder {
         }
         
         return hrefLink;
-    }
-
-    private Element selectRealContainer(List<Element> possibleContainers) {
-        if (possibleContainers.isEmpty())
-            return null;
-        
-        Element el1 = possibleContainers.get(0);
-        if (possibleContainers.size() == 1)
-            return el1;
-        for (Element otherElement : possibleContainers) {
-            if (otherElement.equals(el1))
-                continue;
-            if (this.isElementOneAncestorOfElementTwo(otherElement, el1))
-                return el1;
-            else return otherElement;
-        }
-        return null;
-    }
-    
-    /**
-     * See if one Element has another as its ancestor.
-     * 
-     * @param element1
-     * @param element2
-     * @return 
-     */
-    boolean isElementOneAncestorOfElementTwo(Element element1, Element element2) {
-        if (element1 == element2)
-            return false;
-        Element currElement = element2;
-        while (currElement != null) {
-            if (currElement.parent() == element1)
-                return true;
-            currElement = currElement.parent();
-        }
-        
-        return false;
     }
 
     private List<Element> findEmailContainingElements(Document soup) {

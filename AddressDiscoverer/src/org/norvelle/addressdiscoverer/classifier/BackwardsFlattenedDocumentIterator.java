@@ -23,7 +23,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
-import org.norvelle.addressdiscoverer.PageClassifierApp;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.model.Name;
 import org.norvelle.utils.Utils;
@@ -88,7 +87,8 @@ public class BackwardsFlattenedDocumentIterator
             if (!child.getClass().equals(TextNode.class))
                 this.walkNodeBackwards(child, encoding);
             else {
-                String htmlEncodedString = WordUtils.capitalizeFully(child.toString());
+                TextNode textChild = (TextNode) child;
+                String htmlEncodedString = WordUtils.capitalizeFully(textChild.getWholeText());
                 String processedString = Utils.decodeHtml(htmlEncodedString, encoding);
                 boolean isName;
                 try {
@@ -97,7 +97,9 @@ public class BackwardsFlattenedDocumentIterator
                 catch (Exception ex) {
                     logger.log(Level.SEVERE, ex.getMessage());
                     logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(ex));
-                    throw new EndNodeWalkingException("Could not test for nameness: " + ex.getMessage());
+                    throw new EndNodeWalkingException(String.format(
+                            "Could not test for nameness: %s %s", ex.getClass().getName(),
+                            ex.getMessage()));
                 }
                 if (!this.elementsWithNames.contains((Element) currNode) && isName) {
                     this.elementsWithNames.add(0, (Element) currNode);

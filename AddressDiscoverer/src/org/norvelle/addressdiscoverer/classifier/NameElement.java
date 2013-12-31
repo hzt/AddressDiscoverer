@@ -13,6 +13,7 @@ package org.norvelle.addressdiscoverer.classifier;
 import java.util.ArrayList;
 import java.util.List;
 import org.jsoup.nodes.Element;
+import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.model.Name;
 
 /**
@@ -22,23 +23,83 @@ import org.norvelle.addressdiscoverer.model.Name;
 public class NameElement {
     
     private final Element nameContainingJsoupElement;
-    private final List<Element> containerElements;
     
     public NameElement(Element element) {
         this.nameContainingJsoupElement = element;
-        this.containerElements = this.locateContainerElements();
     }
     
     public ContactLink getContactLink() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    public Name getName() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Name getName() throws CantParseIndividualException {
+        return new Name(this.nameContainingJsoupElement.ownText());
     }
 
-    public List<Element> getContainerElements() {
-        return this.containerElements;
+    /**
+     * Extract the route from the indicated name containing element to the
+     * container that is its ancestor.
+     * 
+     * @return 
+     */
+    public List<String> getPathToContainer() {
+        Element container = this.getContainer();
+        ArrayList<String> path = new ArrayList<>();
+        path.add(0, this.nameContainingJsoupElement.tagName());
+        Element currElement = this.nameContainingJsoupElement;
+        boolean finished = false;
+        while (!finished) {
+            currElement = currElement.parent();
+            path.add(0, currElement.tagName());
+            if (currElement == container)
+                finished = true;
+        }
+        return path;
+    }
+    
+    /**
+     * Find the container element (TR, UL, OL, P or DIV) that is the first
+     * such director ancestor of the name-containing element.
+     * 
+     * @return 
+     */
+    public Element getContainer() {
+        List<Element> possibleContainers = this.locateContainerElements();
+        
+        if (possibleContainers.isEmpty())
+            return null;
+        
+        Element el1 = possibleContainers.get(0);
+        if (possibleContainers.size() == 1)
+            return el1;
+        for (Element otherElement : possibleContainers) {
+            if (otherElement.equals(el1))
+                continue;
+            if (isElementOneAncestorOfElementTwo(otherElement, el1))
+                return el1;
+            else return otherElement;
+        }
+        return null;
+    }
+    
+    /**
+     * See if one Element has another as its ancestor.
+     * 
+     * @param element1
+     * @param element2
+     * @return 
+     */
+    public static boolean isElementOneAncestorOfElementTwo(Element element1, Element element2) {
+        if (element1 == element2)
+            return false;
+        Element currElement = element2;
+        while (currElement != null) {
+            if (currElement.parent() == element1)
+                return true;
+            currElement = currElement.parent();
+        }
+        
+        return false;
     }
 
     /**
@@ -98,5 +159,5 @@ public class NameElement {
     public String toString() {
         return this.nameContainingJsoupElement.ownText();
     }
-    
+
 }
