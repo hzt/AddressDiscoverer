@@ -231,7 +231,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 if (!i.getClass().equals(UnparsableIndividual.class)) {
                     model.setValueAt(i.getTitle(), rowCount, 0);
                     model.setValueAt(i.getFirstName(), rowCount, 1);
-                    model.setValueAt(Utils.chop(i.getLastName()), rowCount, 2);
+                    model.setValueAt(Utils.chop(i.getLastName(), 20), rowCount, 2);
                     model.setValueAt(i.getEmail(), rowCount, 3);
                     model.setValueAt(Utils.chop(i.getRole(), 20), rowCount, 4);
                     model.setValueAt(Utils.chop(i.getUnprocessed(), 20), rowCount, 5);
