@@ -12,7 +12,7 @@ import java.net.URLConnection;
 import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
+import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel2;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.utils.Utils;
 
@@ -33,7 +33,7 @@ public class ParseRemoteWebsiteWorker extends AbstractExtractIndividualWorker {
      * @param panel
      */
     public ParseRemoteWebsiteWorker(final Department department, 
-            final String uri, final EmailDiscoveryPanel panel) 
+            final String uri, final EmailDiscoveryPanel2 panel) 
     {
         super(department, panel);
         this.uri = uri;
@@ -62,7 +62,7 @@ public class ParseRemoteWebsiteWorker extends AbstractExtractIndividualWorker {
             IOUtils.copy(in, writer, Charset.forName(charset));
             String html = writer.toString();
             updateDepartmentHTML(html);
-            this.panel.setHTMLPanelContents(html);
+            //this.panel.setHTMLPanelContents(html);
             extractIndividuals(html, charset, status);
         } catch (IOException ex) {
             AddressDiscoverer.reportException(ex);

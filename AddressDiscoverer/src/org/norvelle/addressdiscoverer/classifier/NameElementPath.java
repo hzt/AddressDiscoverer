@@ -50,4 +50,9 @@ public class NameElementPath {
         String pathString = StringUtils.join(this.path, " / ");
         return pathString;
     }
+    
+    public String getJsoupPath() {
+        String pathString = StringUtils.join(this.path, " > ");
+        return pathString;
+    }
 }

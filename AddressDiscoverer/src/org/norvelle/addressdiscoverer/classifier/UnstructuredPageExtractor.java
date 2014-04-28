@@ -10,16 +10,18 @@
  */
 package org.norvelle.addressdiscoverer.classifier;
 
+import org.jsoup.nodes.Document;
+
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public class UnstructuredPageExtractor extends IndividualExtractor {
     
-    public UnstructuredPageExtractor(NameElementFinder nameFinder, 
+    public UnstructuredPageExtractor(Document soup, NameElementFinder nameFinder, 
             ContactLinkFinder clFinder, ClassificationStatusReporter status) 
     {
-        super(nameFinder, clFinder, status);
+        super(soup, nameFinder, clFinder, status);
     }
     
 }

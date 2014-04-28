@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import javax.swing.SwingWorker;
 import org.apache.commons.io.IOUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
+import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel2;
 import org.norvelle.addressdiscoverer.parse.IndividualExtractor;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
@@ -42,11 +42,11 @@ public abstract class AbstractExtractIndividualWorker
     static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     protected final HashMap<String, Integer> programProgress = new HashMap<>();
     protected List<ProcessListener> listeners = new ArrayList<>();
-    protected final EmailDiscoveryPanel panel;
+    protected final EmailDiscoveryPanel2 panel;
     protected final Department department;
 
     public AbstractExtractIndividualWorker(final Department department, 
-            final EmailDiscoveryPanel panel) 
+            final EmailDiscoveryPanel2 panel) 
     {
         this.department = department;
         this.panel = panel;

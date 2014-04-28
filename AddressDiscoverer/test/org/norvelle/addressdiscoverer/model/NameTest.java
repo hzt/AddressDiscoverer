@@ -106,7 +106,7 @@ public class NameTest {
             return;
         }
         
-        Assert.assertEquals("First name should be M.A.", "M.A.", name.getFirstName());
+        Assert.assertEquals("First name should be María A.", "María A.", name.getFirstName());
         Assert.assertEquals("Last name should be Alonso del Val", "Alonso del Val", name.getLastName());
         Assert.assertEquals("Title should be ''", "", name.getTitle());
     }

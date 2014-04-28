@@ -19,7 +19,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
+import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel2;
 
 /**
  * A SwingWorker to handle setting genders for all Individuals in the background,
@@ -38,7 +38,7 @@ public class UrlSourcedClassifyPageWorker extends  ClassifyPageWorker
      * @throws java.net.MalformedURLException
      * @throws java.net.URISyntaxException
      */
-    public UrlSourcedClassifyPageWorker(EmailDiscoveryPanel parent, String uri) 
+    public UrlSourcedClassifyPageWorker(EmailDiscoveryPanel2 parent, String uri) 
             throws MalformedURLException, URISyntaxException, IOException 
     {
         super(parent, null);

@@ -13,6 +13,7 @@ package org.norvelle.addressdiscoverer.classifier;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import org.jsoup.nodes.Document;
 import org.norvelle.addressdiscoverer.classifier.ClassificationStatusReporter.ClassificationStages;
 import org.norvelle.addressdiscoverer.classifier.ContactLink.ContactType;
 import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
@@ -32,19 +33,30 @@ public class StructuredPageExtractor extends IndividualExtractor {
      * Given a page that has been determined to have a regular container-based
      * structure, find the Individuals that are described in it.
      * 
+     * @param soup
      * @param nameFinder
      * @param clFinder
-     * @param status
+     * @param status 
+     */
+    public StructuredPageExtractor(Document soup, NameElementFinder nameFinder, 
+            ContactLinkFinder clFinder, ClassificationStatusReporter status) {
+        super(soup, nameFinder, clFinder, status);
+    }
+    
+    /**
+     * Perform the extraction process: find the route to contact info, and for 
+     * each NameElement candidate that we can find, get try to create a NameElement
+     * out of it, and fetch its associated contact info. Then, when all info has
+     * been collected, create corresponding Individual records for all contacts found.
+     * 
      * @throws SQLException
      * @throws IndividualHasNoDepartmentException
      * @throws CannotStoreNullIndividualException 
      */
-    public StructuredPageExtractor(NameElementFinder nameFinder, 
-            ContactLinkFinder clFinder, ClassificationStatusReporter status) 
-            throws SQLException, IndividualHasNoDepartmentException, 
+    public void extract() 
+        throws SQLException, IndividualHasNoDepartmentException, 
             CannotStoreNullIndividualException 
     {
-        super(nameFinder, clFinder, status);
         NameElementPath path = nameFinder.getPathToNameElements();
         List<NameElement> nameElements = this.gatherNameElements(path);
         
@@ -68,8 +80,10 @@ public class StructuredPageExtractor extends IndividualExtractor {
         }
     }
 
-    private List<NameElement> gatherNameElements(NameElementPath path) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    List<NameElement> gatherNameElements(NameElementPath path) {
+        
+        
+        return null;
     }
 
     private List<Individual> createIndividuals(List<NameElement> nameElements, 

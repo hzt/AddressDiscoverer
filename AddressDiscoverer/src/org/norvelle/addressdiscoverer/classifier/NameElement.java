@@ -23,13 +23,18 @@ import org.norvelle.addressdiscoverer.model.Name;
 public class NameElement {
     
     private final Element nameContainingJsoupElement;
+    private ContactLink link;
     
     public NameElement(Element element) {
         this.nameContainingJsoupElement = element;
     }
     
+    public void setContactLink(ContactLink link) {
+        this.link = link;
+    }
+    
     public ContactLink getContactLink() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return link;
     }
     
     public Name getName() throws CantParseIndividualException {

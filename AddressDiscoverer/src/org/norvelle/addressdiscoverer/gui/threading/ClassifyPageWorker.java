@@ -33,7 +33,7 @@ import org.norvelle.addressdiscoverer.classifier.PageClassifier.Classification;
 import org.norvelle.addressdiscoverer.classifier.StructuredPageExtractor;
 import org.norvelle.addressdiscoverer.classifier.UnstructuredPageExtractor;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
-import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
+import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel2;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.utils.Utils;
 
@@ -48,7 +48,7 @@ public class ClassifyPageWorker
 {
     static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     protected File fileToClassify;
-    private final EmailDiscoveryPanel parent;
+    private final EmailDiscoveryPanel2 parent;
 
     /**
      * Run the classification process on the contents of a file in the filesystem
@@ -56,7 +56,7 @@ public class ClassifyPageWorker
      * @param parent
      * @param fileToClassify
      */
-    public ClassifyPageWorker(EmailDiscoveryPanel parent, File fileToClassify) 
+    public ClassifyPageWorker(EmailDiscoveryPanel2 parent, File fileToClassify) 
     {
         this.parent = parent;
         this.fileToClassify = fileToClassify;
@@ -85,9 +85,9 @@ public class ClassifyPageWorker
             // Depending on its structure, run the appropriate extractor
             IndividualExtractor extractor;
             if (classification == Classification.UNSTRUCTURED) 
-                extractor = new UnstructuredPageExtractor(nameElementFinder, clFinder, status);
+                extractor = new UnstructuredPageExtractor(soup, nameElementFinder, clFinder, status);
             else
-                extractor = new StructuredPageExtractor(nameElementFinder, clFinder, status);
+                extractor = new StructuredPageExtractor(soup, nameElementFinder, clFinder, status);
             List<Individual> individuals = extractor.getIndividuals();
             publish(String.format("Found %d individuals", individuals.size()));
 

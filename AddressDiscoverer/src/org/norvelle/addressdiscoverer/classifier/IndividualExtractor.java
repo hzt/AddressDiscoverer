@@ -11,6 +11,7 @@
 package org.norvelle.addressdiscoverer.classifier;
 
 import java.util.List;
+import org.jsoup.nodes.Document;
 import org.norvelle.addressdiscoverer.model.Individual;
 
 /**
@@ -23,10 +24,12 @@ public class IndividualExtractor {
     protected NameElementFinder nameFinder;
     protected ContactLinkFinder clFinder;
     protected ClassificationStatusReporter status;
+    protected Document soup;
     
-    public IndividualExtractor(NameElementFinder nameFinder, 
+    public IndividualExtractor(Document soup, NameElementFinder nameFinder, 
             ContactLinkFinder clFinder, ClassificationStatusReporter status) 
     {
+        this.soup = soup;
         this.nameFinder = nameFinder;
         this.clFinder = clFinder;
         this.status = status;

@@ -238,7 +238,7 @@ public class ExtractIndividualsTest {
     @Test
     public void testDelval() {
         try {
-            TestUtilities.testOneTr("adeval@unav.es", "", "María A.", "Alonso Del Val", "email");
+            TestUtilities.testOneTr("adeval@unav.es", "", "María A.", "Alonso del Val", "email");
         } catch (IOException | SQLException | IndividualExtractionFailedException ex) {
             fail("Couldn't extract individuals due to exception: " + ex.getMessage());
         }

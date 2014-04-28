@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
-import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
+import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel2;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.utils.Utils;
 
@@ -31,7 +31,7 @@ public class ParseLocalHtmlFileWorker extends AbstractExtractIndividualWorker {
      * @param panel
      */
     public ParseLocalHtmlFileWorker(final Department department, 
-            final File localFile, final EmailDiscoveryPanel panel) 
+            final File localFile, final EmailDiscoveryPanel2 panel) 
     {
         super(department, panel);
         this.localFile = localFile;
@@ -55,7 +55,7 @@ public class ParseLocalHtmlFileWorker extends AbstractExtractIndividualWorker {
             String charset = Utils.getCharsetFromStream(in);
             String html = FileUtils.readFileToString(this.localFile, Charset.forName(charset));
             this.updateDepartmentHTML(html);
-            this.panel.setHTMLPanelContents(html); 
+            //this.panel.setHTMLPanelContents(html); 
             this.extractIndividuals(html, charset, status);
         } catch (Exception ex) {
             AddressDiscoverer.reportException(ex);

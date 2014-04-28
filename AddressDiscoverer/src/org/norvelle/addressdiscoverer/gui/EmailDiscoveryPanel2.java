@@ -44,16 +44,13 @@ import org.norvelle.utils.Utils;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class EmailDiscoveryPanel extends javax.swing.JPanel {
+public class EmailDiscoveryPanel2 extends javax.swing.JPanel {
 
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
     private final GUIManagementPane parent;
     private Department currentDepartment;
-    private final UserAgentContext ucontext;
-    private final HtmlRendererContext rendererContext;
-    private final DocumentBuilderImpl dbi;
     private List<Individual> individuals;
     
     /**
@@ -61,7 +58,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
      * 
      * @param parent The GUIManagementPane that acts as our controller
      */
-    public EmailDiscoveryPanel(GUIManagementPane parent) {
+    public EmailDiscoveryPanel2(GUIManagementPane parent) {
         this.parent = parent;
         initComponents();
         this.jWebAddressField.getDocument().addDocumentListener(
@@ -84,7 +81,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         });
         
         // Add a mouse listener for double clicks on the table
-        final EmailDiscoveryPanel myThis = this;
+        final EmailDiscoveryPanel2 myThis = this;
         this.jAddressesFoundTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent me) {
@@ -108,11 +105,6 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             }
         });
 
-        // Set up the HTMLPanel's requirements
-        this.ucontext = new SimpleUserAgentContext();
-        this.rendererContext = 
-            new SimpleHtmlRendererContext(this.jHTMLPanel, this.ucontext); 
-        this.dbi = new DocumentBuilderImpl(ucontext, this.rendererContext);
     }
     
     /**
@@ -131,8 +123,6 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             this.jWebAddressField.setEnabled(false);
             this.jRetrieveHTMLButton.setEnabled(false);
             this.jOpenFileButton.setEnabled(false);
-            this.jHTMLPanel.setEnabled(false);
-            this.setHTMLPanelContents("");
             this.jBytesReceivedLabel.setEnabled(false);
             this.jBytesReceivedLabel.setText("0");
             this.individuals = new ArrayList<>();
@@ -150,12 +140,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             else
                 this.jRetrieveHTMLButton.setEnabled(true);
             this.jOpenFileButton.setEnabled(true);
-            this.jHTMLPanel.setEnabled(true);
             String html = department.getHtml();
-            if ((html != null && !html.isEmpty())) {
-                this.setHTMLPanelContents(html);
-            }
-            else this.setHTMLPanelContents(""); 
             try {
                 this.individuals = Individual.getIndividualsForDepartment(department);
                 this.populateResultsTable(this.individuals);
@@ -253,34 +238,6 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     }
     
     /**
-     * Handles turning the HTML retrieved into a W3C Document that can be
-     * displayed in the HTML panel.
-     * 
-     * @param html 
-     */
-    public void setHTMLPanelContents(String html) {
-        if (html.isEmpty()) {
-            this.jHTMLPanel.setEnabled(false);
-            this.jHTMLPanel.clearDocument();
-        }
-        else {
-            this.jBytesReceivedLabel.setText(Integer.toString(html.length()));
-            this.jBytesReceivedLabel.setEnabled(true);
-            /* Reader reader = new StringReader(html);
-            InputSource is = new InputSourceImpl(reader, this.jWebAddressField.getText());
-            try {
-                Document document = this.dbi.parse(is);
-                this.jHTMLPanel.setDocument(document, this.rendererContext);
-                this.jHTMLPanel.setEnabled(true);
-            } catch (SAXException | IOException ex) {
-                CouldNotRenderHTMLException ex2 = 
-                        new CouldNotRenderHTMLException("Could not render HTML: " + ex.getMessage());
-                AddressDiscoverer.reportException(ex2);
-            } */
-        }
-    }
-    
-    /**
      * Gets called when the user changes the value for the web address field.
      */
     private void updateDepartmentWebAddress() {
@@ -344,13 +301,11 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jLabel4 = new javax.swing.JLabel();
         jSaveResultsButton = new javax.swing.JButton();
         jStageNameLabel = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jDebugOutputTextArea = new javax.swing.JTextArea();
-        jPageContentTab = new javax.swing.JPanel();
-        jPageContentPanel = new javax.swing.JPanel();
-        jHTMLPanel = new org.lobobrowser.html.gui.HtmlPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane3 = new javax.swing.JScrollPane();
         jAddressesFoundTable = new javax.swing.JTable();
+        jPageContentTab = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jDebugOutputTextArea = new javax.swing.JTextArea();
 
         jLabel1.setText("Web address:");
 
@@ -395,9 +350,23 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jStageNameLabel.setText("Finding Emails in Links");
         jStageNameLabel.setEnabled(false);
 
-        jDebugOutputTextArea.setColumns(20);
-        jDebugOutputTextArea.setRows(5);
-        jScrollPane2.setViewportView(jDebugOutputTextArea);
+        jAddressesFoundTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "First Name", "Last Name", "Email", "Title"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(jAddressesFoundTable);
 
         javax.swing.GroupLayout jEmailSourceTabLayout = new javax.swing.GroupLayout(jEmailSourceTab);
         jEmailSourceTab.setLayout(jEmailSourceTabLayout);
@@ -406,7 +375,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             .addGroup(jEmailSourceTabLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2)
+                    .addComponent(jScrollPane3)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jEmailSourceTabLayout.createSequentialGroup()
                         .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jEmailSourceTabLayout.createSequentialGroup()
@@ -452,51 +421,25 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         jHTMLRenderPanel.addTab("Source Page", jEmailSourceTab);
 
-        jPageContentPanel.setLayout(new java.awt.BorderLayout());
-
-        jAddressesFoundTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "First Name", "Last Name", "Email", "Title"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(jAddressesFoundTable);
-
-        jHTMLPanel.add(jScrollPane1);
-
-        jPageContentPanel.add(jHTMLPanel, java.awt.BorderLayout.CENTER);
+        jDebugOutputTextArea.setColumns(20);
+        jDebugOutputTextArea.setRows(5);
+        jScrollPane4.setViewportView(jDebugOutputTextArea);
 
         javax.swing.GroupLayout jPageContentTabLayout = new javax.swing.GroupLayout(jPageContentTab);
         jPageContentTab.setLayout(jPageContentTabLayout);
         jPageContentTabLayout.setHorizontalGroup(
             jPageContentTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPageContentTabLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPageContentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 769, Short.MAX_VALUE)
         );
         jPageContentTabLayout.setVerticalGroup(
             jPageContentTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPageContentTabLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPageContentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 561, Short.MAX_VALUE)
         );
 
         jHTMLRenderPanel.addTab("Page Content", jPageContentTab);
@@ -514,8 +457,10 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jRetrieveHTMLButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRetrieveHTMLButtonActionPerformed
-        if (!this.jWebAddressField.getText().isEmpty())
+        if (!this.jWebAddressField.getText().isEmpty()) {
+            this.jHTMLRenderPanel.setEnabledAt(1, true);
             this.fetchAndParseHtml();
+        }
     }//GEN-LAST:event_jRetrieveHTMLButtonActionPerformed
 
     private void jOpenFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jOpenFileButtonActionPerformed
@@ -550,7 +495,6 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jBytesReceivedLabel;
     private javax.swing.JTextArea jDebugOutputTextArea;
     private javax.swing.JPanel jEmailSourceTab;
-    private org.lobobrowser.html.gui.HtmlPanel jHTMLPanel;
     private javax.swing.JTabbedPane jHTMLRenderPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -558,13 +502,13 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JButton jOpenFileButton;
     private javax.swing.JFileChooser jOpenFileChooser;
-    private javax.swing.JPanel jPageContentPanel;
     private javax.swing.JPanel jPageContentTab;
     private javax.swing.JButton jRetrieveHTMLButton;
     private javax.swing.JFileChooser jSaveFileChooser;
     private javax.swing.JButton jSaveResultsButton;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JLabel jStageNameLabel;
     private javax.swing.JTextField jWebAddressField;
     // End of variables declaration//GEN-END:variables

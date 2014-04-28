@@ -75,7 +75,7 @@ public class BackwardsIteratorTest {
             return;
         }
         Assert.assertTrue("The iterator should not be empty", iterator.size() != 0);
-        Assert.assertEquals("The iterator should have 38 elements", 38, iterator.size());
+        Assert.assertEquals("The iterator should have 37 elements", 37, iterator.size());
     }
     
 }
