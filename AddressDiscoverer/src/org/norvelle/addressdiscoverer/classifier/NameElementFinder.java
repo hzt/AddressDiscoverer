@@ -38,7 +38,7 @@ public class NameElementFinder {
     
     public final ArrayList<String> containerTypes = new ArrayList<String>() {
         {
-            add("tr");
+            add("td");
             add("ul");
             add("ol");
             add("p");
@@ -62,7 +62,7 @@ public class NameElementFinder {
         // Create our mapping between container types and the name elements
         // they contain.
         this.nameElementsByContainerTypes = this.sortNameElementsByContainer();
-        numTrs = this.nameElementsByContainerTypes.get("tr").size();
+        numTrs = this.nameElementsByContainerTypes.get("td").size();
         numUls = this.nameElementsByContainerTypes.get("ul").size();
         numOls = this.nameElementsByContainerTypes.get("ol").size();
         numPs = this.nameElementsByContainerTypes.get("p").size();
@@ -159,7 +159,7 @@ public class NameElementFinder {
 
     private HashMap<String, ArrayList<NameElement>> sortNameElementsByContainer() {
         HashMap<String, ArrayList<NameElement>> myNameElementsByContainer = new HashMap<>();
-        myNameElementsByContainer.put("tr", new ArrayList());
+        myNameElementsByContainer.put("td", new ArrayList());
         myNameElementsByContainer.put("ul", new ArrayList());
         myNameElementsByContainer.put("ol", new ArrayList());
         myNameElementsByContainer.put("p", new ArrayList());
@@ -177,7 +177,7 @@ public class NameElementFinder {
 
     private HashMap<String, ArrayList<Element>> createContainerElementMap() {
         HashMap<String, ArrayList<Element>> myNameElementsByContainer = new HashMap<>();
-        myNameElementsByContainer.put("tr", new ArrayList());
+        myNameElementsByContainer.put("td", new ArrayList());
         myNameElementsByContainer.put("ul", new ArrayList());
         myNameElementsByContainer.put("ol", new ArrayList());
         myNameElementsByContainer.put("p", new ArrayList());

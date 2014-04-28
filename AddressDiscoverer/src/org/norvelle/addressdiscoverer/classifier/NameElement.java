@@ -81,8 +81,8 @@ public class NameElement {
             if (otherElement.equals(el1))
                 continue;
             if (isElementOneAncestorOfElementTwo(otherElement, el1))
-                return el1;
-            else return otherElement;
+                return otherElement;
+            else return el1;
         }
         return null;
     }
@@ -115,11 +115,11 @@ public class NameElement {
     private List<Element> locateContainerElements() {
         List<Element> myContainerElements = new ArrayList<>();
         
-        // First, see if we can find a TR... giving TRs priority over Ps and other containers
+        // First, see if we can find a TD... giving TDs priority over Ps and other containers
         Element currElement = nameContainingJsoupElement.parent();
         Element trContainer = null;
         while (currElement != null) {
-            if (currElement.tagName().equals("tr")) {
+            if (currElement.tagName().equals("td")) {
                 trContainer = currElement;
                 break;
             }

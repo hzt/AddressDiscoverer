@@ -17,6 +17,8 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.norvelle.addressdiscoverer.classifier.BackwardsIteratorTest;
+import org.norvelle.addressdiscoverer.classifier.FindEmailInDetailPageTest;
+import org.norvelle.addressdiscoverer.classifier.GetIndividualsFromClassifiedPageTest;
 import org.norvelle.addressdiscoverer.model.AbbreviationsTest;
 import org.norvelle.addressdiscoverer.model.GenderDeterminerTest;
 import org.norvelle.addressdiscoverer.model.KnownLastNameTest;
@@ -50,7 +52,9 @@ import org.norvelle.addressdiscoverer.parser.TdContainerParserTest;
     GenderDeterminerTest.class,
     KnownLastNameTest.class,
     KnownSpanishWordTest.class,
-    BackwardsIteratorTest.class
+    BackwardsIteratorTest.class,
+    FindEmailInDetailPageTest.class,
+    GetIndividualsFromClassifiedPageTest.class
 })
 
 public class AddressDiscovererTestSuite {

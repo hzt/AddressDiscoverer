@@ -10,15 +10,18 @@
  */
 package org.norvelle.addressdiscoverer.classifier;
 
+import java.sql.SQLException;
 import java.util.List;
 import org.jsoup.nodes.Document;
+import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
 import org.norvelle.addressdiscoverer.model.Individual;
 
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class IndividualExtractor {
+public abstract class IndividualExtractor {
     
     protected List<Individual> individuals;
     protected NameElementFinder nameFinder;
@@ -34,6 +37,9 @@ public class IndividualExtractor {
         this.clFinder = clFinder;
         this.status = status;
     }
+    
+    public abstract void extract() throws SQLException, IndividualHasNoDepartmentException, 
+            CannotStoreNullIndividualException;
 
     public List<Individual> getIndividuals() {
         return individuals;

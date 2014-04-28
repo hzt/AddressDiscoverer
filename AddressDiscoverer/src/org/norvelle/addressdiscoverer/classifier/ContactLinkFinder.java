@@ -57,6 +57,7 @@ public class ContactLinkFinder {
             ContactLink cl = this.findContactLinkForNameElement(nm);
             if (cl != null) {
                 this.nameToContactMap.put(nm, cl);
+                nm.setContactLink(cl);
                 this.associatedContactLinksFound ++;
             }
             status.incrementNumericProgress();
@@ -106,6 +107,7 @@ public class ContactLinkFinder {
         Element realContainer = nm.getContainer();
         if (realContainer == null)
             return null;
+        String content = realContainer.html();
         
         // Check all the container's children to see if we can find an 
         // Element with readable contact info.

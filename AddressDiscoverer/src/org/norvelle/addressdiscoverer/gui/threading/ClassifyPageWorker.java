@@ -88,6 +88,7 @@ public class ClassifyPageWorker
                 extractor = new UnstructuredPageExtractor(soup, nameElementFinder, clFinder, status);
             else
                 extractor = new StructuredPageExtractor(soup, nameElementFinder, clFinder, status);
+            extractor.extract();
             List<Individual> individuals = extractor.getIndividuals();
             publish(String.format("Found %d individuals", individuals.size()));
 

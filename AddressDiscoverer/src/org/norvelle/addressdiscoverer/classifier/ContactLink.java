@@ -53,12 +53,9 @@ public class ContactLink {
         if (element.hasAttr("href")) {
             String href = element.attr("href");
             if (href.startsWith("mailto:")) {
-                Matcher hrefMatcher = emailPattern.matcher(href);
-                if (hrefMatcher.lookingAt()) {
-                    this.type = ContactType.EMAIL_IN_HREF;
-                    this.address = hrefMatcher.group();
-                    return;
-                }
+                this.type = ContactType.EMAIL_IN_HREF;
+                this.address = href.substring(6);
+                return;                
             }
             else {
                 this.type = ContactType.LINK_TO_DETAIL_PAGE;
@@ -74,7 +71,8 @@ public class ContactLink {
     /**
      * Fetches the web page specified by the contact weblink and extracts
      * an email from it. The email gets stored in the address field for retrieval
-     * by the Individual extractor.
+     * by the Individual extractor. Note that we fetch the first such email found
+     * and discard others.
      * 
      * @throws NoEmailRetrievedFromWeblinkException 
      */
@@ -96,13 +94,23 @@ public class ContactLink {
         }
         
         // Now, extract the email if we can.
-        Matcher emailMatcher = emailPattern.matcher(body);
-        if (!emailMatcher.lookingAt()) {
+        String matchFound = this.findEmail(body);
+        if (matchFound.isEmpty()) {
             this.type = ContactType.NO_CONTACT_INFO_FOUND;
             return;                
         }
-        this.address = emailMatcher.group();
+        this.address = matchFound;
         this.type = ContactType.EMAIL_IN_CONTENT;
+    }
+    
+    private String findEmail(String text) {
+        Matcher emailMatcher = emailPattern.matcher(text);
+        String matchFound = "";
+        while (emailMatcher.find()) {
+            matchFound = text.substring(emailMatcher.start(), emailMatcher.end());
+            break;
+        }        
+        return matchFound;
     }
 
     public Element getOriginalElement() {

@@ -10,7 +10,10 @@
  */
 package org.norvelle.addressdiscoverer.classifier;
 
+import java.sql.SQLException;
 import org.jsoup.nodes.Document;
+import org.norvelle.addressdiscoverer.exceptions.CannotStoreNullIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.IndividualHasNoDepartmentException;
 
 /**
  *
@@ -22,6 +25,13 @@ public class UnstructuredPageExtractor extends IndividualExtractor {
             ContactLinkFinder clFinder, ClassificationStatusReporter status) 
     {
         super(soup, nameFinder, clFinder, status);
+    }
+    
+    public void extract() 
+        throws SQLException, IndividualHasNoDepartmentException, 
+            CannotStoreNullIndividualException 
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
 }
