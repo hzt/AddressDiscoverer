@@ -25,9 +25,10 @@ import org.junit.runners.Suite;
     org.norvelle.addressdiscoverer.individuals.FindEmailInDetailPageTest.class, 
     org.norvelle.addressdiscoverer.individuals.OneRecPerTrMultipleTds.class,
     org.norvelle.addressdiscoverer.individuals.MultipleTdsMultipleRecordsPerTr.class,
+    org.norvelle.addressdiscoverer.individuals.MultipleTdsForSingleRecordPerTrHrefLinks.class,
     org.norvelle.addressdiscoverer.individuals.MultipleDivsForSingleRecordPerDiv.class
 })
 
-public class TestAllIndividualPages {
+public class TestAllIndividualPages { 
     
 }
