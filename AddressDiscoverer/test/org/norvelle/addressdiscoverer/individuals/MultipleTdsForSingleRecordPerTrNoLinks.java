@@ -39,7 +39,7 @@ import org.norvelle.utils.Utils;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class MultipleTdsForSingleRecordPerTrHrefLinks implements IProgressConsumer { 
+public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer { 
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
@@ -48,7 +48,7 @@ public class MultipleTdsForSingleRecordPerTrHrefLinks implements IProgressConsum
     private ExtractIndividualsStatusReporter status;
     private NameElementFinder nameElementFinder;
 
-    public MultipleTdsForSingleRecordPerTrHrefLinks() {
+    public MultipleTdsForSingleRecordPerTrNoLinks() {
     }
 
     @Override

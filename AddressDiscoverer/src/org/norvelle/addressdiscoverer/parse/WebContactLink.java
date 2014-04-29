@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.Constants;
@@ -72,7 +74,7 @@ public class WebContactLink extends ContactLink {
      * 
      * @throws NoContactLinkFoundException 
      */
-    public void fetchEmailFromWeblink()  {
+    public String fetchEmailFromWeblink()  {
         String body;
         
         // Try to fetch the webpage linked to
@@ -83,17 +85,20 @@ public class WebContactLink extends ContactLink {
             InputStream in = con.getInputStream();
             String encoding = con.getContentEncoding();
             encoding = encoding == null ? "UTF-8" : encoding;
-            body = IOUtils.toString(in, encoding);
+            String html = IOUtils.toString(in, encoding);
+            Document soup = Jsoup.parse(html);
+            Element bodyElement = soup.select("body").first();
+            body = bodyElement.html();
         } catch (URISyntaxException | IOException ex) {
-            return;
+            return null;
         }
         
         // Now, extract the email if we can.
         String matchFound = this.findEmail(body);
         if (matchFound.isEmpty()) {
-            return;                
+            return null;                
         }
-        this.address = matchFound;
+        return matchFound;
     }
     
     private String findEmail(String text) {
@@ -106,9 +111,26 @@ public class WebContactLink extends ContactLink {
         return matchFound;
     }
     
+    /**
+     * Since this is a web link, we don't return the URL directly; instead, we fetch
+     * the referenced page and seek to get an email address from it.
+     * 
+     * @return 
+     */
+    @Override
+    public String getAddress() {
+        return this.fetchEmailFromWeblink();
+    }
+    
     @Override
     public String toString() {
         return String.format("URL: %s", this.address);
     }
+    
+    @Override
+    public String getUnderlyingUrl() {
+        return address;
+    }
+
 
 }

@@ -37,4 +37,8 @@ public class ContactLink {
         return this.address;
     }
     
+    public String getUnderlyingUrl() {
+        return null;
+    }
+    
 }

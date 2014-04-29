@@ -44,6 +44,7 @@ public class ContactLinkLocator {
         
         // Now check for href elements.
         currElement = nm.getNameContainingElement();
+        i = 0;
         while (i < 5) {
             try {
                 WebContactLink link = new WebContactLink(currElement);
