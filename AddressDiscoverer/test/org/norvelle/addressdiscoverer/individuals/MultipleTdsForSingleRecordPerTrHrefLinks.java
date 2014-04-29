@@ -91,7 +91,7 @@ public class MultipleTdsForSingleRecordPerTrHrefLinks implements IProgressConsum
     public void testGetNameElement() {
         try {            
             // Check for correct number of contact links found
-            Assert.assertEquals("Should find one name element", 1, nameElementFinder.getNameElements().size());
+            Assert.assertEquals("Should find two names element", 2, nameElementFinder.getNameElements().size());
             
             // Check we have the correct name found
             List<NameElement> nameElements = nameElementFinder.getNameElements();

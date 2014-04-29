@@ -15,31 +15,32 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter;
 import org.norvelle.addressdiscoverer.classifier.IProgressConsumer;
+import org.norvelle.addressdiscoverer.parse.NameElement;
+import org.norvelle.addressdiscoverer.parse.NameElementFinder;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
 import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.NameElement;
-import org.norvelle.addressdiscoverer.parse.NameElementFinder;
 import org.norvelle.utils.Utils;
 
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer { 
+public class SingleDivPerRecordWeblinks implements IProgressConsumer {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
@@ -48,7 +49,7 @@ public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer
     private ExtractIndividualsStatusReporter status;
     private NameElementFinder nameElementFinder;
 
-    public MultipleTdsForSingleRecordPerTrNoLinks() {
+    public SingleDivPerRecordWeblinks() {
     }
 
     @Override
@@ -59,7 +60,7 @@ public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer
     @Override
     public void reportText(String text) {
         //System.out.println(text);
-    }
+    } 
 
     @BeforeClass
     @SuppressWarnings("UnnecessaryReturnStatement")
@@ -67,7 +68,7 @@ public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer
         TestUtilities.setupLogger();
         try {
             connection = TestUtilities.getDBConnection("addresses.test.sqlite");
-            String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/MultipleTdsForSingleRecordPerTrNoLinks.html";
+            String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/SingleDivPerRecordWeblinks.html";
             String html = Utils.loadStringFromResource(htmlUri, "UTF-8");
             soup = Jsoup.parse(html);
         } catch (SQLException | CannotLoadJDBCDriverException |IOException ex) {
@@ -90,15 +91,16 @@ public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer
     @Test
     public void testGetNameElement() {
         try {            
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
-
             // Check for correct number of contact links found
-            Assert.assertEquals("Should find three name elements", 3, nameElementFinder.getNameElements().size());
+            Assert.assertEquals("Should find one name element", 2, nameElementFinder.getNameElements().size());
             
             // Check we have the correct name found
-            Assert.assertEquals("Name should be Vicens Hualde, Ignacio", 
-                    "Vicens Hualde, Ignacio", adeval.toString());
+            List<NameElement> nameElements = nameElementFinder.getNameElements();
+            NameElement adeval = nameElements.get(0);
+            NameElement second = nameElements.get(1);
+            Assert.assertEquals("Name should be Coll-Vinent Puig, Silvia", "Coll-Vinent Puig, Silvia", 
+                    second.toString());
+
         } catch (Exception ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -109,14 +111,14 @@ public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer
         try {                        
             // Check we have the correct name found
             List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
+            NameElement adeval = nameElements.get(1);
             ContactLink cl = adeval.getContactLink();
-            fail("No contact link should be found");
+            Assert.assertEquals("Email address must be scollvinent@filosofia.url.edu", "scollvinent@filosofia.url.edu", cl.getAddress());
         } catch (MultipleContactLinksOfSameTypeFoundException ex) {
             fail("Found too many contact links");
         } catch (DoesNotContainContactLinkException ex) {
-            //
+            fail("No contact links found");
         }
     }
-     
+    
 }
