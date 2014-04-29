@@ -25,20 +25,52 @@ import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeF
  */
 public class EmailContactLink extends ContactLink {
 
+    /**
+     * Try to find an email address in both the HTML (so that we can get attributes
+     * of elements) as well as in the plain text (in case the HTML has been scrambled
+     * to obfuscate the address).
+     * 
+     * @param element
+     * @throws DoesNotContainContactLinkException
+     * @throws MultipleContactLinksOfSameTypeFoundException 
+     */
     public EmailContactLink(Element element) 
             throws DoesNotContainContactLinkException, 
             MultipleContactLinksOfSameTypeFoundException 
     {
         super(element);
         String content = element.html();
-        Matcher emailMatcher = emailPattern.matcher(content);
+        try {
+            this.address = this.findLinkInString(content);
+        }
+        catch (DoesNotContainContactLinkException ex) {
+            content = element.text();
+            this.address = this.findLinkInString(content);
+        }
+    }
+    
+    /**
+     * Given a chunk of text, see if we can't find a single email address in it.
+     * If there are multiple instances of the same address, that's fine, but if there
+     * are multiple different emails we raise an exception.
+     * 
+     * @param str
+     * @return
+     * @throws DoesNotContainContactLinkException
+     * @throws MultipleContactLinksOfSameTypeFoundException 
+     */
+    private String findLinkInString(String str) 
+            throws DoesNotContainContactLinkException, 
+            MultipleContactLinksOfSameTypeFoundException 
+    {
+        Matcher emailMatcher = emailPattern.matcher(str);
         String matchFound = "";
         int numMatches = 0;
         ArrayList<String> emails = new ArrayList();
         
         // Extract all email addresses found
         while (emailMatcher.find()) {
-            matchFound = content.substring(emailMatcher.start(), emailMatcher.end());
+            matchFound = str.substring(emailMatcher.start(), emailMatcher.end());
             emails.add(matchFound);
             numMatches ++;
         }      
@@ -56,7 +88,7 @@ public class EmailContactLink extends ContactLink {
         }
         
         // Otherwise, we can use the email found above.
-        this.address = matchFound;
+        return matchFound;
     }    
     
     @Override

@@ -60,7 +60,7 @@ public class OneRecPerTrMultipleTds implements IProgressConsumer {
     @Override
     public void reportText(String text) {
         //System.out.println(text);
-    }
+    } 
 
     @BeforeClass
     @SuppressWarnings("UnnecessaryReturnStatement")

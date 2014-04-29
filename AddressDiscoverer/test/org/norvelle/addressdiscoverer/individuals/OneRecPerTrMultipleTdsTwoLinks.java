@@ -12,23 +12,27 @@ package org.norvelle.addressdiscoverer.individuals;
 
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
 import junit.framework.Assert;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter;
-import org.norvelle.addressdiscoverer.parse.EmailContactLink;
 import org.norvelle.addressdiscoverer.classifier.IProgressConsumer;
+import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
+import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
+import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
+import org.norvelle.addressdiscoverer.parse.ContactLink;
 import org.norvelle.addressdiscoverer.parse.NameElement;
 import org.norvelle.addressdiscoverer.parse.NameElementFinder;
-import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
-import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.utils.Utils;
 
 /**
@@ -40,6 +44,9 @@ public class OneRecPerTrMultipleTdsTwoLinks implements IProgressConsumer {
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
     private static ConnectionSource connection;
+    private static Document soup;
+    private ExtractIndividualsStatusReporter status;
+    private NameElementFinder nameElementFinder;
 
     public OneRecPerTrMultipleTdsTwoLinks() {
     }
@@ -60,41 +67,55 @@ public class OneRecPerTrMultipleTdsTwoLinks implements IProgressConsumer {
         TestUtilities.setupLogger();
         try {
             connection = TestUtilities.getDBConnection("addresses.test.sqlite");
+            String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/OneRecPerTrMultipleTdsTwoLinks.html";
+            String html = Utils.loadStringFromResource(htmlUri, "UTF-8");
+            soup = Jsoup.parse(html);
         } catch (SQLException | CannotLoadJDBCDriverException |IOException ex) {
             fail("Encountered problems connecting to database: " + ex.getMessage());
             return;
         }
     }
 
-    /*
-    @Test
-    public void testsdiaz() {
+    @Before
+    public void setUp() {
         try {
-            String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/OneRecPerTrMultipleTdsTwoLinks.html";
-            String html = Utils.loadStringFromResource(htmlUri, "UTF-8");
-            Document soup = Jsoup.parse(html);
-            ExtractIndividualsStatusReporter status = new ExtractIndividualsStatusReporter(
+            status = new ExtractIndividualsStatusReporter(
                     ExtractIndividualsStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
-            NameElementFinder nameElementFinder = 
-                new NameElementFinder(soup, "UTF-8", status);
-            ContactLinkFinder clFinder = new ContactLinkFinder(nameElementFinder, soup, status);
-            
+            nameElementFinder = new NameElementFinder(soup, "UTF-8", status);
+        } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
+            fail("Encountered problems reading file: " + ex.getMessage());
+        }
+    }    
+    
+    @Test
+    public void testGetNameElement() {
+        try {            
             // Check for correct number of contact links found
-            Assert.assertEquals("Should find one contact link", 1, clFinder.getNumContactLinksFound());
+            Assert.assertEquals("Should find one name element", 1, nameElementFinder.getNameElements().size());
             
             // Check we have the correct name found
             List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement nm = nameElements.get(0);
-            Assert.assertEquals("Name should be SANCHEZ DIAZ, EMILI-MIQUEL", "SANCHEZ DIAZ, EMILI-MIQUEL", nm.toString());
-
-            // Test contact link type = email 
-            EmailContactLink link = nm.getContactLink();
-            Assert.assertEquals("Contact link should be an email", EmailContactLink.ContactType.EMAIL_IN_CONTENT, link.getType());
-            Assert.assertEquals("Contact link should be emilsanchezd@ub.edu", "emilsanchezd@ub.edu", link.getAddress());
-        } catch (IOException | EndNodeWalkingException ex) {
+            NameElement adeval = nameElements.get(0);
+            Assert.assertEquals("Name should be SANCHEZ DIAZ, EMILI-MIQUEL", 
+                    "SANCHEZ DIAZ, EMILI-MIQUEL", adeval.toString());
+        } catch (Exception ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
-    } */
-  
+    }
     
+    @Test
+    public void testGetContactLink() {
+        try {                        
+            // Check we have the correct name found
+            List<NameElement> nameElements = nameElementFinder.getNameElements();
+            NameElement adeval = nameElements.get(0);
+            ContactLink cl = adeval.getContactLink();
+            Assert.assertEquals("Email address must be emilsanchezd@ub.edu", "emilsanchezd@ub.edu", cl.getAddress());
+        } catch (MultipleContactLinksOfSameTypeFoundException ex) {
+            fail("Found too many contact links");
+        } catch (DoesNotContainContactLinkException ex) {
+            fail("No contact links found");
+        }
+    }
+     
 }

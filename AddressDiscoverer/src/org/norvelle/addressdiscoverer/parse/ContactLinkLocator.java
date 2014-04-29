@@ -32,7 +32,7 @@ public class ContactLinkLocator {
         Element currElement = nm.getNameContainingElement();
         
         // We check up to two levels up from where the name was found.
-        while (i < 3) {
+        while (i < 5) {
             try {
                 EmailContactLink link = new EmailContactLink(currElement);
                 return link;
@@ -44,7 +44,7 @@ public class ContactLinkLocator {
         
         // Now check for href elements.
         currElement = nm.getNameContainingElement();
-        while (i < 3) {
+        while (i < 5) {
             try {
                 WebContactLink link = new WebContactLink(currElement);
                 return link;
