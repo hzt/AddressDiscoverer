@@ -10,6 +10,7 @@
  */
 package org.norvelle.addressdiscoverer.classifier;
 
+import org.norvelle.addressdiscoverer.parse.NameElement;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;

@@ -10,13 +10,15 @@
  */
 package org.norvelle.addressdiscoverer.classifier;
 
+import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter;
+
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public interface IProgressConsumer {
     
-    public void reportProgressStage(ClassificationStatusReporter progress);
+    public void reportProgressStage(ExtractIndividualsStatusReporter progress);
     
     public void reportText(String text);
     

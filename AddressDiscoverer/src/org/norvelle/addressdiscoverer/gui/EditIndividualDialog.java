@@ -25,7 +25,7 @@ import org.norvelle.addressdiscoverer.model.KnownLastName;
 public class EditIndividualDialog extends javax.swing.JDialog {
 
     Individual individual;
-    EmailDiscoveryPanel2 parent;
+    EmailDiscoveryPanel parent;
     
     /**
      * Creates new form EditIndividualDialog
@@ -33,7 +33,7 @@ public class EditIndividualDialog extends javax.swing.JDialog {
      * @param individual
      * @param modal
      */
-    public EditIndividualDialog(EmailDiscoveryPanel2 parent, Individual individual, boolean modal) {
+    public EditIndividualDialog(EmailDiscoveryPanel parent, Individual individual, boolean modal) {
         super((JFrame)null, modal);
         this.individual = individual;
         this.parent = parent;

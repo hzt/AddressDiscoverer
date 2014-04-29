@@ -10,7 +10,7 @@
  */
 package org.norvelle.addressdiscoverer;
 
-import org.norvelle.addressdiscoverer.parse.IndividualExtractor;
+import org.norvelle.addressdiscoverer.old.parse.IndividualExtractor;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;

@@ -28,7 +28,7 @@ import org.norvelle.addressdiscoverer.model.UnparsableIndividual;
 public class CreateIndividualFromUnparsedTextDialog extends javax.swing.JDialog {
 
     UnparsableIndividual individual;
-    EmailDiscoveryPanel2 parent;
+    EmailDiscoveryPanel parent;
     Department department;
     
     /**
@@ -38,7 +38,7 @@ public class CreateIndividualFromUnparsedTextDialog extends javax.swing.JDialog 
      * @param department
      * @param modal
      */
-    public CreateIndividualFromUnparsedTextDialog(EmailDiscoveryPanel2 parent, 
+    public CreateIndividualFromUnparsedTextDialog(EmailDiscoveryPanel parent, 
             UnparsableIndividual individual, Department department, boolean modal) 
     {
         super((JFrame)null, modal);

@@ -41,7 +41,7 @@ public class GUIManagementPane extends JPanel {
     
     private JFrame mainWindow;
     private AddressDiscoverer application;
-    private EmailDiscoveryPanel2 emailDiscoveryPanel;
+    private EmailDiscoveryPanel emailDiscoveryPanel;
     private DepartmentListPanel departmentListPanel;
     private InstitutionListPanel institutionListPanel;
     
@@ -52,7 +52,7 @@ public class GUIManagementPane extends JPanel {
         
         //Simple case: creates a split pane with three compartments
         JXMultiSplitPane sp = new JXMultiSplitPane();
-        this.emailDiscoveryPanel = new EmailDiscoveryPanel2(this);
+        this.emailDiscoveryPanel = new EmailDiscoveryPanel(this);
         this.departmentListPanel = new DepartmentListPanel(this);
         this.institutionListPanel = new InstitutionListPanel(this);
 

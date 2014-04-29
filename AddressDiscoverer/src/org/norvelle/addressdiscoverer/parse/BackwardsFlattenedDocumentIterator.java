@@ -16,12 +16,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
-import org.norvelle.addressdiscoverer.Constants;
+import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter;
+import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
+import org.norvelle.addressdiscoverer.model.Name;
 import org.norvelle.utils.Utils;
 
 /**
@@ -32,23 +36,40 @@ import org.norvelle.utils.Utils;
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class BackwardsFlattenedDocumentIterator implements Iterable<String>, Iterator<String> {
+public class BackwardsFlattenedDocumentIterator  
+        implements Iterable<Element>, Iterator<Element> 
+{
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
-    private final List<String> textNodes = new ArrayList<>(); 
-    private final Pattern emailPattern = Pattern.compile(Constants.emailRegex);
+    private final List<Element> elementsWithNames = new ArrayList<>(); 
     private int currPosition;
+    private final ExtractIndividualsStatusReporter status;
 
-    public BackwardsFlattenedDocumentIterator(Document soup, String encoding) 
-            throws UnsupportedEncodingException 
+    /**
+     * Generate the iterator and position its pointer so it can be walked backward
+     * using next()
+     * 
+     * @param soup
+     * @param encoding
+     * @param status
+     * @throws java.io.UnsupportedEncodingException
+     * @throws org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException
+     */
+    public BackwardsFlattenedDocumentIterator(Document soup, String encoding, 
+            ExtractIndividualsStatusReporter status) 
+            throws UnsupportedEncodingException, EndNodeWalkingException 
     {
+        this.status = status;
+        this.status.setTotalNumericSteps(soup.getAllElements().size());
+        
         // First we generate the flattened list of elements
         this.walkNodeBackwards(soup, encoding);
-        logger.log(Level.FINE, "Flattened document: \n" + StringUtils.join(this.textNodes, "\n"));
+        this.status.reportProgressText("Backwards document iterator created successfully");
+        logger.log(Level.FINE, "Flattened document: \n{0}", StringUtils.join(this.elementsWithNames, "\n"));
         
         // Now, we set the cursor to the end so we can iterate backwards
-        this.currPosition = this.textNodes.size() - 1;
+        this.currPosition = this.elementsWithNames.size() - 1;
     }
     
     /**
@@ -57,24 +78,37 @@ public class BackwardsFlattenedDocumentIterator implements Iterable<String>, Ite
      * @param currNode 
      */
     private void walkNodeBackwards(Node currNode, String encoding) 
-            throws UnsupportedEncodingException 
+            throws UnsupportedEncodingException, EndNodeWalkingException 
     {
+        this.status.incrementNumericProgress();
+        //this.status.reportProgressText(String.format("Analyzing node <%s>", currNode.nodeName()));
         List<Node> children = currNode.childNodes();
         for (int i = children.size() - 1; i >= 0; i --) {
             Node child = children.get(i);
-            this.walkNodeBackwards(child, encoding);
-        }
-        if (currNode.hasAttr("href") && 
-                emailPattern.matcher(currNode.attr("href")).matches()) 
-        {
-            this.textNodes.add(0, currNode.attr("href"));
-            return;
-        }
-        if (currNode.getClass().equals(TextNode.class) && !currNode.toString().trim().isEmpty()) {
-            String htmlEncodedString = currNode.toString();
-            String processedString = Utils.decodeHtml(htmlEncodedString, encoding);
-            if (!processedString.trim().isEmpty())
-                this.textNodes.add(0, processedString.trim());
+            if (!child.getClass().equals(TextNode.class))
+                this.walkNodeBackwards(child, encoding);
+            else {
+                TextNode textChild = (TextNode) child;
+                String htmlEncodedString = WordUtils.capitalizeFully(textChild.getWholeText());
+                String processedString = Utils.decodeHtml(htmlEncodedString, encoding);
+                boolean isName;
+                try {
+                    isName = Name.isName(processedString);
+                }
+                catch (Exception ex) {
+                    logger.log(Level.SEVERE, ex.getMessage());
+                    logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(ex));
+                    throw new EndNodeWalkingException(String.format(
+                            "Could not test for nameness: %s %s", ex.getClass().getName(),
+                            ex.getMessage()));
+                }
+                if (!this.elementsWithNames.contains((Element) currNode) && isName) {
+                    this.elementsWithNames.add(0, (Element) currNode);
+                    /*this.status.reportProgressText(
+                            String.format(" Adding <%s> with content '%s'", 
+                                    currNode.nodeName(), processedString)); */
+                }
+            }
         }
     }
 
@@ -84,8 +118,8 @@ public class BackwardsFlattenedDocumentIterator implements Iterable<String>, Ite
     }
 
     @Override
-    public String next() {
-        return this.textNodes.get(this.currPosition --);
+    public Element next() {
+        return this.elementsWithNames.get(this.currPosition --);
     }
 
     @Override
@@ -94,8 +128,16 @@ public class BackwardsFlattenedDocumentIterator implements Iterable<String>, Ite
     }
 
     @Override
-    public Iterator<String> iterator() {
+    public Iterator<Element> iterator() {
         return this;
+    }
+    
+    public void rewind() {
+        this.currPosition = this.elementsWithNames.size() - 1;
+    }
+    
+    public int size() {
+        return this.elementsWithNames.size();
     }
     
 }
