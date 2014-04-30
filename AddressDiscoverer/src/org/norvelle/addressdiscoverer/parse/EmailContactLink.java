@@ -84,8 +84,12 @@ public class EmailContactLink extends ContactLink {
         if (numMatches > 1) {
             String firstEmail = emails.get(0);
             for (String email : emails) 
-                if (!email.equals(firstEmail))
-                    throw new MultipleContactLinksOfSameTypeFoundException(StringUtils.join(emails, ", "));
+                if (!email.equals(firstEmail)) {
+                    String emailStr = StringUtils.join(emails, ", ");
+                    if (emailStr.length() > 100)
+                        emailStr = emailStr.substring(0, 99);
+                    throw new MultipleContactLinksOfSameTypeFoundException(emailStr);
+                }
         }
         
         // Otherwise, we can use the email found above.

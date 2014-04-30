@@ -137,10 +137,10 @@ public class MultipleTdsForSingleRecordPerTrMixedLinkTypes implements IProgressC
                 Individual i = new Individual(nm, email, "", department);
                 Individual.store(i);
             }
-            Assert.assertEquals("There should be 33 individiuals", 33, Individual.getCount());
-            Assert.assertEquals("There should be 33 individuals without emails", 33, emailsNotFound);
-            Assert.assertEquals("There should be 0 individuals with multiple emails", 0, multipleEmailsFound);
-            Assert.assertEquals("There should be 0 individuals with single", 0, singleEmailsFound);
+            Assert.assertEquals("There should be 160 individiuals", 160, Individual.getCount());
+            Assert.assertEquals("There should be 0 individuals without emails", 0, emailsNotFound);
+            Assert.assertEquals("There should be 86 individuals with multiple emails", 86, multipleEmailsFound);
+            Assert.assertEquals("There should be 74 individuals with single", 74, singleEmailsFound);
         } catch (Exception ex) {
             System.err.println(ExceptionUtils.getStackTrace(ex));
             fail("Encountered problems: " + ex.getMessage());
