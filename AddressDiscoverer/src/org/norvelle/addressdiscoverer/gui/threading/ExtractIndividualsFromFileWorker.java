@@ -24,9 +24,16 @@ import org.jsoup.nodes.Document;
 import org.norvelle.addressdiscoverer.AddressDiscoverer;
 import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter.ClassificationStages;
 import org.norvelle.addressdiscoverer.classifier.IProgressConsumer;
+import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
+import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
+import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
 import org.norvelle.addressdiscoverer.parse.NameElementFinder;
 import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
+import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
+import org.norvelle.addressdiscoverer.model.Name;
+import org.norvelle.addressdiscoverer.parse.ContactLink;
+import org.norvelle.addressdiscoverer.parse.NameElement;
 import org.norvelle.utils.Utils;
 
 /**
@@ -41,6 +48,7 @@ public class ExtractIndividualsFromFileWorker
     static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     protected File fileToClassify;
     private final EmailDiscoveryPanel parent;
+    private final Department department;
 
     /**
      * Run the classification process on the contents of a file in the filesystem
@@ -48,10 +56,12 @@ public class ExtractIndividualsFromFileWorker
      * @param parent
      * @param fileToClassify
      */
-    public ExtractIndividualsFromFileWorker(EmailDiscoveryPanel parent, File fileToClassify) 
+    public ExtractIndividualsFromFileWorker(EmailDiscoveryPanel parent, 
+            File fileToClassify, Department department) 
     {
         this.parent = parent;
         this.fileToClassify = fileToClassify;
+        this.department = department;
     }
 
     @Override
@@ -73,7 +83,39 @@ public class ExtractIndividualsFromFileWorker
 
             // Now, fetch the individuals we've extract as a List
             List<Individual> individuals = null; //extractor.getIndividuals();
-            //publish(String.format("Found %d individuals", individuals.size()));
+            List<NameElement> nameElements = nameElementFinder.getNameElements();
+            int count = 0;
+            for (NameElement ne : nameElements) {
+                publish(String.format("Processing name %d out of %d", count ++, nameElements.size()));
+                
+                // First, see if we can parse the name; if not, we skip this name
+                Name nm;
+                try {
+                    nm = ne.getName();
+                }
+                catch (CantParseIndividualException e) {
+                    continue;
+                }
+
+                String email;
+                try {
+                    ContactLink cl = ne.getContactLink();
+                    email = cl.getAddress();
+                }
+                catch (DoesNotContainContactLinkException ex) {
+                    email = "Not found";
+                }
+                catch (MultipleContactLinksOfSameTypeFoundException ex2) {
+                    email = ex2.getMessage();
+                }
+                catch (Exception ex3) {
+                    continue;
+                }
+                Individual i = new Individual(nm, email, "", department);
+                Individual.store(i);
+                individuals.add(i);
+            }
+            publish(String.format("Found %d individuals", individuals.size()));
 
             // All done    
             this.parent.notifyParsingFinished();

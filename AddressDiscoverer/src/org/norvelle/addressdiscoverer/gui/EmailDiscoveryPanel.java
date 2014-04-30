@@ -165,13 +165,13 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             
             // If the user has specified a local file, we use that to fetch HTML
             if (file.exists()) {
-                worker = new ExtractIndividualsFromFileWorker(this, file);
+                worker = new ExtractIndividualsFromFileWorker(this, file, this.currentDepartment);
             } // if file.exists()
             
             // Otherwise we fetch the HTML from the website via HTTP
             else {
                 try {
-                    worker = new ExtractIndividualsFromUrlWorker(this, myURI);
+                    worker = new ExtractIndividualsFromUrlWorker(this, myURI, currentDepartment);
                 } // else
                 catch (URISyntaxException | IOException ex) {
                     AddressDiscoverer.reportException(ex);

@@ -53,4 +53,10 @@ public class IsNameTest {
         Assert.assertTrue("isName should be true for Arnuncio Pastor, J.C.", isName);
     }
     
+    @Test
+    public void testPineda() {
+        boolean isName = Name.isName("PINEDA OLIVA, DAVID");
+        Assert.assertTrue("isName should be true for PINEDA OLIVA, DAVID", isName);
+    }
+    
 }

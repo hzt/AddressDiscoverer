@@ -45,11 +45,13 @@ public class Name {
      * @return 
      */
     public static boolean isName(String chunk) {
+        chunk = chunk.replace(" ", " ");
         String[] words = StringUtils.split(chunk);
         for (String word : words) {
             word = word.trim();
             word = word.replace(",", "");
             word = word.replace(".", "");
+            word = StringUtils.capitalize(word.toLowerCase());
             if (KnownFirstName.isFirstName(word)) {
                 logger.log(Level.FINE, String.format("Word '%s' is a first name", word));
                 return true;

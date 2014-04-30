@@ -46,6 +46,7 @@ public class BackwardsFlattenedDocumentIterator
     private final List<Node> allNodes = new ArrayList<>(); 
     private int currPosition;
     private final ExtractIndividualsStatusReporter status;
+    private static int counter = 0;
 
     /**
      * Generate the iterator and position its pointer so it can be walked backward
@@ -82,7 +83,6 @@ public class BackwardsFlattenedDocumentIterator
             throws UnsupportedEncodingException, EndNodeWalkingException 
     {
         this.status.incrementNumericProgress();
-        //this.status.reportProgressText(String.format("Analyzing node <%s>", currNode.nodeName()));
         List<Node> children = currNode.childNodes();
         for (int i = children.size() - 1; i >= 0; i --) {
             Node child = children.get(i);
@@ -94,7 +94,10 @@ public class BackwardsFlattenedDocumentIterator
                 String processedString = Utils.decodeHtml(htmlEncodedString, encoding);
                 boolean isName;
                 try {
-                    isName = Name.isName(processedString);
+                    counter ++;
+                    if (processedString.trim().isEmpty()) isName = false;
+                    else 
+                        isName = Name.isName(processedString);
                 }
                 catch (Exception ex) {
                     logger.log(Level.SEVERE, ex.getMessage());
