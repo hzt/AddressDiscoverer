@@ -62,7 +62,7 @@ public class WebContactLink extends ContactLink {
         if (hrefs.isEmpty())
             throw new DoesNotContainContactLinkException();
         else if (hrefs.size() > 1)
-            throw new MultipleContactLinksOfSameTypeFoundException();
+            throw new MultipleContactLinksOfSameTypeFoundException("Multiple web links");
         this.address = hrefs.get(0);
     }
 
@@ -95,7 +95,7 @@ public class WebContactLink extends ContactLink {
             Element bodyElement = soup.select("body").first();
             body = bodyElement.html();
         } catch (URISyntaxException | IOException ex) {
-            return null;
+            throw new DoesNotContainContactLinkException(); 
         }
         
         // Now, extract the email if we can.
