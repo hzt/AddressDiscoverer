@@ -11,8 +11,6 @@
 package org.norvelle.addressdiscoverer.parse;
 
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
@@ -44,6 +42,7 @@ public class ContactLinkLocator {
                 return link;
             } catch (DoesNotContainContactLinkException ex) {
                 currElement = currElement.parent();
+                if (currElement == null) break;
                 i ++;
             }
         } // while (i < 3) {
@@ -57,6 +56,7 @@ public class ContactLinkLocator {
                 return link;
             } catch (DoesNotContainContactLinkException ex) {
                 currElement = currElement.parent();
+                if (currElement == null) break;
                 i ++;
             }
         } // while (i < 3) {

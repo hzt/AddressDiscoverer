@@ -84,6 +84,18 @@ public class Individual implements Comparable {
      */
     public Individual() {}
     
+    public Individual(Name name, String email, String unprocessed, Department department) {
+        this.firstName = name.getFirstName();
+        this.lastName = name.getLastName();
+        this.fullName = name.getFullName();
+        this.email = email;
+        this.title = name.getTitle();
+        this.department = department;
+        this.affiliation = "";
+        this.unprocessed = unprocessed;
+        this.parserName = "";
+    }
+    
     public Individual(Name name, String email, String affiliation, String unprocessed, String parserName, Department department) {
         this.firstName = name.getFirstName();
         this.lastName = name.getLastName();

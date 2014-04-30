@@ -8,8 +8,9 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.individuals;
+package org.norvelle.addressdiscoverer.fullpages.structured;
 
+import org.norvelle.addressdiscoverer.individuals.structured.*;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -17,6 +18,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
 import junit.framework.Assert;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import static org.junit.Assert.*;
@@ -27,10 +29,16 @@ import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter;
 import org.norvelle.addressdiscoverer.classifier.IProgressConsumer;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
+import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
+import org.norvelle.addressdiscoverer.model.Department;
+import org.norvelle.addressdiscoverer.model.Individual;
+import org.norvelle.addressdiscoverer.model.Institution;
+import org.norvelle.addressdiscoverer.model.Name;
 import org.norvelle.addressdiscoverer.parse.ContactLink;
+import org.norvelle.addressdiscoverer.parse.ContactLinkLocator;
 import org.norvelle.addressdiscoverer.parse.NameElement;
 import org.norvelle.addressdiscoverer.parse.NameElementFinder;
 import org.norvelle.utils.Utils;
@@ -39,7 +47,7 @@ import org.norvelle.utils.Utils;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class OneRecPerTrMultipleTdsTwoLinks implements IProgressConsumer {
+public class MultipleTdsForSingleRecordPerTrJavascriptLinks implements IProgressConsumer {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
@@ -47,8 +55,9 @@ public class OneRecPerTrMultipleTdsTwoLinks implements IProgressConsumer {
     private static Document soup;
     private ExtractIndividualsStatusReporter status;
     private NameElementFinder nameElementFinder;
+    private static Department department;
 
-    public OneRecPerTrMultipleTdsTwoLinks() {
+    public MultipleTdsForSingleRecordPerTrJavascriptLinks() {
     }
 
     @Override
@@ -65,9 +74,15 @@ public class OneRecPerTrMultipleTdsTwoLinks implements IProgressConsumer {
     @SuppressWarnings("UnnecessaryReturnStatement")
     public static void setUpClass() {
         TestUtilities.setupLogger();
-        try {
+        try {            
+            // Set up a fresh database with dummy objects
+            TestUtilities.deleteDatabase("addresses.test.sqlite");
             connection = TestUtilities.getDBConnection("addresses.test.sqlite");
-            String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/OneRecPerTrMultipleTdsTwoLinks.html";
+            Institution i = Institution.create("Dummy institution");
+            department = Department.create("Dummy department", i);
+            
+            // Fetch the page we'll be working on
+            String htmlUri = "/org/norvelle/addressdiscoverer/resources/fullpages/MultipleTdsForSingleRecordPerTrJavascriptLinks.html";
             String html = Utils.loadStringFromResource(htmlUri, "UTF-8");
             soup = Jsoup.parse(html);
         } catch (SQLException | CannotLoadJDBCDriverException |IOException ex) {
@@ -88,34 +103,48 @@ public class OneRecPerTrMultipleTdsTwoLinks implements IProgressConsumer {
     }    
     
     @Test
-    public void testGetNameElement() {
+    public void testCreateIndividuals() {
+        ContactLinkLocator.baseUrl = "http://departamentos.uca.es/";
+        int emailsNotFound = 0;
+        int multipleEmailsFound = 0;
+        int singleEmailsFound = 0;
         try {            
-            // Check for correct number of contact links found
-            Assert.assertEquals("Should find one name element", 1, nameElementFinder.getNameElements().size());
-            
-            // Check we have the correct name found
             List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
-            Assert.assertEquals("Name should be SANCHEZ DIAZ, EMILI-MIQUEL", 
-                    "SANCHEZ DIAZ, EMILI-MIQUEL", adeval.toString());
+            for (NameElement ne : nameElements) {
+                // First, see if we can parse the name; if not, we skip this name
+                Name nm;
+                try {
+                    nm = ne.getName();
+                }
+                catch (CantParseIndividualException e) {
+                    continue;
+                }
+
+                String email;
+                try {
+                    ContactLink cl = ne.getContactLink();
+                    email = cl.getAddress();
+                    singleEmailsFound ++;
+                }
+                catch (DoesNotContainContactLinkException ex) {
+                    email = "Not found";
+                    emailsNotFound ++;
+                }
+                catch (MultipleContactLinksOfSameTypeFoundException ex2) {
+                    email = ex2.getMessage();
+                    multipleEmailsFound ++;
+                }
+                Individual i = new Individual(nm, email, "", department);
+                Individual.store(i);
+            }
+            Assert.assertEquals("There should be 33 individiuals", 33, Individual.getCount());
+            Assert.assertEquals("There should be 33 individuals without emails", 33, emailsNotFound);
+            Assert.assertEquals("There should be 0 individuals with multiple emails", 0, multipleEmailsFound);
+            Assert.assertEquals("There should be 0 individuals with single", 0, singleEmailsFound);
         } catch (Exception ex) {
-            fail("Encountered problems reading file: " + ex.getMessage());
+            System.err.println(ExceptionUtils.getStackTrace(ex));
+            fail("Encountered problems: " + ex.getMessage());
         }
     }
     
-    @Test
-    public void testGetContactLink() {
-        try {                        
-            // Check we have the correct name found
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
-            ContactLink cl = adeval.getContactLink();
-            Assert.assertEquals("Email address must be emilsanchezd@ub.edu", "emilsanchezd@ub.edu", cl.getAddress());
-        } catch (MultipleContactLinksOfSameTypeFoundException ex) {
-            fail("Found too many contact links");
-        } catch (DoesNotContainContactLinkException ex) {
-            fail("No contact links found");
-        }
-    }
-     
 }

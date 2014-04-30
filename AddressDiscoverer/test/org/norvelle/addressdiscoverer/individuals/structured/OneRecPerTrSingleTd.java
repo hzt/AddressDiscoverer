@@ -8,7 +8,7 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.individuals;
+package org.norvelle.addressdiscoverer.individuals.structured;
 
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
@@ -39,7 +39,7 @@ import org.norvelle.utils.Utils;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class MultipleTdsMultipleRecordsPerTr implements IProgressConsumer {
+public class OneRecPerTrSingleTd implements IProgressConsumer {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
@@ -48,7 +48,7 @@ public class MultipleTdsMultipleRecordsPerTr implements IProgressConsumer {
     private ExtractIndividualsStatusReporter status;
     private NameElementFinder nameElementFinder;
 
-    public MultipleTdsMultipleRecordsPerTr() {
+    public OneRecPerTrSingleTd() {
     }
 
     @Override
@@ -67,8 +67,8 @@ public class MultipleTdsMultipleRecordsPerTr implements IProgressConsumer {
         TestUtilities.setupLogger();
         try {
             connection = TestUtilities.getDBConnection("addresses.test.sqlite");
-            String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/MultipleTdsMultipleRecordsPerTr.html";
-            String html = Utils.loadStringFromResource(htmlUri, "iso-8859-1");
+            String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/OneRecPerTrSingleTd.html";
+            String html = Utils.loadStringFromResource(htmlUri, "UTF-8");
             soup = Jsoup.parse(html);
         } catch (SQLException | CannotLoadJDBCDriverException |IOException ex) {
             fail("Encountered problems connecting to database: " + ex.getMessage());
@@ -91,13 +91,13 @@ public class MultipleTdsMultipleRecordsPerTr implements IProgressConsumer {
     public void testGetNameElement() {
         try {            
             // Check for correct number of contact links found
-            Assert.assertEquals("Should find two name elements", 2, nameElementFinder.getNameElements().size());
+            Assert.assertEquals("Should find one name element", 1, nameElementFinder.getNameElements().size());
             
             // Check we have the correct name found
             List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(1);
-            Assert.assertEquals("Name should be Dr. Jaume Aurell Cardona", 
-                    "Dr. Jaume Aurell Cardona", adeval.toString());
+            NameElement adeval = nameElements.get(0);
+            Assert.assertEquals("Name should be Dr. Agustín González Enciso", 
+                    "Dr. Agustín González Enciso", adeval.toString());
         } catch (Exception ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -108,9 +108,9 @@ public class MultipleTdsMultipleRecordsPerTr implements IProgressConsumer {
         try {                        
             // Check we have the correct name found
             List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(1);
+            NameElement adeval = nameElements.get(0);
             ContactLink cl = adeval.getContactLink();
-            Assert.assertEquals("Email address must be saurell@unav.es", "saurell@unav.es", cl.getAddress());
+            Assert.assertEquals("Email address must be agenciso@unav.es", "agenciso@unav.es", cl.getAddress());
         } catch (MultipleContactLinksOfSameTypeFoundException ex) {
             fail("Found too many contact links");
         } catch (DoesNotContainContactLinkException ex) {

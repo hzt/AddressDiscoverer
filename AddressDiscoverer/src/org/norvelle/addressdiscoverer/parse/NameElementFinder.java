@@ -29,26 +29,8 @@ import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 public class NameElementFinder {
     
     private final List<NameElement> nameElements;
-    //
     private final int numberOfNames;
-    private int numTrs = 0;
-    private int numUls = 0;
-    private int numOls = 0;
-    private int numPs = 0;
-    private int numDivs = 0;
-    private HashMap<String, ArrayList<NameElement>> nameElementsByContainerTypes;
-    private HashMap<String, ArrayList<Element>> containerElementsMap;
     
-    public final ArrayList<String> containerTypes = new ArrayList<String>() {
-        {
-            add("tr");
-            add("ul");
-            add("ol");
-            add("p");
-            add("div");
-        }
-    };
-
     public NameElementFinder(Document soup, String encoding, 
             ExtractIndividualsStatusReporter status) 
             throws UnsupportedEncodingException, EndNodeWalkingException 

@@ -8,7 +8,7 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.individuals;
+package org.norvelle.addressdiscoverer.individuals.structured;
 
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
@@ -39,7 +39,7 @@ import org.norvelle.utils.Utils;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class OneRecPerTrSingleTd implements IProgressConsumer {
+public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer { 
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
@@ -48,7 +48,7 @@ public class OneRecPerTrSingleTd implements IProgressConsumer {
     private ExtractIndividualsStatusReporter status;
     private NameElementFinder nameElementFinder;
 
-    public OneRecPerTrSingleTd() {
+    public MultipleTdsForSingleRecordPerTrNoLinks() {
     }
 
     @Override
@@ -67,7 +67,7 @@ public class OneRecPerTrSingleTd implements IProgressConsumer {
         TestUtilities.setupLogger();
         try {
             connection = TestUtilities.getDBConnection("addresses.test.sqlite");
-            String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/OneRecPerTrSingleTd.html";
+            String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/MultipleTdsForSingleRecordPerTrNoLinks.html";
             String html = Utils.loadStringFromResource(htmlUri, "UTF-8");
             soup = Jsoup.parse(html);
         } catch (SQLException | CannotLoadJDBCDriverException |IOException ex) {
@@ -90,14 +90,15 @@ public class OneRecPerTrSingleTd implements IProgressConsumer {
     @Test
     public void testGetNameElement() {
         try {            
-            // Check for correct number of contact links found
-            Assert.assertEquals("Should find one name element", 1, nameElementFinder.getNameElements().size());
-            
-            // Check we have the correct name found
             List<NameElement> nameElements = nameElementFinder.getNameElements();
             NameElement adeval = nameElements.get(0);
-            Assert.assertEquals("Name should be Dr. Agustín González Enciso", 
-                    "Dr. Agustín González Enciso", adeval.toString());
+
+            // Check for correct number of contact links found
+            Assert.assertEquals("Should find three name elements", 3, nameElementFinder.getNameElements().size());
+            
+            // Check we have the correct name found
+            Assert.assertEquals("Name should be Vicens Hualde, Ignacio", 
+                    "Vicens Hualde, Ignacio", adeval.toString());
         } catch (Exception ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -110,11 +111,11 @@ public class OneRecPerTrSingleTd implements IProgressConsumer {
             List<NameElement> nameElements = nameElementFinder.getNameElements();
             NameElement adeval = nameElements.get(0);
             ContactLink cl = adeval.getContactLink();
-            Assert.assertEquals("Email address must be agenciso@unav.es", "agenciso@unav.es", cl.getAddress());
+            fail("No contact link should be found");
         } catch (MultipleContactLinksOfSameTypeFoundException ex) {
             fail("Found too many contact links");
         } catch (DoesNotContainContactLinkException ex) {
-            fail("No contact links found");
+            //
         }
     }
      

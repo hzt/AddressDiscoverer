@@ -1,28 +1,24 @@
-
-
-
-
-
-
-
-
-
-
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es">
 <head>
-        <title>Lista de profesores</title>
- 		<meta name="robots" content="index,nofollow" />
- 		<meta name="robots" content="noarchive" />
- 		<meta http-equiv="Cache-Control" content="no-cache" />
-		<meta http-equiv="Pragma-directive" content="no-cache" />
-		<meta http-equiv="Cache-Directive" content="no-cache" />
-		<meta http-equiv="Expires" content="0" />
-		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-        <link href="jsp/css/curriculumVitaeWeb.css" rel="stylesheet" type="text/css" media="screen" />
+  <meta name="generator" content=
+  "HTML Tidy for Mac OS X (vers 31 October 2006 - Apple Inc. build 15.12), see www.w3.org" />
 
-        <script type="text/javascript">
+  <title>Lista de profesores</title>
+  <meta name="robots" content="index,nofollow" />
+  <meta name="robots" content="noarchive" />
+  <meta http-equiv="Cache-Control" content="no-cache" />
+  <meta http-equiv="Pragma-directive" content="no-cache" />
+  <meta http-equiv="Cache-Directive" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta http-equiv="Content-Type" content=
+  "text/html; charset=us-ascii" />
+  <link href="jsp/css/curriculumVitaeWeb.css" rel="stylesheet"
+  type="text/css" media="screen" />
+  <script type="text/javascript">
+//<![CDATA[
             function doSearch(crit) {
                 var oForm= document.forms[0];
                 if (crit == 'DT')
@@ -40,500 +36,348 @@
             }
 
 
-        	function viewCV(username) {
+                function viewCV(username) {
                 var oForm= document.forms[0];
                 var url= oForm.urlCampusCV.value;
                 url+= "?operation=" + "view";
                 url+= "&filterTeacherUsername=" + username;
-            	//var cvWindow = window.open(url, "_blank" ,"width=800,height=800,resizable=yes,scrollbars=yes,menubar=yes,status=1");
-            	var cvWindow = window.open(url);
-        	}
-        </script>
+                //var cvWindow = window.open(url, "_blank" ,"width=800,height=800,resizable=yes,scrollbars=yes,menubar=yes,status=1");
+                var cvWindow = window.open(url);
+                }
+  //]]>
+  </script>
 </head>
 
-
-
 <body>
-<div id="wrapList">
-<form id="CurriculumVitaeWebForm" method="post" action="/campus/CurriculumVitaeWeb.do;jsessionid=8C8ADB9E7974B2CBFD4765CFFB42A6AC">
-    <input type="hidden" name="operation" value="search" />
-    <input type="hidden" name="urlCampusCV" value="http://campus.uao.es/campus/CurriculumVitaeWeb.do" />
-    <div id="headerCV">
+  <div id="wrapList">
+    <form id="CurriculumVitaeWebForm" method="post" action=
+    "/campus/CurriculumVitaeWeb.do;jsessionid=8C8ADB9E7974B2CBFD4765CFFB42A6AC"
+    name="CurriculumVitaeWebForm">
+      <input type="hidden" name="operation" value="search" />
+      <input type="hidden" name="urlCampusCV" value=
+      "http://campus.uao.es/campus/CurriculumVitaeWeb.do" />
+
+      <div id="headerCV">
         &nbsp;
-    </div>
-    <br />
-    <h2>
-        Directorio de profesores
-    </h2>
+      </div><br />
 
-    
+      <h2>Directorio de profesores</h2>
 
-    
-    
-    
-
-    
-    
-
-    
-    <table class="list" cellspacing="0">
+      <table class="list" cellspacing="0">
         <tr>
-            <th width="40%">Profesor</th>
-            <th width="60%">Estudios</th>
+          <th width="40%">Profesor</th>
+
+          <th width="60%">Estudios</th>
         </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('falvarezg')">Álvarez Gómez, Fernando</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('abarrabino')">Barrabino García-Manso, Andreu</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('jbarrayc')">Barraycoa Martínez, Javier</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('lbartoli')">Bártoli , Luis Mariano</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('belmonte')">Belmonte Sánchez, Miguel Angel</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('beriain1')">Beriain Bañares, Ana</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('pburrielr')">Burriel Rodríguez Diosdado, Pepa</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('jcorona')">Corona Ramon, Juan Francisco</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('ccortes')">Cortés Pacheco, Carmen</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('jlolmo')">del Olmo Arriaga, Josep Lluís</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('ldiazs')">Díaz Sanidas, Lía</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('echavarria')">Echavarria , Martin</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('igarrosf')">Garrós Font, Inmaculada</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('gginebra')">Ginebra Serrabou, Gabriel</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('agisbertm')">Gisbert Mir, Alejandro</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('cherrerap')">Herrera Petrus, Christian</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('kazmierczak1')">Kazmierczak , Marcin</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('alucase')">Lucas Esteve, Adolfo</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('emartinez')">Martínez García, Enrique</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('amini')">Mini , Alessandro</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('pnuevo')">Nuevo López, Pablo</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('cparra')">Parra Rodríguez, Carmen</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('epeream')">Perea Muñoz, Eva</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('perezdelvalle')">Pérez Del Valle, Carlos</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('jripoll')">Ripoll Alcon, Joan</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('jrobinat')">Robinat Rivadulla, Josep Ramon</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('jrochas')">Rocha Scarpetta, Joan Andreu</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('rozas')">Rozas Valdés, José Andrés</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('aruizp324')">Ruiz Posino, Alex</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('cruizv')">Ruiz Viñals, Carmen</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('jsolanao')">Solana Oliver, Joaquin</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('rsoldevilad')">Soldevila de Monteys, Ramon M.</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color0">
-                    <a href="javascript:viewCV('jvaram')">Vara Martín, Julián</a>
-                </td>
-                
-                <td class="color0">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-        
-            <tr>
-                
-                
-                <td class="color1">
-                    <a href="javascript:viewCV('aviladomatv')">Viladomat Vers, Antoni</a>
-                </td>
-                
-                <td class="color1">Máster Universitario en Estudios Humanísticos y Sociales</td>
-            </tr>
-        
-        
-        
-    </table>
-    
-    
-</form>
-</div>
 
-<p>&nbsp;</p>
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('falvarezg')">&Atilde;lvarez
+          G&Atilde;&sup3;mez, Fernando</a></td>
 
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
 
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('abarrabino')">Barrabino
+          Garc&Atilde;&shy;a-Manso, Andreu</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('jbarrayc')">Barraycoa
+          Mart&Atilde;&shy;nez, Javier</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('lbartoli')">B&Atilde;&iexcl;rtoli ,
+          Luis Mariano</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('belmonte')">Belmonte
+          S&Atilde;&iexcl;nchez, Miguel Angel</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('beriain1')">Beriain
+          Ba&Atilde;&plusmn;ares, Ana</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('pburrielr')">Burriel
+          Rodr&Atilde;&shy;guez Diosdado, Pepa</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('jcorona')">Corona Ramon, Juan
+          Francisco</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('ccortes')">Cort&Atilde;&copy;s
+          Pacheco, Carmen</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('jlolmo')">del Olmo Arriaga, Josep
+          Llu&Atilde;&shy;s</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('ldiazs')">D&Atilde;&shy;az Sanidas,
+          L&Atilde;&shy;a</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('echavarria')">Echavarria ,
+          Martin</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('igarrosf')">Garr&Atilde;&sup3;s Font,
+          Inmaculada</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('gginebra')">Ginebra Serrabou,
+          Gabriel</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('agisbertm')">Gisbert Mir,
+          Alejandro</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('cherrerap')">Herrera Petrus,
+          Christian</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('kazmierczak1')">Kazmierczak ,
+          Marcin</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('alucase')">Lucas Esteve,
+          Adolfo</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('emartinez')">Mart&Atilde;&shy;nez
+          Garc&Atilde;&shy;a, Enrique</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('amini')">Mini , Alessandro</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('pnuevo')">Nuevo L&Atilde;&sup3;pez,
+          Pablo</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('cparra')">Parra
+          Rodr&Atilde;&shy;guez, Carmen</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('epeream')">Perea
+          Mu&Atilde;&plusmn;oz, Eva</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('perezdelvalle')">P&Atilde;&copy;rez
+          Del Valle, Carlos</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('jripoll')">Ripoll Alcon,
+          Joan</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('jrobinat')">Robinat Rivadulla, Josep
+          Ramon</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('jrochas')">Rocha Scarpetta, Joan
+          Andreu</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('rozas')">Rozas Vald&Atilde;&copy;s,
+          Jos&Atilde;&copy; Andr&Atilde;&copy;s</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('aruizp324')">Ruiz Posino,
+          Alex</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('cruizv')">Ruiz Vi&Atilde;&plusmn;als,
+          Carmen</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('jsolanao')">Solana Oliver,
+          Joaquin</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('rsoldevilad')">Soldevila de Monteys,
+          Ramon M.</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color0"><a href=
+          "javascript:viewCV('jvaram')">Vara Mart&Atilde;&shy;n,
+          Juli&Atilde;&iexcl;n</a></td>
+
+          <td class="color0">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+
+        <tr>
+          <td class="color1"><a href=
+          "javascript:viewCV('aviladomatv')">Viladomat Vers,
+          Antoni</a></td>
+
+          <td class="color1">M&Atilde;&iexcl;ster Universitario en
+          Estudios Human&Atilde;&shy;sticos y Sociales</td>
+        </tr>
+      </table>
+    </form>
+  </div>
+
+  <p>&nbsp;</p>
 </body>
 </html>

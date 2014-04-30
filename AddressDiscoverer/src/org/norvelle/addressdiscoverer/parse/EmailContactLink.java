@@ -12,6 +12,7 @@ package org.norvelle.addressdiscoverer.parse;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
@@ -84,7 +85,7 @@ public class EmailContactLink extends ContactLink {
             String firstEmail = emails.get(0);
             for (String email : emails) 
                 if (!email.equals(firstEmail))
-                    throw new MultipleContactLinksOfSameTypeFoundException();
+                    throw new MultipleContactLinksOfSameTypeFoundException(StringUtils.join(emails, ", "));
         }
         
         // Otherwise, we can use the email found above.

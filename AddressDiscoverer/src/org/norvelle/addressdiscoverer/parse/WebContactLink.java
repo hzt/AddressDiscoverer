@@ -78,6 +78,9 @@ public class WebContactLink extends ContactLink {
     public String fetchEmailFromWeblink() throws DoesNotContainContactLinkException  {
         String body;
         
+        if (this.address.startsWith("javascript:"))
+            throw new DoesNotContainContactLinkException(); 
+        
         // Try to fetch the webpage linked to
         try {
             String a = ContactLinkLocator.resolveAddress(this.address);

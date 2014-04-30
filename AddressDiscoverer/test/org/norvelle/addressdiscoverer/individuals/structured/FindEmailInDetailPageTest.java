@@ -8,7 +8,7 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.individuals;
+package org.norvelle.addressdiscoverer.individuals.structured;
 
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;

@@ -43,6 +43,7 @@ public class BackwardsFlattenedDocumentIterator
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
     private final List<Element> elementsWithNames = new ArrayList<>(); 
+    private final List<Node> allNodes = new ArrayList<>(); 
     private int currPosition;
     private final ExtractIndividualsStatusReporter status;
 

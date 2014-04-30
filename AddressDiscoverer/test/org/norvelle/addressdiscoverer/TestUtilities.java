@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.IndividualExtractionFailedException;
@@ -63,6 +64,12 @@ public class TestUtilities {
         }    
         return settingsDir.getAbsolutePath();
     }
+    
+    public static void deleteDatabase(String dbName) {
+        String outputDir = "/Temp"; //TestUtilities.getTestOutputDirectory();
+        String dbFilePath = outputDir + File.separator + dbName;
+        FileUtils.deleteQuietly(new File(dbFilePath));
+    }
 
     @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch"})
     public static ConnectionSource getDBConnection(String dbName) 
@@ -74,7 +81,7 @@ public class TestUtilities {
             throw new CannotLoadJDBCDriverException(ex.getMessage());
         }
         String outputDir = TestUtilities.getTestOutputDirectory();
-        String dbFilePath = outputDir + File.separator + dbName;
+        String dbFilePath = "/Temp" + File.separator + dbName;
 
         // create a database connection and initialize our tables.
         // All object persistence is managed via ORMLite.
