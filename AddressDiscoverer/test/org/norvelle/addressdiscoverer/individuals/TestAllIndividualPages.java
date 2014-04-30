@@ -29,6 +29,7 @@ import org.junit.runners.Suite;
     org.norvelle.addressdiscoverer.individuals.MultipleTdsForSingleRecordPerTrHrefLinks.class,
     org.norvelle.addressdiscoverer.individuals.SingleDivPerRecordWeblinks.class,
     org.norvelle.addressdiscoverer.individuals.SingleRecordPerDivWeblinks.class,
+    org.norvelle.addressdiscoverer.individuals.SingleRecordPerLiWeblinks.class,
     org.norvelle.addressdiscoverer.individuals.MultipleDivsForSingleRecordPerDiv.class
 })
 
