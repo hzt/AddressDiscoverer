@@ -48,6 +48,8 @@ public class Name {
         String[] words = StringUtils.split(chunk);
         for (String word : words) {
             word = word.trim();
+            word = word.replace(",", "");
+            word = word.replace(".", "");
             if (KnownFirstName.isFirstName(word)) {
                 logger.log(Level.FINE, String.format("Word '%s' is a first name", word));
                 return true;

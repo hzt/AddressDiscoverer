@@ -36,8 +36,8 @@ public class NameElementFinder {
     private int numOls = 0;
     private int numPs = 0;
     private int numDivs = 0;
-    private final HashMap<String, ArrayList<NameElement>> nameElementsByContainerTypes;
-    private final HashMap<String, ArrayList<Element>> containerElementsMap;
+    private HashMap<String, ArrayList<NameElement>> nameElementsByContainerTypes;
+    private HashMap<String, ArrayList<Element>> containerElementsMap;
     
     public final ArrayList<String> containerTypes = new ArrayList<String>() {
         {
@@ -57,19 +57,6 @@ public class NameElementFinder {
                 new BackwardsFlattenedDocumentIterator(soup, encoding, status);
         this.nameElements = this.generateNameElements(nameNodes);
         this.numberOfNames = nameElements.size();
-        
-        // Create a mapping between container types and lists of the container 
-        // themselves
-        this.containerElementsMap = this.createContainerElementMap();
-
-        // Create our mapping between container types and the name elements
-        // they contain.
-        this.nameElementsByContainerTypes = this.sortNameElementsByContainer();
-        numTrs = this.nameElementsByContainerTypes.get("tr").size();
-        numUls = this.nameElementsByContainerTypes.get("ul").size();
-        numOls = this.nameElementsByContainerTypes.get("ol").size();
-        numPs = this.nameElementsByContainerTypes.get("p").size();
-        numDivs = this.nameElementsByContainerTypes.get("div").size();
     }
         
     public int getNumberOfNames() {
@@ -78,64 +65,6 @@ public class NameElementFinder {
     
     public List<NameElement> getNameElements() {
         return this.nameElements;
-    }
-
-    public int getNumTrs() {
-        return numTrs;
-    }
-
-    public int getNumUls() {
-        return numUls;
-    }
-
-    public int getNumOls() {
-        return numOls;
-    }
-
-    public int getNumPs() {
-        return numPs;
-    }
-
-    public int getNumDivs() {
-        return numDivs;
-    }
-    
-    /**
-     * Given a container type, find and return all the NameElements that have that
-     * container type as an ancestor.
-     * 
-     * @param containerType String identifying the container type
-     * @return List<NameElement> A List of the NameElements that have that container type as an ancestor.
-     */
-    public List<NameElement> getNameElementsByContainer(String containerType) {
-        return this.nameElementsByContainerTypes.get(containerType);
-    }
-    
-    public NameElementPath getPathToNameElements() {
-        HashMap<String, Integer> namePathsToFrequencies = new HashMap<>();
-        HashMap<String, NameElementPath> namePathsBySignatures = new HashMap<>();
-        for (NameElement nm : this.getNameElements()) {
-            NameElementPath path = new NameElementPath(nm);
-            String signature = path.getSignature();
-            namePathsBySignatures.put(signature, path);
-            int currScore;
-            if (namePathsToFrequencies.containsKey(signature))
-                currScore = namePathsToFrequencies.get(signature);
-            else currScore = 0;
-            namePathsToFrequencies.put(signature, currScore + 1);
-        }
-        
-        // Now, find the path with the highest score and return that.
-        int highScore = 0;
-        NameElementPath highestScoringPath = null;
-        for (String signature : namePathsToFrequencies.keySet()) {
-            int currScore = namePathsToFrequencies.get(signature);
-            if (currScore > highScore) {
-                highScore = currScore;
-                highestScoringPath = namePathsBySignatures.get(signature);
-            }
-        }
-        return highestScoringPath;
     }
 
     /**
@@ -160,38 +89,4 @@ public class NameElementFinder {
         return myNameElements;
     }
 
-    private HashMap<String, ArrayList<NameElement>> sortNameElementsByContainer() {
-        HashMap<String, ArrayList<NameElement>> myNameElementsByContainer = new HashMap<>();
-        myNameElementsByContainer.put("tr", new ArrayList());
-        myNameElementsByContainer.put("ul", new ArrayList());
-        myNameElementsByContainer.put("ol", new ArrayList());
-        myNameElementsByContainer.put("p", new ArrayList());
-        myNameElementsByContainer.put("div", new ArrayList());
-        
-        for (NameElement nm : this.nameElements) {
-            Element container = nm.getContainer();
-            ArrayList<NameElement> myNameElements = 
-                myNameElementsByContainer.get(container.tagName());
-            if (!myNameElements.contains(nm))
-                myNameElements.add(nm);
-        }
-        return myNameElementsByContainer;
-    }
-
-    private HashMap<String, ArrayList<Element>> createContainerElementMap() {
-        HashMap<String, ArrayList<Element>> myNameElementsByContainer = new HashMap<>();
-        myNameElementsByContainer.put("tr", new ArrayList());
-        myNameElementsByContainer.put("ul", new ArrayList());
-        myNameElementsByContainer.put("ol", new ArrayList());
-        myNameElementsByContainer.put("p", new ArrayList());
-        myNameElementsByContainer.put("div", new ArrayList());
-        
-        for (NameElement nm : this.nameElements) {
-            Element container = nm.getContainer();
-            ArrayList<Element> myNameElements = 
-                    myNameElementsByContainer.get(container.tagName());
-            myNameElements.add(container);
-        }
-        return myNameElementsByContainer;
-    }
 }

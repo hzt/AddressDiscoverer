@@ -13,6 +13,7 @@ package org.norvelle.addressdiscoverer.parse;
 import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.Constants;
+import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 
 /**
  *
@@ -33,7 +34,7 @@ public class ContactLink {
         return originalElement;
     }
 
-    public String getAddress() {
+    public String getAddress() throws DoesNotContainContactLinkException {
         return this.address;
     }
     

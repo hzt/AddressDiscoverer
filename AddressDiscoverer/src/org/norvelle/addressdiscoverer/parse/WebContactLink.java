@@ -72,14 +72,16 @@ public class WebContactLink extends ContactLink {
      * by the Individual extractor. Note that we fetch the first such email found
      * and discard others.
      * 
-     * @throws NoContactLinkFoundException 
+     * @return 
+     * @throws org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException 
      */
-    public String fetchEmailFromWeblink()  {
+    public String fetchEmailFromWeblink() throws DoesNotContainContactLinkException  {
         String body;
         
         // Try to fetch the webpage linked to
         try {
-            URL u = new URL(this.address); // this would check for the protocol
+            String a = ContactLinkLocator.resolveAddress(this.address);
+            URL u = new URL(a); 
             u.toURI();
             URLConnection con = u.openConnection();
             InputStream in = con.getInputStream();
@@ -96,7 +98,7 @@ public class WebContactLink extends ContactLink {
         // Now, extract the email if we can.
         String matchFound = this.findEmail(body);
         if (matchFound.isEmpty()) {
-            return null;                
+            throw new DoesNotContainContactLinkException();                
         }
         return matchFound;
     }
@@ -116,9 +118,10 @@ public class WebContactLink extends ContactLink {
      * the referenced page and seek to get an email address from it.
      * 
      * @return 
+     * @throws org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException 
      */
     @Override
-    public String getAddress() {
+    public String getAddress() throws DoesNotContainContactLinkException {
         return this.fetchEmailFromWeblink();
     }
     

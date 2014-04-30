@@ -10,9 +10,13 @@
  */
 package org.norvelle.addressdiscoverer.parse;
 
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
+import org.norvelle.utils.Utils;
 
 /**
  * Specialist static class that knows how to locate associated contact links
@@ -24,6 +28,8 @@ import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeF
  * @author enorvelle
  */
 public class ContactLinkLocator {
+    
+    public static String baseUrl = null;
     
     public static ContactLink findLinkForNameElement(NameElement nm) 
             throws MultipleContactLinksOfSameTypeFoundException, DoesNotContainContactLinkException 
@@ -56,6 +62,41 @@ public class ContactLinkLocator {
         } // while (i < 3) {
 
         throw new DoesNotContainContactLinkException();
+    }
+    
+    public static String resolveAddress(String address) {
+        String newAddress = "";
+        
+        // Do we already have a fully-formed URL?
+        if (address.startsWith("http:")) 
+            newAddress = address;
+        
+        // Now check is we have an absolute path but no protocol
+        else if (address.startsWith("/")) {
+            int slashslash = ContactLinkLocator.baseUrl.indexOf("//") + 2;
+            String domainAndProtocol = ContactLinkLocator.baseUrl.substring(0, ContactLinkLocator.baseUrl.indexOf('/', slashslash));
+            String fullUrl = domainAndProtocol + address;
+            newAddress = fullUrl;
+        }
+        
+        // We have only a relative path
+        else {
+            if (address.startsWith("./"))
+                address = address.substring(2);
+            int lastSlash = ContactLinkLocator.baseUrl.lastIndexOf("/");
+            String choppedUrl = ContactLinkLocator.baseUrl.substring(0, lastSlash + 1);
+            String fullUrl = choppedUrl + address;
+            newAddress = fullUrl;
+        }
+        
+        // De-urlencode the new address
+        String unencodedAddress;
+        try {
+            unencodedAddress = Utils.decodeHtml(newAddress, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            return newAddress;
+        }
+        return unencodedAddress;
     }
     
 }
