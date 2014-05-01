@@ -76,6 +76,7 @@ public class ExtractIndividualsFromFileWorker
             Document soup = Jsoup.parse(html, charset);
             
             // Classify the page to discover its structure
+            parent.getjStageNameLabel().setText("Finding names");
             ExtractIndividualsStatusReporter status = new ExtractIndividualsStatusReporter(
                 ClassificationStages.CREATING_ITERATOR, this);
             NameElementFinder nameElementFinder = 
@@ -84,9 +85,10 @@ public class ExtractIndividualsFromFileWorker
             // Now, fetch the individuals we've extract as a List
             List<Individual> individuals = null; //extractor.getIndividuals();
             List<NameElement> nameElements = nameElementFinder.getNameElements();
-            int count = 0;
+            int count = 1;
             for (NameElement ne : nameElements) {
-                publish(String.format("Processing name %d out of %d", count ++, nameElements.size()));
+                parent.getjStageNameLabel().setText(String.format(
+                        "Processing name %d out of %d", count ++, nameElements.size()));
                 
                 // First, see if we can parse the name; if not, we skip this name
                 Name nm;
@@ -113,9 +115,8 @@ public class ExtractIndividualsFromFileWorker
                 }
                 Individual i = new Individual(nm, email, "", department);
                 Individual.store(i);
-                individuals.add(i);
             }
-            publish(String.format("Found %d individuals", individuals.size()));
+            parent.getjStageNameLabel().setText(String.format("Found %d individuals", Individual.getCount()));
 
             // All done    
             this.parent.notifyParsingFinished();
@@ -131,6 +132,7 @@ public class ExtractIndividualsFromFileWorker
             }
         }
         
+        parent.getjStageNameLabel().setText("Done");
         return "";
     }
     
@@ -141,7 +143,7 @@ public class ExtractIndividualsFromFileWorker
     
     @Override
     public void reportText(String text) {
-        publish(text);
+        this.parent.getjStageNameLabel().setText(text);
     }
 
     /**

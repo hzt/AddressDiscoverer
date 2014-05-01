@@ -106,6 +106,8 @@ public class BackwardsFlattenedDocumentIterator
                             "Could not test for nameness: %s %s", ex.getClass().getName(),
                             ex.getMessage()));
                 }
+                if (isName)
+                    this.status.reportProgressText("Found name: " + processedString);
                 if (!this.elementsWithNames.contains((Element) currNode) && isName) {
                     this.elementsWithNames.add(0, (Element) currNode);
                     /*this.status.reportProgressText(

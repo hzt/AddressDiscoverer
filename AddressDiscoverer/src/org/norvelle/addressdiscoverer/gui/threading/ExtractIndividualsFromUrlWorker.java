@@ -37,6 +37,7 @@ public class ExtractIndividualsFromUrlWorker extends  ExtractIndividualsFromFile
      * 
      * @param parent
      * @param uri
+     * @param department
      * @throws java.net.MalformedURLException
      * @throws java.net.URISyntaxException
      */
@@ -45,7 +46,7 @@ public class ExtractIndividualsFromUrlWorker extends  ExtractIndividualsFromFile
     {
         super(parent, null, department);
         ContactLinkLocator.baseUrl = uri;
-        parent.addToOutput("Reading remote web page");
+        parent.getjStageNameLabel().setText("Reading remote web page");
         URL u = new URL(uri); // this would check for the protocol
         u.toURI();
         URLConnection con = u.openConnection();
@@ -57,6 +58,7 @@ public class ExtractIndividualsFromUrlWorker extends  ExtractIndividualsFromFile
         File tempFile = new File(tempDir.getAbsolutePath() + File.separator + "classifier.html.tmp");
         FileUtils.write(tempFile, body, encoding);
         this.fileToClassify = tempFile;
+        parent.getjBytesReceivedLabel().setText(String.valueOf(body.length()));
     }
     
 }
