@@ -118,7 +118,7 @@ public class AddressDiscoverer {
      */
     private void checkSettingsDirExists() {
         this.settingsDirname = System.getProperty("user.home") + File.separator + 
-            ".addressdiscoverer";
+            "Dropbox/AddressDiscoverer";
         File settingsDir = new File(this.settingsDirname);
         if (! settingsDir.exists()) {
             settingsDir.mkdir();

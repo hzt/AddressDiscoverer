@@ -305,6 +305,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jStageNameLabel = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jAddressesFoundTable = new javax.swing.JTable();
+        jSelectFileButton = new javax.swing.JButton();
         jPageContentTab = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         jDebugOutputTextArea = new javax.swing.JTextArea();
@@ -362,6 +363,13 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         });
         jScrollPane3.setViewportView(jAddressesFoundTable);
 
+        jSelectFileButton.setText("Select File");
+        jSelectFileButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jSelectFileButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jEmailSourceTabLayout = new javax.swing.GroupLayout(jEmailSourceTab);
         jEmailSourceTab.setLayout(jEmailSourceTabLayout);
         jEmailSourceTabLayout.setHorizontalGroup(
@@ -389,7 +397,9 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                     .addGroup(jEmailSourceTabLayout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jWebAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jWebAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jSelectFileButton)))
                 .addContainerGap())
         );
         jEmailSourceTabLayout.setVerticalGroup(
@@ -398,7 +408,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jWebAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jWebAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jSelectFileButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jRetrieveHTMLButton)
@@ -412,7 +423,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -469,6 +480,16 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         
     }//GEN-LAST:event_jSaveResultsButtonActionPerformed
 
+    private void jSelectFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jSelectFileButtonActionPerformed
+        int returnVal = this.jOpenFileChooser.showOpenDialog(this.parent);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = jOpenFileChooser.getSelectedFile();
+            this.jWebAddressField.setText(file.getAbsolutePath());
+            this.jWebAddressField.setCaretPosition(0);
+            this.updateDepartmentWebAddress();
+        }
+    }//GEN-LAST:event_jSelectFileButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable jAddressesFoundTable;
@@ -487,6 +508,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private javax.swing.JButton jSaveResultsButton;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JButton jSelectFileButton;
     private javax.swing.JLabel jStageNameLabel;
     private javax.swing.JTextField jWebAddressField;
     // End of variables declaration//GEN-END:variables

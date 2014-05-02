@@ -272,10 +272,10 @@ public class EditIndividualDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_jCancelButtonActionPerformed
 
     private void jDeleteIndividualButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jDeleteIndividualButtonActionPerformed
-        int reply = JOptionPane.showConfirmDialog(null, "Are you sure?", "Confirm delete", 
-                JOptionPane.YES_NO_OPTION);
-        if (reply == JOptionPane.NO_OPTION) 
-            return;
+        //int reply = JOptionPane.showConfirmDialog(null, "Are you sure?", "Confirm delete", 
+        //        JOptionPane.YES_NO_OPTION);
+        //if (reply == JOptionPane.NO_OPTION) 
+        //    return;
         try {
             this.parent.notifyIndividualDeleted(individual);
             Individual.delete(this.individual);

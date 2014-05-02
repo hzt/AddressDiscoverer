@@ -71,6 +71,11 @@ public class ContactLinkLocator {
         if (address.startsWith("http:")) 
             newAddress = address;
         
+        // Change https to http
+        if (address.startsWith("https:"))
+            newAddress = address;
+        //    newAddress = address.replace("https:", "http:");
+        
         // Now check is we have an absolute path but no protocol
         else if (address.startsWith("/")) {
             int slashslash = ContactLinkLocator.baseUrl.indexOf("//") + 2;

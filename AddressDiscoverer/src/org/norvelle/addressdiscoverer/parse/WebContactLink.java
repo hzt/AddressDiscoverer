@@ -16,9 +16,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -26,7 +28,6 @@ import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
-import org.norvelle.addressdiscoverer.exceptions.NoContactLinkFoundException;
 
 /**
  *
@@ -83,8 +84,8 @@ public class WebContactLink extends ContactLink {
         
         // Try to fetch the webpage linked to
         try {
-            String a = ContactLinkLocator.resolveAddress(this.address);
-            URL u = new URL(a); 
+            String addr = ContactLinkLocator.resolveAddress(this.address);
+            URL u = new URL(addr); 
             u.toURI();
             URLConnection con = u.openConnection();
             InputStream in = con.getInputStream();
@@ -108,12 +109,12 @@ public class WebContactLink extends ContactLink {
     
     private String findEmail(String text) {
         Matcher emailMatcher = emailPattern.matcher(text);
-        String matchFound = "";
+        HashMap<String, Integer> matchesFound = new HashMap();
         while (emailMatcher.find()) {
-            matchFound = text.substring(emailMatcher.start(), emailMatcher.end());
-            break;
+            String matchFound = text.substring(emailMatcher.start(), emailMatcher.end());
+            matchesFound.put(matchFound, 1);
         }        
-        return matchFound;
+        return StringUtils.join(matchesFound.keySet(), ", ");
     }
     
     /**

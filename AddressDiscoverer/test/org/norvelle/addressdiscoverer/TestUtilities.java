@@ -10,7 +10,6 @@
  */
 package org.norvelle.addressdiscoverer;
 
-import org.norvelle.addressdiscoverer.old.parse.IndividualExtractor;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;
@@ -116,11 +115,11 @@ public class TestUtilities {
         String html;
         html = Utils.loadStringFromResource(htmlUri, encoding);
         StatusReporter status = new StatusReporter(StatusReporter.ParsingStages.READING_FILE, null);
-        IndividualExtractor ext = new IndividualExtractor(null, status);
-        List<Individual> individuals = ext.parse(html, encoding);
+        //IndividualExtractor ext = new IndividualExtractor(null, status);
+        //List<Individual> individuals = ext.parse(html, encoding);
         //if (!outputFile.isEmpty())
         //    FileUtils.writeLines(new File(outputFile), rows);
-        return individuals;
+        return null;
     }
     
     public static List extractIndividuals(String htmlUri, String outputFile) 
