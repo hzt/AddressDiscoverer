@@ -6,7 +6,7 @@
  *
  * This project is licensed under the GPL v.3. Your rights to copy and modify
  * are regulated by the conditions specified in that license, available at
- * http://www.gnu.org/licenses/gpl-3.0.html
+ * http://www.gnu.org/licenses/gpl-3.0.html 
  */
 package org.norvelle.addressdiscoverer.individuals.unstructured;
 
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
 import org.jsoup.Jsoup;
@@ -27,14 +26,14 @@ import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter;
 import org.norvelle.addressdiscoverer.classifier.IProgressConsumer;
-import org.norvelle.addressdiscoverer.parse.NameElement;
-import org.norvelle.addressdiscoverer.parse.NameElementFinder;
+import org.norvelle.addressdiscoverer.parse.INameElementFinder;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
-import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.ContactLinkLocator;
+import org.norvelle.addressdiscoverer.parse.INameElement;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
 
 /**
@@ -48,7 +47,7 @@ public class InfoInSuccessivePsNoDivision implements IProgressConsumer {
     private static ConnectionSource connection;
     private static Document soup;
     private ExtractIndividualsStatusReporter status;
-    private NameElementFinder nameElementFinder;
+    private INameElementFinder nameElementFinder;
 
     public InfoInSuccessivePsNoDivision() {
     }
@@ -83,7 +82,7 @@ public class InfoInSuccessivePsNoDivision implements IProgressConsumer {
         try {
             status = new ExtractIndividualsStatusReporter(
                     ExtractIndividualsStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
-            nameElementFinder = new NameElementFinder(soup, "UTF-8", status);
+            nameElementFinder = new StructuredNameElementFinder(soup, "UTF-8", status);
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -96,8 +95,8 @@ public class InfoInSuccessivePsNoDivision implements IProgressConsumer {
             Assert.assertEquals("Should find two name elements", 3, nameElementFinder.getNameElements().size());
             
             // Check we have the correct name found
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            INameElement adeval = nameElements.get(0);
             Assert.assertEquals("Name should be Campo Diaz, Marta", "Campo Diaz, Marta", 
                     adeval.toString());
 
@@ -110,8 +109,8 @@ public class InfoInSuccessivePsNoDivision implements IProgressConsumer {
     public void testGetContactLink() {
         try {                        
             // Check we have the correct name found
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            INameElement adeval = nameElements.get(0);
             ContactLink cl = adeval.getContactLink();
             fail("Should not have found contact link");
         } catch (MultipleContactLinksOfSameTypeFoundException ex) {

@@ -161,16 +161,19 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             File file = new File(myURI);
             ExtractIndividualsFromFileWorker worker;
             this.jDebugOutputTextArea.setText("");
+            boolean useUnstructuredPageParser = this.jUseUnstructuredParserCheckbox.isSelected();
             
             // If the user has specified a local file, we use that to fetch HTML
             if (file.exists()) {
-                worker = new ExtractIndividualsFromFileWorker(this, file, this.currentDepartment);
+                worker = new ExtractIndividualsFromFileWorker(this, file, 
+                        this.currentDepartment, useUnstructuredPageParser);
             } // if file.exists()
             
             // Otherwise we fetch the HTML from the website via HTTP
             else {
                 try {
-                    worker = new ExtractIndividualsFromUrlWorker(this, myURI, currentDepartment);
+                    worker = new ExtractIndividualsFromUrlWorker(this, myURI, 
+                            currentDepartment, useUnstructuredPageParser);
                 } // else
                 catch (URISyntaxException | IOException ex) {
                     AddressDiscoverer.reportException(ex);
@@ -306,6 +309,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
         jScrollPane3 = new javax.swing.JScrollPane();
         jAddressesFoundTable = new javax.swing.JTable();
         jSelectFileButton = new javax.swing.JButton();
+        jUseUnstructuredParserCheckbox = new javax.swing.JCheckBox();
         jPageContentTab = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         jDebugOutputTextArea = new javax.swing.JTextArea();
@@ -370,6 +374,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
             }
         });
 
+        jUseUnstructuredParserCheckbox.setText("Use unstructured page parser");
+
         javax.swing.GroupLayout jEmailSourceTabLayout = new javax.swing.GroupLayout(jEmailSourceTab);
         jEmailSourceTab.setLayout(jEmailSourceTabLayout);
         jEmailSourceTabLayout.setHorizontalGroup(
@@ -385,9 +391,11 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jBytesReceivedLabel))
+                                .addComponent(jBytesReceivedLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 147, Short.MAX_VALUE)
+                                .addComponent(jUseUnstructuredParserCheckbox))
                             .addComponent(jLabel3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 382, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
                         .addComponent(jSaveResultsButton))
                     .addGroup(jEmailSourceTabLayout.createSequentialGroup()
                         .addComponent(jLabel4)
@@ -415,7 +423,8 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
                     .addComponent(jRetrieveHTMLButton)
                     .addComponent(jLabel2)
                     .addComponent(jBytesReceivedLabel)
-                    .addComponent(jSaveResultsButton))
+                    .addComponent(jSaveResultsButton)
+                    .addComponent(jUseUnstructuredParserCheckbox))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jEmailSourceTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
@@ -510,6 +519,7 @@ public class EmailDiscoveryPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JButton jSelectFileButton;
     private javax.swing.JLabel jStageNameLabel;
+    private javax.swing.JCheckBox jUseUnstructuredParserCheckbox;
     private javax.swing.JTextField jWebAddressField;
     // End of variables declaration//GEN-END:variables
 

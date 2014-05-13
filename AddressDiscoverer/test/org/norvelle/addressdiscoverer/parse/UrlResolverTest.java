@@ -10,6 +10,7 @@
  */
 package org.norvelle.addressdiscoverer.parse;
 
+import org.norvelle.addressdiscoverer.parse.structured.ContactLinkLocator;
 import org.norvelle.addressdiscoverer.model.*;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;

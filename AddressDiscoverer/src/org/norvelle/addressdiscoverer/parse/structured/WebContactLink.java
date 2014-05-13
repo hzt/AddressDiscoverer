@@ -8,7 +8,7 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parse;
+package org.norvelle.addressdiscoverer.parse.structured;
 
 import java.io.IOException;
 import java.io.InputStream;

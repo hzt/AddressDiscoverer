@@ -45,6 +45,7 @@ public class EditDepartmentDialog extends javax.swing.JDialog {
         this.jNameField.setText(this.department.getName());
         this.jDirectorField.setText(this.department.getDirector());
         this.jDirectorEmailField.setText(this.department.getDirectorEmail());
+        this.jBaseUrlTextField.setText(this.department.getBaseUrl());
     }
 
     /**
@@ -82,6 +83,8 @@ public class EditDepartmentDialog extends javax.swing.JDialog {
         jCancelButton = new javax.swing.JButton();
         jOkButton = new javax.swing.JButton();
         jDeleteButton = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        jBaseUrlTextField = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Edit Department");
@@ -119,6 +122,8 @@ public class EditDepartmentDialog extends javax.swing.JDialog {
             }
         });
 
+        jLabel3.setText("Base URL:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -136,12 +141,14 @@ public class EditDepartmentDialog extends javax.swing.JDialog {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
                             .addComponent(jLabel2)
-                            .addComponent(jLabel4))
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel3))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jNameField)
                             .addComponent(jDirectorField)
-                            .addComponent(jDirectorEmailField))))
+                            .addComponent(jDirectorEmailField)
+                            .addComponent(jBaseUrlTextField))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -161,10 +168,14 @@ public class EditDepartmentDialog extends javax.swing.JDialog {
                     .addComponent(jDirectorEmailField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jBaseUrlTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCancelButton)
                     .addComponent(jOkButton)
                     .addComponent(jDeleteButton))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -198,6 +209,8 @@ public class EditDepartmentDialog extends javax.swing.JDialog {
                 this.department.setDirector(this.jDirectorField.getText());
             if (!this.jDirectorEmailField.getText().equals(this.department.getDirectorEmail()))
                 this.department.setDirectorEmail(this.jDirectorEmailField.getText());
+            if (!this.jBaseUrlTextField.getText().equals(this.department.getBaseUrl()))
+                this.department.setBaseUrl(this.jBaseUrlTextField.getText());
             Department.update(department);
         } catch (SQLException ex) {
             AddressDiscoverer.reportException(ex);
@@ -230,12 +243,14 @@ public class EditDepartmentDialog extends javax.swing.JDialog {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField jBaseUrlTextField;
     private javax.swing.JButton jCancelButton;
     private javax.swing.JButton jDeleteButton;
     private javax.swing.JTextField jDirectorEmailField;
     private javax.swing.JTextField jDirectorField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JTextField jNameField;
     private javax.swing.JButton jOkButton;

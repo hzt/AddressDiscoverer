@@ -8,12 +8,13 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parse;
+package org.norvelle.addressdiscoverer.parse.structured;
 
 import java.io.UnsupportedEncodingException;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
+import org.norvelle.addressdiscoverer.parse.INameElement;
 import org.norvelle.utils.Utils;
 
 /**
@@ -29,7 +30,7 @@ public class ContactLinkLocator {
     
     public static String baseUrl = null;
     
-    public static ContactLink findLinkForNameElement(NameElement nm) 
+    public static ContactLink findLinkForNameElement(INameElement nm) 
             throws MultipleContactLinksOfSameTypeFoundException, DoesNotContainContactLinkException 
     {
         int i = 0;
@@ -65,7 +66,7 @@ public class ContactLinkLocator {
     }
     
     public static String resolveAddress(String address) {
-        String newAddress = "";
+        String newAddress;
         
         // Do we already have a fully-formed URL?
         if (address.startsWith("http:")) 

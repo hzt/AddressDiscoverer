@@ -8,30 +8,29 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parse;
+package org.norvelle.addressdiscoverer.parse.structured;
 
-import org.norvelle.addressdiscoverer.parse.BackwardsFlattenedDocumentIterator;
+import org.norvelle.addressdiscoverer.parse.INameElementFinder;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter;
-import org.norvelle.addressdiscoverer.classifier.NameElementPath;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
+import org.norvelle.addressdiscoverer.parse.INameElement;
 
 /**
  * Handles finding elements with identifiable names in a given HTML page
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class NameElementFinder {
+public class StructuredNameElementFinder implements INameElementFinder {
     
-    private final List<NameElement> nameElements;
+    private final List<INameElement> nameElements;
     private final int numberOfNames;
     
-    public NameElementFinder(Document soup, String encoding, 
+    public StructuredNameElementFinder(Document soup, String encoding, 
             ExtractIndividualsStatusReporter status) 
             throws UnsupportedEncodingException, EndNodeWalkingException 
     {
@@ -41,11 +40,13 @@ public class NameElementFinder {
         this.numberOfNames = nameElements.size();
     }
         
+    @Override
     public int getNumberOfNames() {
         return this.numberOfNames;
     }
     
-    public List<NameElement> getNameElements() {
+    @Override
+    public List<INameElement> getNameElements() {
         return this.nameElements;
     }
 
@@ -58,13 +59,13 @@ public class NameElementFinder {
      * @param jsoupNameElementIterator
      * @return 
      */
-    private List<NameElement> generateNameElements(
+    private List<INameElement> generateNameElements(
             BackwardsFlattenedDocumentIterator jsoupNameElementIterator) 
     {
-        List<NameElement> myNameElements = new ArrayList<>();
+        List<INameElement> myNameElements = new ArrayList<>();
         
         for (Element jsoupNameElement : jsoupNameElementIterator) {
-            NameElement nameElement = new NameElement(jsoupNameElement);
+            StructuredPageNameElement nameElement = new StructuredPageNameElement(jsoupNameElement);
             myNameElements.add(nameElement);
         }
         

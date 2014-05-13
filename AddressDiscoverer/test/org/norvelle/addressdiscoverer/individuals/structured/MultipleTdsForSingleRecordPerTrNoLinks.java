@@ -30,9 +30,10 @@ import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
-import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.NameElement;
-import org.norvelle.addressdiscoverer.parse.NameElementFinder;
+import org.norvelle.addressdiscoverer.parse.INameElement;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
+import org.norvelle.addressdiscoverer.parse.INameElementFinder;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
 
 /**
@@ -46,7 +47,7 @@ public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer
     private static ConnectionSource connection;
     private static Document soup;
     private ExtractIndividualsStatusReporter status;
-    private NameElementFinder nameElementFinder;
+    private INameElementFinder nameElementFinder;
 
     public MultipleTdsForSingleRecordPerTrNoLinks() {
     }
@@ -81,7 +82,7 @@ public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer
         try {
             status = new ExtractIndividualsStatusReporter(
                     ExtractIndividualsStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
-            nameElementFinder = new NameElementFinder(soup, "UTF-8", status);
+            nameElementFinder = new StructuredNameElementFinder(soup, "UTF-8", status);
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -90,8 +91,8 @@ public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer
     @Test
     public void testGetNameElement() {
         try {            
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            INameElement adeval = nameElements.get(0);
 
             // Check for correct number of contact links found
             Assert.assertEquals("Should find three name elements", 3, nameElementFinder.getNameElements().size());
@@ -108,8 +109,8 @@ public class MultipleTdsForSingleRecordPerTrNoLinks implements IProgressConsumer
     public void testGetContactLink() {
         try {                        
             // Check we have the correct name found
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            INameElement adeval = nameElements.get(0);
             ContactLink cl = adeval.getContactLink();
             fail("No contact link should be found");
         } catch (MultipleContactLinksOfSameTypeFoundException ex) {

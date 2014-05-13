@@ -10,7 +10,6 @@
  */
 package org.norvelle.addressdiscoverer.parse;
 
-import org.norvelle.addressdiscoverer.parse.NameElementFinder;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -27,18 +26,19 @@ import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusRepo
 import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter.ClassificationStages;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
 
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class NameElementFinderTest {
+public class StructuredNameElementFinderTest {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
 
-    public NameElementFinderTest() {
+    public StructuredNameElementFinderTest() {
     }
 
     @BeforeClass
@@ -69,7 +69,7 @@ public class NameElementFinderTest {
         try { 
             ExtractIndividualsStatusReporter status = new ExtractIndividualsStatusReporter(ClassificationStages.CREATING_ITERATOR, null);
             //iterator = new BackwardsFlattenedDocumentIterator(soup, "iso-8859-1", status);
-            NameElementFinder finder = new NameElementFinder(soup, "iso-8859-1", status);
+            StructuredNameElementFinder finder = new StructuredNameElementFinder(soup, "iso-8859-1", status);
             Assert.assertTrue("The finder should have found some names", finder.getNumberOfNames() != 0);
             Assert.assertEquals("The finder should have found 40 names", 40, finder.getNumberOfNames());
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {

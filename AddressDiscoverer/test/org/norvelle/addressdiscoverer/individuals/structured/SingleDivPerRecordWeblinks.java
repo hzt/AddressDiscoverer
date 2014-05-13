@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
 import org.jsoup.Jsoup;
@@ -27,13 +26,15 @@ import org.junit.BeforeClass;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter;
 import org.norvelle.addressdiscoverer.classifier.IProgressConsumer;
-import org.norvelle.addressdiscoverer.parse.NameElement;
-import org.norvelle.addressdiscoverer.parse.NameElementFinder;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageNameElement;
+import org.norvelle.addressdiscoverer.parse.INameElementFinder;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
-import org.norvelle.addressdiscoverer.parse.ContactLink;
+import org.norvelle.addressdiscoverer.parse.INameElement;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
 
 /**
@@ -47,7 +48,7 @@ public class SingleDivPerRecordWeblinks implements IProgressConsumer {
     private static ConnectionSource connection;
     private static Document soup;
     private ExtractIndividualsStatusReporter status;
-    private NameElementFinder nameElementFinder;
+    private INameElementFinder nameElementFinder;
 
     public SingleDivPerRecordWeblinks() {
     }
@@ -82,7 +83,7 @@ public class SingleDivPerRecordWeblinks implements IProgressConsumer {
         try {
             status = new ExtractIndividualsStatusReporter(
                     ExtractIndividualsStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
-            nameElementFinder = new NameElementFinder(soup, "UTF-8", status);
+            nameElementFinder = new StructuredNameElementFinder(soup, "UTF-8", status);
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -95,9 +96,9 @@ public class SingleDivPerRecordWeblinks implements IProgressConsumer {
             Assert.assertEquals("Should find one name element", 2, nameElementFinder.getNameElements().size());
             
             // Check we have the correct name found
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
-            NameElement second = nameElements.get(1);
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            INameElement adeval = nameElements.get(0);
+            INameElement second = nameElements.get(1);
             Assert.assertEquals("Name should be Coll-Vinent Puig, Silvia", "Coll-Vinent Puig, Silvia", 
                     second.toString());
 
@@ -110,8 +111,8 @@ public class SingleDivPerRecordWeblinks implements IProgressConsumer {
     public void testGetContactLink() {
         try {                        
             // Check we have the correct name found
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(1);
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            INameElement adeval = nameElements.get(1);
             ContactLink cl = adeval.getContactLink();
             Assert.assertEquals("Email address must be scollvinent@filosofia.url.edu", "scollvinent@filosofia.url.edu", cl.getAddress());
         } catch (MultipleContactLinksOfSameTypeFoundException ex) {

@@ -60,10 +60,12 @@
                                       <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="jBytesReceivedLabel" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace pref="147" max="32767" attributes="0"/>
+                                      <Component id="jUseUnstructuredParserCheckbox" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace pref="382" max="32767" attributes="0"/>
+                              <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                               <Component id="jSaveResultsButton" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
@@ -99,6 +101,7 @@
                           <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jBytesReceivedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jSaveResultsButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jUseUnstructuredParserCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -207,6 +210,11 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jSelectFileButtonActionPerformed"/>
               </Events>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="jUseUnstructuredParserCheckbox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Use unstructured page parser"/>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>

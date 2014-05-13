@@ -10,7 +10,6 @@
  */
 package org.norvelle.addressdiscoverer.fullpages.structured;
 
-import org.norvelle.addressdiscoverer.individuals.structured.*;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -37,10 +36,11 @@ import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
 import org.norvelle.addressdiscoverer.model.Name;
-import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.ContactLinkLocator;
-import org.norvelle.addressdiscoverer.parse.NameElement;
-import org.norvelle.addressdiscoverer.parse.NameElementFinder;
+import org.norvelle.addressdiscoverer.parse.INameElement;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLinkLocator;
+import org.norvelle.addressdiscoverer.parse.INameElementFinder;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
 
 /**
@@ -54,7 +54,7 @@ public class SingleRecordPerLi implements IProgressConsumer {
     private static ConnectionSource connection;
     private static Document soup;
     private ExtractIndividualsStatusReporter status;
-    private NameElementFinder nameElementFinder;
+    private INameElementFinder nameElementFinder;
     private static Department department;
 
     public SingleRecordPerLi() {
@@ -96,7 +96,7 @@ public class SingleRecordPerLi implements IProgressConsumer {
         try {
             status = new ExtractIndividualsStatusReporter(
                     ExtractIndividualsStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
-            nameElementFinder = new NameElementFinder(soup, "UTF-8", status);
+            nameElementFinder = new StructuredNameElementFinder(soup, "UTF-8", status);
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -109,8 +109,8 @@ public class SingleRecordPerLi implements IProgressConsumer {
         int multipleEmailsFound = 0;
         int singleEmailsFound = 0;
         try {            
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            for (NameElement ne : nameElements) {
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            for (INameElement ne : nameElements) {
                 // First, see if we can parse the name; if not, we skip this name
                 Name nm;
                 try {

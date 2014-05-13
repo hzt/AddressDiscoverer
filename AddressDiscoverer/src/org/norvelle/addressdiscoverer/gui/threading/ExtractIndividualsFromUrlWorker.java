@@ -21,7 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
 import org.norvelle.addressdiscoverer.model.Department;
-import org.norvelle.addressdiscoverer.parse.ContactLinkLocator;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLinkLocator;
 
 /**
  * A SwingWorker to handle setting genders for all Individuals in the background,
@@ -41,10 +41,11 @@ public class ExtractIndividualsFromUrlWorker extends  ExtractIndividualsFromFile
      * @throws java.net.MalformedURLException
      * @throws java.net.URISyntaxException
      */
-    public ExtractIndividualsFromUrlWorker(EmailDiscoveryPanel parent, String uri, Department department) 
+    public ExtractIndividualsFromUrlWorker(EmailDiscoveryPanel parent, String uri, 
+            Department department, boolean useSequentialParser) 
             throws MalformedURLException, URISyntaxException, IOException 
     {
-        super(parent, null, department);
+        super(parent, null, department, useSequentialParser);
         ContactLinkLocator.baseUrl = uri;
         parent.getjStageNameLabel().setText("Reading remote web page");
         URL u = new URL(uri); // this would check for the protocol

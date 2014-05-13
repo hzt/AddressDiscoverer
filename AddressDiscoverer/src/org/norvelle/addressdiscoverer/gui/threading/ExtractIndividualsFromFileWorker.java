@@ -27,13 +27,16 @@ import org.norvelle.addressdiscoverer.classifier.IProgressConsumer;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
-import org.norvelle.addressdiscoverer.parse.NameElementFinder;
 import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
-import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.NameElement;
+import org.norvelle.addressdiscoverer.parse.INameElement;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLinkLocator;
+import org.norvelle.addressdiscoverer.parse.INameElementFinder;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
+import org.norvelle.addressdiscoverer.parse.unstructured.UnstructuredNameElementFinder;
 import org.norvelle.utils.Utils;
 
 /**
@@ -49,19 +52,23 @@ public class ExtractIndividualsFromFileWorker
     protected File fileToClassify;
     private final EmailDiscoveryPanel parent;
     private final Department department;
+    private final boolean useSequentialParser;
 
     /**
      * Run the classification process on the contents of a file in the filesystem
      * 
      * @param parent
      * @param fileToClassify
+     * @param department
+     * @param useSequentialParser
      */
     public ExtractIndividualsFromFileWorker(EmailDiscoveryPanel parent, 
-            File fileToClassify, Department department) 
+            File fileToClassify, Department department, boolean useSequentialParser) 
     {
         this.parent = parent;
         this.fileToClassify = fileToClassify;
         this.department = department;
+        this.useSequentialParser = useSequentialParser;
     }
 
     @Override
@@ -69,6 +76,11 @@ public class ExtractIndividualsFromFileWorker
     protected String doInBackground() throws Exception {
         InputStream in = null;
         try {
+            // Set the base URL if one is specified (in order to resolve urls
+            // that point to web links within downloaded pages
+            if (!department.getBaseUrl().isEmpty())
+                ContactLinkLocator.baseUrl = department.getBaseUrl();
+            
             // Fetch the page and parse it into a JSoup document
             in = new FileInputStream(this.fileToClassify);
             String charset = Utils.getCharsetFromStream(in);
@@ -79,14 +91,17 @@ public class ExtractIndividualsFromFileWorker
             parent.getjStageNameLabel().setText("Finding names");
             ExtractIndividualsStatusReporter status = new ExtractIndividualsStatusReporter(
                 ClassificationStages.CREATING_ITERATOR, this);
-            NameElementFinder nameElementFinder = 
-                new NameElementFinder(soup, charset, status);
+            INameElementFinder nameElementFinder;
+            if (!this.useSequentialParser)
+                nameElementFinder = new StructuredNameElementFinder(soup, charset, status);
+            else
+                nameElementFinder = new UnstructuredNameElementFinder(soup, charset, status);
 
             // Now, fetch the individuals we've extract as a List
             List<Individual> individuals = null; //extractor.getIndividuals();
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
             int count = 1;
-            for (NameElement ne : nameElements) {
+            for (INameElement ne : nameElements) {
                 parent.getjStageNameLabel().setText(String.format(
                         "Processing name %d out of %d", count ++, nameElements.size()));
                 

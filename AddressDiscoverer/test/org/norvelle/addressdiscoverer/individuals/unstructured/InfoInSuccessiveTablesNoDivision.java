@@ -6,9 +6,9 @@
  *
  * This project is licensed under the GPL v.3. Your rights to copy and modify
  * are regulated by the conditions specified in that license, available at
- * http://www.gnu.org/licenses/gpl-3.0.html
+ * http://www.gnu.org/licenses/gpl-3.0.html InfoInSuccessiveTablesNoDivisions_UNAM
  */
-package org.norvelle.addressdiscoverer.individuals.structured;
+package org.norvelle.addressdiscoverer.individuals.unstructured;
 
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
@@ -19,20 +19,20 @@ import java.util.logging.Logger;
 import junit.framework.Assert;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter;
 import org.norvelle.addressdiscoverer.classifier.IProgressConsumer;
+import org.norvelle.addressdiscoverer.parse.INameElementFinder;
 import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
 import org.norvelle.addressdiscoverer.parse.INameElement;
 import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
-import org.norvelle.addressdiscoverer.parse.INameElementFinder;
 import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
 
@@ -40,7 +40,7 @@ import org.norvelle.utils.Utils;
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class OneRecPerTrMultiplePsInTd implements IProgressConsumer {
+public class InfoInSuccessiveTablesNoDivision implements IProgressConsumer {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
@@ -49,7 +49,7 @@ public class OneRecPerTrMultiplePsInTd implements IProgressConsumer {
     private ExtractIndividualsStatusReporter status;
     private INameElementFinder nameElementFinder;
 
-    public OneRecPerTrMultiplePsInTd() {
+    public InfoInSuccessiveTablesNoDivision() {
     }
 
     @Override
@@ -60,7 +60,7 @@ public class OneRecPerTrMultiplePsInTd implements IProgressConsumer {
     @Override
     public void reportText(String text) {
         //System.out.println(text);
-    }
+    } 
 
     @BeforeClass
     @SuppressWarnings("UnnecessaryReturnStatement")
@@ -68,7 +68,7 @@ public class OneRecPerTrMultiplePsInTd implements IProgressConsumer {
         TestUtilities.setupLogger();
         try {
             connection = TestUtilities.getDBConnection("addresses.test.sqlite");
-            String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/OneRecPerTrMultiplePsInTd.html";
+            String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/InfoInSuccessivePsNoDivisionTwoContacts.html";
             String html = Utils.loadStringFromResource(htmlUri, "UTF-8");
             soup = Jsoup.parse(html);
         } catch (SQLException | CannotLoadJDBCDriverException |IOException ex) {
@@ -92,13 +92,14 @@ public class OneRecPerTrMultiplePsInTd implements IProgressConsumer {
     public void testGetNameElement() {
         try {            
             // Check for correct number of contact links found
-            Assert.assertEquals("Should find one name element", 1, nameElementFinder.getNameElements().size());
+            Assert.assertEquals("Should find two name elements", 3, nameElementFinder.getNameElements().size());
             
             // Check we have the correct name found
             List<INameElement> nameElements = nameElementFinder.getNameElements();
             INameElement adeval = nameElements.get(0);
-            Assert.assertEquals("Name should be Dr. Juan José Pons Izquierdo", 
-                    "Dr. Juan José Pons Izquierdo", adeval.toString());
+            Assert.assertEquals("Name should be Campo Diaz, Marta", "Campo Diaz, Marta", 
+                    adeval.toString());
+
         } catch (Exception ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -111,12 +112,12 @@ public class OneRecPerTrMultiplePsInTd implements IProgressConsumer {
             List<INameElement> nameElements = nameElementFinder.getNameElements();
             INameElement adeval = nameElements.get(0);
             ContactLink cl = adeval.getContactLink();
-            Assert.assertEquals("Email address must be jpons@unav.es", "jpons@unav.es", cl.getAddress());
+            fail("Should not have found contact link");
         } catch (MultipleContactLinksOfSameTypeFoundException ex) {
-            fail("Found too many contact links");
+            // 
         } catch (DoesNotContainContactLinkException ex) {
-            fail("No contact links found");
+            fail("No contact link was found");
         }
     }
-     
+    
 }

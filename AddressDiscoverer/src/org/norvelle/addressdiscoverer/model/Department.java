@@ -52,6 +52,9 @@ public class Department implements Comparable {
     @DatabaseField
     private String directorEmail;
     
+    @DatabaseField
+    private String baseUrl;
+    
     @DatabaseField(generatedId = true)
     private int id;
     
@@ -131,6 +134,13 @@ public class Department implements Comparable {
         this.html = html;
     }
 
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
     
     // ===================== Static Data Manipulation Methods =============================
     

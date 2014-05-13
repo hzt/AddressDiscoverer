@@ -10,15 +10,11 @@
  */
 package org.norvelle.addressdiscoverer.model;
 
-import org.norvelle.addressdiscoverer.fullpages.structured.*;
-import org.norvelle.addressdiscoverer.individuals.structured.*;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -36,10 +32,11 @@ import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
-import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.ContactLinkLocator;
-import org.norvelle.addressdiscoverer.parse.NameElement;
-import org.norvelle.addressdiscoverer.parse.NameElementFinder;
+import org.norvelle.addressdiscoverer.parse.INameElement;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLinkLocator;
+import org.norvelle.addressdiscoverer.parse.INameElementFinder;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
 
 /**
@@ -53,7 +50,7 @@ public class Deletion implements IProgressConsumer {
     private static ConnectionSource connection;
     private static Document soup;
     private ExtractIndividualsStatusReporter status;
-    private NameElementFinder nameElementFinder;
+    private INameElementFinder nameElementFinder;
     private static Department department;
     private static Institution institution;
 
@@ -96,7 +93,7 @@ public class Deletion implements IProgressConsumer {
         try {
             status = new ExtractIndividualsStatusReporter(
                     ExtractIndividualsStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
-            nameElementFinder = new NameElementFinder(soup, "UTF-8", status);
+            nameElementFinder = new StructuredNameElementFinder(soup, "UTF-8", status);
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -105,9 +102,9 @@ public class Deletion implements IProgressConsumer {
         int multipleEmailsFound = 0;
         int singleEmailsFound = 0;
         try {            
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
             int count = 0;
-            for (NameElement ne : nameElements) {
+            for (INameElement ne : nameElements) {
                 if (++ count == 6)
                     break;
                 

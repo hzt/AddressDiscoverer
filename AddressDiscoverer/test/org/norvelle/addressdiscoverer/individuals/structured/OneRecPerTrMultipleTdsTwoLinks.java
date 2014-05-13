@@ -30,9 +30,10 @@ import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
-import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.NameElement;
-import org.norvelle.addressdiscoverer.parse.NameElementFinder;
+import org.norvelle.addressdiscoverer.parse.INameElement;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
+import org.norvelle.addressdiscoverer.parse.INameElementFinder;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
 
 /**
@@ -46,7 +47,7 @@ public class OneRecPerTrMultipleTdsTwoLinks implements IProgressConsumer {
     private static ConnectionSource connection;
     private static Document soup;
     private ExtractIndividualsStatusReporter status;
-    private NameElementFinder nameElementFinder;
+    private INameElementFinder nameElementFinder;
 
     public OneRecPerTrMultipleTdsTwoLinks() {
     }
@@ -81,7 +82,7 @@ public class OneRecPerTrMultipleTdsTwoLinks implements IProgressConsumer {
         try {
             status = new ExtractIndividualsStatusReporter(
                     ExtractIndividualsStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
-            nameElementFinder = new NameElementFinder(soup, "UTF-8", status);
+            nameElementFinder = new StructuredNameElementFinder(soup, "UTF-8", status);
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -94,8 +95,8 @@ public class OneRecPerTrMultipleTdsTwoLinks implements IProgressConsumer {
             Assert.assertEquals("Should find one name element", 1, nameElementFinder.getNameElements().size());
             
             // Check we have the correct name found
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            INameElement adeval = nameElements.get(0);
             Assert.assertEquals("Name should be SANCHEZ DIAZ, EMILI-MIQUEL", 
                     "SANCHEZ DIAZ, EMILI-MIQUEL", adeval.toString());
         } catch (Exception ex) {
@@ -107,8 +108,8 @@ public class OneRecPerTrMultipleTdsTwoLinks implements IProgressConsumer {
     public void testGetContactLink() {
         try {                        
             // Check we have the correct name found
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            INameElement adeval = nameElements.get(0);
             ContactLink cl = adeval.getContactLink();
             Assert.assertEquals("Email address must be emilsanchezd@ub.edu", "emilsanchezd@ub.edu", cl.getAddress());
         } catch (MultipleContactLinksOfSameTypeFoundException ex) {

@@ -8,10 +8,11 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parse;
+package org.norvelle.addressdiscoverer.parse.unstructured;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -36,13 +37,15 @@ import org.norvelle.utils.Utils;
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class BackwardsFlattenedDocumentIterator  
+public class ForwardsFlattenedDocumentIterator  
         implements Iterable<Element>, Iterator<Element> 
 {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
     private final List<Element> elementsWithNames = new ArrayList<>(); 
+    private final HashMap<Element, List<Element>> intermediateElementMap = new HashMap<>(); 
+    private List<Element> intermediateElementsList = new ArrayList<>();
     private final List<Node> allNodes = new ArrayList<>(); 
     private int currPosition;
     private final ExtractIndividualsStatusReporter status;
@@ -58,7 +61,7 @@ public class BackwardsFlattenedDocumentIterator
      * @throws java.io.UnsupportedEncodingException
      * @throws org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException
      */
-    public BackwardsFlattenedDocumentIterator(Document soup, String encoding, 
+    public ForwardsFlattenedDocumentIterator(Document soup, String encoding, 
             ExtractIndividualsStatusReporter status) 
             throws UnsupportedEncodingException, EndNodeWalkingException 
     {
@@ -66,12 +69,19 @@ public class BackwardsFlattenedDocumentIterator
         this.status.setTotalNumericSteps(soup.getAllElements().size());
         
         // First we generate the flattened list of elements
-        this.walkNodeBackwards(soup, encoding);
+        this.walkNodeForwards(soup, encoding);
         this.status.reportProgressText("Backwards document iterator created successfully");
         logger.log(Level.FINE, "Flattened document: \n{0}", StringUtils.join(this.elementsWithNames, "\n"));
         
         // Now, we set the cursor to the end so we can iterate backwards
         this.currPosition = this.elementsWithNames.size() - 1;
+        
+        // If we have any remaining Nodes to add as intermediates, add them to
+        // the last name Node we found.
+        if (!intermediateElementsList.isEmpty()) {
+            Element lastNameElement = this.elementsWithNames.get(this.elementsWithNames.size());
+            this.intermediateElementMap.put(lastNameElement, this.intermediateElementsList);
+        }
     }
     
     /**
@@ -79,15 +89,15 @@ public class BackwardsFlattenedDocumentIterator
      * 
      * @param currNode 
      */
-    private void walkNodeBackwards(Node currNode, String encoding) 
+    private void walkNodeForwards(Node currNode, String encoding) 
             throws UnsupportedEncodingException, EndNodeWalkingException 
     {
         this.status.incrementNumericProgress();
         List<Node> children = currNode.childNodes();
-        for (int i = children.size() - 1; i >= 0; i --) {
+        for (int i = 0; i < children.size(); i ++) {
             Node child = children.get(i);
             if (!child.getClass().equals(TextNode.class))
-                this.walkNodeBackwards(child, encoding);
+                this.walkNodeForwards(child, encoding);
             else {
                 TextNode textChild = (TextNode) child;
                 String htmlEncodedString = WordUtils.capitalizeFully(textChild.getWholeText());
@@ -106,16 +116,23 @@ public class BackwardsFlattenedDocumentIterator
                             "Could not test for nameness: %s %s", ex.getClass().getName(),
                             ex.getMessage()));
                 }
-                if (isName)
+                if (isName) {
                     this.status.reportProgressText("Found name: " + processedString);
-                if (!this.elementsWithNames.contains((Element) currNode) && isName) {
-                    this.elementsWithNames.add(0, (Element) currNode);
-                    /*this.status.reportProgressText(
-                            String.format(" Adding <%s> with content '%s'", 
-                                    currNode.nodeName(), processedString)); */
+                    if (!this.elementsWithNames.contains((Element) currNode)) {
+                        this.elementsWithNames.add(0, (Element) currNode);
+                        this.intermediateElementMap.put((Element) currNode, intermediateElementsList);
+                        intermediateElementsList = new ArrayList<>();
+                    }
                 }
-            }
-        }
+                else {
+                    intermediateElementsList.add((Element) currNode);
+                } // isName
+            } // if (!child...
+        } // for(int i...
+    }
+
+    public List<Element> getIntermediateElementMap(Element key) {
+        return intermediateElementMap.get(key);
     }
 
     @Override

@@ -34,9 +34,11 @@ import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
 import org.norvelle.addressdiscoverer.model.Name;
-import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.NameElement;
-import org.norvelle.addressdiscoverer.parse.NameElementFinder;
+import org.norvelle.addressdiscoverer.parse.INameElement;
+import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageNameElement;
+import org.norvelle.addressdiscoverer.parse.INameElementFinder;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
 
 /**
@@ -50,7 +52,7 @@ public class MultipleDivsForSingleRecordPerDiv implements IProgressConsumer {
     private static ConnectionSource connection;
     private static Document soup;
     private ExtractIndividualsStatusReporter status;
-    private NameElementFinder nameElementFinder;
+    private INameElementFinder nameElementFinder;
     private static Department department;
 
     public MultipleDivsForSingleRecordPerDiv() {
@@ -92,7 +94,7 @@ public class MultipleDivsForSingleRecordPerDiv implements IProgressConsumer {
         try {
             status = new ExtractIndividualsStatusReporter(
                     ExtractIndividualsStatusReporter.ClassificationStages.CREATING_ITERATOR, this);
-            nameElementFinder = new NameElementFinder(soup, "UTF-8", status);
+            nameElementFinder = new StructuredNameElementFinder(soup, "UTF-8", status);
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
@@ -105,8 +107,8 @@ public class MultipleDivsForSingleRecordPerDiv implements IProgressConsumer {
             Assert.assertEquals("Should find one name element", 1, nameElementFinder.getNameElements().size());
             
             // Check we have the correct name found
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            INameElement adeval = nameElements.get(0);
             Assert.assertEquals("Name should be GONZALO FISAC, JESUS", 
                     "GONZALO FISAC, JESUS", adeval.toString());
             Name name = adeval.getName();
@@ -121,8 +123,8 @@ public class MultipleDivsForSingleRecordPerDiv implements IProgressConsumer {
     public void testGetContactLink() {
         try {                        
             // Check we have the correct name found
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement adeval = nameElements.get(0);
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            INameElement adeval = nameElements.get(0);
             ContactLink cl = adeval.getContactLink();
             Assert.assertEquals("Email address must be jesus.gonzalez@uca.es", "jesus.gonzalez@uca.es", cl.getAddress());
         } catch (MultipleContactLinksOfSameTypeFoundException ex) {
@@ -136,8 +138,8 @@ public class MultipleDivsForSingleRecordPerDiv implements IProgressConsumer {
     public void testCreateIndividual() {
         try {                        
             // Check we have the correct name found
-            List<NameElement> nameElements = nameElementFinder.getNameElements();
-            NameElement nm = nameElements.get(0);
+            List<INameElement> nameElements = nameElementFinder.getNameElements();
+            INameElement nm = nameElements.get(0);
             ContactLink cl = nm.getContactLink();
             Name name = nm.getName();
             Individual i = new Individual(name, cl.getAddress(), "", department);
