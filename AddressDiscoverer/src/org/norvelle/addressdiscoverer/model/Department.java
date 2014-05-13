@@ -160,6 +160,7 @@ public class Department implements Comparable {
     }
     
     public static void delete(Department d) throws SQLException {
+        Individual.deleteIndividualsForDepartment(d);
         Department.dao.delete(d);
     }
     
@@ -184,6 +185,7 @@ public class Department implements Comparable {
               eq("institution_id", institution).query();
         HashMap<Integer, Department> departments = new HashMap();
         for (Department d : results) {
+            Individual.deleteIndividualsForDepartment(d);
             Department.delete(d);
         }
     }

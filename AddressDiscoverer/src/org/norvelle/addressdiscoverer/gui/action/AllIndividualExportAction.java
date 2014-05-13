@@ -13,10 +13,7 @@ package org.norvelle.addressdiscoverer.gui.action;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
 import org.norvelle.addressdiscoverer.gui.ExportProgressDialog;
-import org.norvelle.addressdiscoverer.model.Individual;
 
 /**
  * handles exporting Individual records to CSV
@@ -32,26 +29,8 @@ public class AllIndividualExportAction extends AbstractIndividualExportAction {
     }
     
     public void export() throws SQLException, IOException {
-        ExportProgressDialog form = new ExportProgressDialog(null);
-        form.setLocationRelativeTo(null);
-        form.setVisible(true);
-        
-        List<Individual> individuals = Individual.getAll();
-        this.export(individuals);
-        
-        // Now mark all the exported individuals as having been exported
-        try {
-            String sql = "UPDATE individual SET exported = 1";
-            Statement stmt = conn.createStatement();
-            stmt.execute(sql);
-            this.conn.close();
-        } catch (SQLException ex) {
-            if (this.conn != null)
-                this.conn.close();
-            form.setVisible(false);
-            throw ex;
-        }
-        form.setVisible(false);
-            
+        //ExportProgressDialog form = new ExportProgressDialog(null);
+        //form.setLocationRelativeTo(null);
+        //form.setVisible(true);
     }
 }

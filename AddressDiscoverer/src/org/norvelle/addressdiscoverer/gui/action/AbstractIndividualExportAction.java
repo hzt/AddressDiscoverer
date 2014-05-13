@@ -50,7 +50,7 @@ public class AbstractIndividualExportAction {
                     .append("\t").append(i.getEmail()).append("\t").append(i.getTitle())
                     .append("\t").append(i.getDepartment().getInstitution().toString())
                     .append("\t").append(i.getDepartment().toString())
-                    .append(i.getRole()).append("\t")
+                    .append("\t").append(i.getRole())
                     .append("\t").append(i.getUnprocessed()).append("\n");
         }
         FileUtils.write(file, csvBuilder, "UTF-8");

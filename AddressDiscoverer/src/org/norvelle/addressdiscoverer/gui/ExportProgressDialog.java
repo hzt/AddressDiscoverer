@@ -10,21 +10,49 @@
  */
 package org.norvelle.addressdiscoverer.gui;
 
+import java.io.File;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.JProgressBar;
+import org.norvelle.addressdiscoverer.AddressDiscoverer;
+import org.norvelle.addressdiscoverer.gui.threading.ExportAllIndividualsWorker;
+import org.norvelle.addressdiscoverer.model.Individual;
+
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
 public class ExportProgressDialog extends javax.swing.JDialog {
 
+    private final File file;
+    private ExportAllIndividualsWorker worker;
+    
     /**
      * Creates new form ExportProgressDialog
      * @param parent
+     * @param file
      */
-    public ExportProgressDialog(java.awt.Frame parent) {
+    public ExportProgressDialog(java.awt.Frame parent, File file) {
         super(parent, false);
         initComponents();
-        this.jExportProgressBar.setIndeterminate(true);
-        
+        this.file = file;
+    }
+    
+    public void doExport() {
+        try {
+            this.jExportProgressBar.setIndeterminate(true);
+            this.jExportQuantityLabel.setText("Exporting " + Individual.getCount() + " individuals");
+            worker = new ExportAllIndividualsWorker(file, this);
+            worker.execute();
+        } catch (SQLException ex) {
+            AddressDiscoverer.reportException(ex);
+        }
+    }
+
+    public JProgressBar getjExportProgressBar() {
+        return jExportProgressBar;
     }
 
     /**
@@ -36,13 +64,16 @@ public class ExportProgressDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        jExportFileChooser = new javax.swing.JFileChooser();
+        jExportQuantityLabel = new javax.swing.JLabel();
         jExportProgressBar = new javax.swing.JProgressBar();
+
+        jExportFileChooser.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Export Progress");
 
-        jLabel1.setText("Exporting...");
+        jExportQuantityLabel.setText("Exporting...");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -51,18 +82,18 @@ public class ExportProgressDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jExportProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jExportProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE))
+                        .addComponent(jExportQuantityLabel)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(12, 12, 12)
+                .addComponent(jExportQuantityLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jExportProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -71,7 +102,8 @@ public class ExportProgressDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JFileChooser jExportFileChooser;
     private javax.swing.JProgressBar jExportProgressBar;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jExportQuantityLabel;
     // End of variables declaration//GEN-END:variables
 }

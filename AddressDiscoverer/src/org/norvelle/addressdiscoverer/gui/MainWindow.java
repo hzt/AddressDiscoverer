@@ -216,7 +216,7 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void jExportAllMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jExportAllMenuItemActionPerformed
-        int returnVal = this.jSaveFileChooser.showOpenDialog(this);
+        int returnVal = this.jSaveFileChooser.showSaveDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = jSaveFileChooser.getSelectedFile();
             if (file.exists()) {
@@ -225,13 +225,10 @@ public class MainWindow extends javax.swing.JFrame {
                 if (reply == JOptionPane.NO_OPTION) 
                     return;
             }
-            try {
-                AllIndividualExportAction exporter = 
-                    new AllIndividualExportAction(file);
-                exporter.export();
-            } catch (IOException | SQLException ex) {
-                AddressDiscoverer.reportException(ex);
-            } 
+            ExportProgressDialog form = new ExportProgressDialog(null, file);
+            form.setLocationRelativeTo(null);
+            form.setVisible(true);
+            form.doExport();
         }
         
     }//GEN-LAST:event_jExportAllMenuItemActionPerformed
