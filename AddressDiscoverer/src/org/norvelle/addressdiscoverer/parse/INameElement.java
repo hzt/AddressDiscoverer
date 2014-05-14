@@ -10,6 +10,7 @@
  */
 package org.norvelle.addressdiscoverer.parse;
 
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageEmailContactLink;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
@@ -26,7 +27,7 @@ public interface INameElement {
 
     Name getName() throws CantParseIndividualException;
 
-    void setContactLink(EmailContactLink link);
+    void setContactLink(StructuredPageEmailContactLink link);
     
     public Element getNameContainingElement();
 

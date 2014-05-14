@@ -11,7 +11,7 @@
 package org.norvelle.addressdiscoverer.parse.unstructured;
 
 import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.EmailContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageEmailContactLink;
 import org.norvelle.addressdiscoverer.parse.structured.*;
 import org.norvelle.addressdiscoverer.parse.INameElement;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import org.norvelle.addressdiscoverer.model.Name;
 public class UnstructuredPageNameElement implements INameElement {
     
     private final Element nameContainingJsoupElement;
-    private EmailContactLink link;
+    private StructuredPageEmailContactLink link;
     private final List<Element> intermediateElements;
     
     public UnstructuredPageNameElement(Element element, List<Element> intermediateElements) {
@@ -38,7 +38,7 @@ public class UnstructuredPageNameElement implements INameElement {
     }
     
     @Override
-    public void setContactLink(EmailContactLink link) {
+    public void setContactLink(StructuredPageEmailContactLink link) {
         this.link = link;
     }
     

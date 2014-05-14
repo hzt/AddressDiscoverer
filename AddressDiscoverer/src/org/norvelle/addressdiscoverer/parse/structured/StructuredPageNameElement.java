@@ -11,7 +11,6 @@
 package org.norvelle.addressdiscoverer.parse.structured;
 
 import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.EmailContactLink;
 import org.norvelle.addressdiscoverer.parse.INameElement;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
@@ -26,14 +25,14 @@ import org.norvelle.addressdiscoverer.model.Name;
 public class StructuredPageNameElement implements INameElement {
     
     private final Element nameContainingJsoupElement;
-    private EmailContactLink link;
+    private StructuredPageEmailContactLink link;
     
     public StructuredPageNameElement(Element element) {
         this.nameContainingJsoupElement = element;
     }
     
     @Override
-    public void setContactLink(EmailContactLink link) {
+    public void setContactLink(StructuredPageEmailContactLink link) {
         this.link = link;
     }
     

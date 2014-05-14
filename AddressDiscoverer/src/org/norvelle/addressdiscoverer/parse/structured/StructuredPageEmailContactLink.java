@@ -8,7 +8,7 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parse;
+package org.norvelle.addressdiscoverer.parse.structured;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
+import org.norvelle.addressdiscoverer.parse.ContactLink;
 
 /**
  * Given a name-containing Jsoup element, search it and its children for an email
@@ -24,7 +25,7 @@ import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeF
  * 
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class EmailContactLink extends ContactLink {
+public class StructuredPageEmailContactLink extends ContactLink {
 
     /**
      * Try to find an email address in both the HTML (so that we can get attributes
@@ -35,7 +36,7 @@ public class EmailContactLink extends ContactLink {
      * @throws DoesNotContainContactLinkException
      * @throws MultipleContactLinksOfSameTypeFoundException 
      */
-    public EmailContactLink(Element element) 
+    public StructuredPageEmailContactLink(Element element) 
             throws DoesNotContainContactLinkException, 
             MultipleContactLinksOfSameTypeFoundException 
     {

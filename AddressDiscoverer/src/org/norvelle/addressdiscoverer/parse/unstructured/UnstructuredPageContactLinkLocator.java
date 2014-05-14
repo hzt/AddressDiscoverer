@@ -11,8 +11,8 @@
 package org.norvelle.addressdiscoverer.parse.unstructured;
 
 import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.WebContactLink;
-import org.norvelle.addressdiscoverer.parse.EmailContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageWebContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageEmailContactLink;
 import org.norvelle.addressdiscoverer.parse.structured.*;
 import org.norvelle.addressdiscoverer.parse.ContactLinkLocator;
 import java.io.UnsupportedEncodingException;
@@ -42,11 +42,13 @@ public class UnstructuredPageContactLinkLocator extends ContactLinkLocator {
     {
         UnstructuredPageNameElement unm = (UnstructuredPageNameElement) nm;
         List<Element> intermediateElements = unm.getIntermediateElements();
+        if (intermediateElements == null || intermediateElements.isEmpty())
+            throw new DoesNotContainContactLinkException();
         
         // First, look for email addresses
         for (Element el : intermediateElements) {
             try {
-                EmailContactLink link = new EmailContactLink(el);
+                UnstructuredPageEmailContactLink link = new UnstructuredPageEmailContactLink(el);
                 return link;
             } catch (DoesNotContainContactLinkException ex) {
                 //;
@@ -57,7 +59,7 @@ public class UnstructuredPageContactLinkLocator extends ContactLinkLocator {
         // Now check for href elements.
         for (Element el : intermediateElements) {
             try {
-                WebContactLink link = new WebContactLink(el);
+                UnstructuredPageWebContactLink link = new UnstructuredPageWebContactLink(el);
                 return link;
             } catch (DoesNotContainContactLinkException ex) {
                 //

@@ -11,8 +11,6 @@
 package org.norvelle.addressdiscoverer.parse.structured;
 
 import org.norvelle.addressdiscoverer.parse.ContactLink;
-import org.norvelle.addressdiscoverer.parse.WebContactLink;
-import org.norvelle.addressdiscoverer.parse.EmailContactLink;
 import org.norvelle.addressdiscoverer.parse.ContactLinkLocator;
 import java.io.UnsupportedEncodingException;
 import org.jsoup.nodes.Element;
@@ -41,7 +39,7 @@ public class StructuredPageContactLinkLocator extends ContactLinkLocator {
         // We check up to two levels up from where the name was found.
         while (i < 5) {
             try {
-                EmailContactLink link = new EmailContactLink(currElement);
+                StructuredPageEmailContactLink link = new StructuredPageEmailContactLink(currElement);
                 return link;
             } catch (DoesNotContainContactLinkException ex) {
                 currElement = currElement.parent();
@@ -55,7 +53,7 @@ public class StructuredPageContactLinkLocator extends ContactLinkLocator {
         i = 0;
         while (i < 5) {
             try {
-                WebContactLink link = new WebContactLink(currElement);
+                StructuredPageWebContactLink link = new StructuredPageWebContactLink(currElement);
                 return link;
             } catch (DoesNotContainContactLinkException ex) {
                 currElement = currElement.parent();

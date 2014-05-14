@@ -8,7 +8,7 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parse;
+package org.norvelle.addressdiscoverer.parse.structured;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,13 +28,14 @@ import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
+import org.norvelle.addressdiscoverer.parse.ContactLink;
 import org.norvelle.addressdiscoverer.parse.structured.StructuredPageContactLinkLocator;
 
 /**
  *
  * @author Erik Norvelle <erik.norvelle@cyberlogos.co>
  */
-public class WebContactLink extends ContactLink {
+public class StructuredPageWebContactLink extends ContactLink {
     
     protected static final Pattern weblinkPattern = Pattern.compile(Constants.weblinkRegex);
     
@@ -46,7 +47,7 @@ public class WebContactLink extends ContactLink {
      * @throws DoesNotContainContactLinkException
      * @throws MultipleContactLinksOfSameTypeFoundException 
      */
-    public WebContactLink(Element element) 
+    public StructuredPageWebContactLink(Element element) 
             throws DoesNotContainContactLinkException, 
             MultipleContactLinksOfSameTypeFoundException 
     {
