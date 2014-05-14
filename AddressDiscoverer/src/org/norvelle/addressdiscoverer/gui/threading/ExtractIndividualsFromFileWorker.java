@@ -32,8 +32,8 @@ import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Name;
 import org.norvelle.addressdiscoverer.parse.INameElement;
-import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
-import org.norvelle.addressdiscoverer.parse.structured.ContactLinkLocator;
+import org.norvelle.addressdiscoverer.parse.ContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageContactLinkLocator;
 import org.norvelle.addressdiscoverer.parse.INameElementFinder;
 import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.addressdiscoverer.parse.unstructured.UnstructuredNameElementFinder;
@@ -79,7 +79,7 @@ public class ExtractIndividualsFromFileWorker
             // Set the base URL if one is specified (in order to resolve urls
             // that point to web links within downloaded pages
             if (!department.getBaseUrl().isEmpty())
-                ContactLinkLocator.baseUrl = department.getBaseUrl();
+                StructuredPageContactLinkLocator.baseUrl = department.getBaseUrl();
             
             // Fetch the page and parse it into a JSoup document
             in = new FileInputStream(this.fileToClassify);

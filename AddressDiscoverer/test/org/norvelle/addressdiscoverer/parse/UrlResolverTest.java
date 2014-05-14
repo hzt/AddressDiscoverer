@@ -10,7 +10,7 @@
  */
 package org.norvelle.addressdiscoverer.parse;
 
-import org.norvelle.addressdiscoverer.parse.structured.ContactLinkLocator;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageContactLinkLocator;
 import org.norvelle.addressdiscoverer.model.*;
 import com.j256.ormlite.support.ConnectionSource;
 import java.io.IOException;
@@ -51,22 +51,22 @@ public class UrlResolverTest {
 
     @Test
     public void testMoreso() {
-        ContactLinkLocator.baseUrl = "http://www.upf.edu/filosofiadeldret/en/professors/permanents/";
-        String resolvedUrl = ContactLinkLocator.resolveAddress("/filosofiadeldret/en/professors/permanents/moreso.html");
+        StructuredPageContactLinkLocator.baseUrl = "http://www.upf.edu/filosofiadeldret/en/professors/permanents/";
+        String resolvedUrl = StructuredPageContactLinkLocator.resolveAddress("/filosofiadeldret/en/professors/permanents/moreso.html");
         Assert.assertEquals("Bad URL resolution", "http://www.upf.edu/filosofiadeldret/en/professors/permanents/moreso.html", resolvedUrl);
     }
     
     @Test
     public void testBazalcorrales() {
-        ContactLinkLocator.baseUrl = "http://www.unav.es/arquitectura/profesores/claustro/";
-        String resolvedUrl = ContactLinkLocator.resolveAddress("http://www.unav.es/arquitectura/profesores/cv/bazalcorralesjesus/");
+        StructuredPageContactLinkLocator.baseUrl = "http://www.unav.es/arquitectura/profesores/claustro/";
+        String resolvedUrl = StructuredPageContactLinkLocator.resolveAddress("http://www.unav.es/arquitectura/profesores/cv/bazalcorralesjesus/");
         Assert.assertEquals("Bad URL resolution", "http://www.unav.es/arquitectura/profesores/cv/bazalcorralesjesus/", resolvedUrl);
     }
     
     @Test
     public void testSanchez() {
-        ContactLinkLocator.baseUrl = "http://directori.ub.edu/dir/?accio=SRCH&unitat=65541";
-        String resolvedUrl = ContactLinkLocator.resolveAddress("./?accio=SEL&amp;id=1h6zw0m31i67t72r&amp;lang=ca");
+        StructuredPageContactLinkLocator.baseUrl = "http://directori.ub.edu/dir/?accio=SRCH&unitat=65541";
+        String resolvedUrl = StructuredPageContactLinkLocator.resolveAddress("./?accio=SEL&amp;id=1h6zw0m31i67t72r&amp;lang=ca");
         Assert.assertEquals("Bad URL resolution", "http://directori.ub.edu/dir/?accio=SEL&id=1h6zw0m31i67t72r&lang=ca", resolvedUrl);
     }
     

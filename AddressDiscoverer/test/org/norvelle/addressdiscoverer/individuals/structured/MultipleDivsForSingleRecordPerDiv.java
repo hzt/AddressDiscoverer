@@ -35,7 +35,7 @@ import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
 import org.norvelle.addressdiscoverer.model.Name;
 import org.norvelle.addressdiscoverer.parse.INameElement;
-import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
+import org.norvelle.addressdiscoverer.parse.ContactLink;
 import org.norvelle.addressdiscoverer.parse.structured.StructuredPageNameElement;
 import org.norvelle.addressdiscoverer.parse.INameElementFinder;
 import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;

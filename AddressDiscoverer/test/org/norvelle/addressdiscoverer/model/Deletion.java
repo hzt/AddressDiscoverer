@@ -33,8 +33,8 @@ import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkExcept
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
 import org.norvelle.addressdiscoverer.parse.INameElement;
-import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
-import org.norvelle.addressdiscoverer.parse.structured.ContactLinkLocator;
+import org.norvelle.addressdiscoverer.parse.ContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageContactLinkLocator;
 import org.norvelle.addressdiscoverer.parse.INameElementFinder;
 import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
@@ -97,7 +97,7 @@ public class Deletion implements IProgressConsumer {
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
         }
-        ContactLinkLocator.baseUrl = "http://www.upf.edu/";
+        StructuredPageContactLinkLocator.baseUrl = "http://www.upf.edu/";
         int emailsNotFound = 0;
         int multipleEmailsFound = 0;
         int singleEmailsFound = 0;

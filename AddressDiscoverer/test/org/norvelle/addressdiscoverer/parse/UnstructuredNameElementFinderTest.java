@@ -16,12 +16,15 @@ import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
+import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.TestUtilities;
 import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter;
 import org.norvelle.addressdiscoverer.gui.threading.ExtractIndividualsStatusReporter.ClassificationStages;
@@ -29,8 +32,8 @@ import org.norvelle.addressdiscoverer.exceptions.CannotLoadJDBCDriverException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
-import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
-import org.norvelle.addressdiscoverer.parse.structured.ContactLinkLocator;
+import static org.norvelle.addressdiscoverer.parse.ContactLink.emailPattern;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageContactLinkLocator;
 import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.addressdiscoverer.parse.unstructured.UnstructuredNameElementFinder;
 import org.norvelle.addressdiscoverer.parse.unstructured.UnstructuredPageNameElement;
@@ -44,6 +47,7 @@ public class UnstructuredNameElementFinderTest {
     
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
+    protected static final Pattern emailPattern = Pattern.compile(Constants.emailRegex);
 
     public UnstructuredNameElementFinderTest() {
     }
@@ -60,7 +64,7 @@ public class UnstructuredNameElementFinderTest {
         }
     }
 
-    @Test
+    //@Test
     @SuppressWarnings("UnnecessaryReturnStatement")
     public void testBackwardsIteratorOnMultipleTdsWithRecordsPerTrIndividual() {
         String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/InfoInSuccessiveTablesNoDivisions_UNAM.html";
@@ -74,7 +78,7 @@ public class UnstructuredNameElementFinderTest {
         
         INameElementFinder finder;
         Document soup = Jsoup.parse(html);
-        try { 
+        try {
             ExtractIndividualsStatusReporter status = new ExtractIndividualsStatusReporter(
                     ClassificationStages.CREATING_ITERATOR, null);
             //iterator = new BackwardsFlattenedDocumentIterator(soup, "iso-8859-1", status);
@@ -83,28 +87,28 @@ public class UnstructuredNameElementFinderTest {
             Assert.assertEquals("The finder should have found 1 names", 1, finder.getNumberOfNames());
 
             // Check we have the correct name found
-           /* List<INameElement> nameElements = finder.getNameElements();
+            List<INameElement> nameElements = finder.getNameElements();
             UnstructuredPageNameElement adeval = (UnstructuredPageNameElement) nameElements.get(0);
-            Assert.assertEquals("The name element should have 13 intermediate elements", 
-                    13, adeval.getIntermediateElements().size());
-
+            Assert.assertEquals("The name element should have 67 intermediate elements", 
+                    67, adeval.getIntermediateElements().size());
+ 
             // Check to name sure the contact link is correct.
             ContactLink cl = adeval.getContactLink();
             ContactLinkLocator.baseUrl = "http://www.directorio.unam.mx/consultasvarias.htm";
             String emailAddress = cl.getAddress();
-            Assert.assertEquals("pedros@unam.mx", emailAddress); */
+            Assert.assertEquals("pedros@unam.mx", emailAddress); 
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems iterating over document: " + ex.getMessage());
-        /*} catch (MultipleContactLinksOfSameTypeFoundException ex) {
+        } catch (MultipleContactLinksOfSameTypeFoundException ex) {
             fail("Found too many contact links");
         } catch (DoesNotContainContactLinkException ex) {
-            fail("No contact link was found"); */
+            fail("No contact link was found"); 
         }
     }
     
-    //@Test
+    @Test
     @SuppressWarnings("UnnecessaryReturnStatement")
-    public void testBackwardsIteratorOnMultipleTdsWithRecordsPerTrFullpage() {
+    public void testUnstructuredNameElementFinder() {
         String htmlUri = "/org/norvelle/addressdiscoverer/resources/fullpages/InfoInSuccessiveTablesNoDivisions_UNAM.html";
         String html;
         try {
@@ -115,15 +119,37 @@ public class UnstructuredNameElementFinderTest {
         }
         
         Document soup = Jsoup.parse(html);
+        int numWithoutEmails = 0;
         try { 
             ExtractIndividualsStatusReporter status = new ExtractIndividualsStatusReporter(ClassificationStages.CREATING_ITERATOR, null);
             //iterator = new BackwardsFlattenedDocumentIterator(soup, "iso-8859-1", status);
-            StructuredNameElementFinder finder = new StructuredNameElementFinder(soup, "UTF-8", status);
+            UnstructuredNameElementFinder finder = new UnstructuredNameElementFinder(soup, "UTF-8", status);
             Assert.assertTrue("The finder should have found some names", finder.getNumberOfNames() != 0);
-            Assert.assertEquals("The finder should have found 80 names", 80, finder.getNumberOfNames());
+            Assert.assertEquals("The finder should have found 7 names", 7, finder.getNumberOfNames());
+
+            // Check to make sure we have enough NameElements with email addresses
+            List<INameElement> nameElements = finder.getNameElements();
+            for (INameElement nm : nameElements) {
+                try {
+                    // Check to name sure the contact link is correct.
+                    ContactLink cl = nm.getContactLink();
+                    ContactLinkLocator.baseUrl = "http://www.directorio.unam.mx/consultasvarias.htm";
+                    String emailAddress = cl.getAddress();
+                    Matcher emailMatcher = emailPattern.matcher(emailAddress);
+                    boolean matchFound = emailMatcher.matches();
+                    Assert.assertEquals("There should be an email address, but found: " 
+                            + emailAddress, true, matchFound); 
+                }
+                catch (MultipleContactLinksOfSameTypeFoundException ex) {
+                    fail("Found too many contact links");
+                } catch (DoesNotContainContactLinkException ex) {
+                    numWithoutEmails ++; 
+                }
+            } // for (INameElement...
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems iterating over document: " + ex.getMessage());
-        }
+        } 
+        Assert.assertEquals("There should only be 3 names without emails", 3, numWithoutEmails);
     }
     
 }

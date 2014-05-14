@@ -10,6 +10,8 @@
  */
 package org.norvelle.addressdiscoverer.parse.unstructured;
 
+import org.norvelle.addressdiscoverer.parse.ContactLink;
+import org.norvelle.addressdiscoverer.parse.EmailContactLink;
 import org.norvelle.addressdiscoverer.parse.structured.*;
 import org.norvelle.addressdiscoverer.parse.INameElement;
 import java.util.ArrayList;
@@ -42,10 +44,10 @@ public class UnstructuredPageNameElement implements INameElement {
     
     @Override
     public ContactLink getContactLink() 
-            throws MultipleContactLinksOfSameTypeFoundException, 
-            DoesNotContainContactLinkException 
+            throws DoesNotContainContactLinkException,
+            MultipleContactLinksOfSameTypeFoundException  
     {
-        ContactLink link = ContactLinkLocator.findLinkForNameElement(this);
+        ContactLink link = UnstructuredPageContactLinkLocator.findLinkForNameElement(this);
         return link; 
     }
     

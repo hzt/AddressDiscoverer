@@ -32,8 +32,8 @@ import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkExcept
 import org.norvelle.addressdiscoverer.exceptions.EndNodeWalkingException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
 import org.norvelle.addressdiscoverer.parse.INameElement;
-import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
-import org.norvelle.addressdiscoverer.parse.structured.ContactLinkLocator;
+import org.norvelle.addressdiscoverer.parse.ContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageContactLinkLocator;
 import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
 
@@ -113,7 +113,7 @@ public class SingleRecordPerLiWeblinks implements IProgressConsumer {
             List<INameElement> nameElements = nameElementFinder.getNameElements();
             INameElement adeval = nameElements.get(0);
             ContactLink cl = adeval.getContactLink();
-            ContactLinkLocator.baseUrl = "http://www.unavarra.es/dep-automaticaycomputacion/personal/personal-docente-e-investigador?rangoLetras=a-z";
+            StructuredPageContactLinkLocator.baseUrl = "http://www.unavarra.es/dep-automaticaycomputacion/personal/personal-docente-e-investigador?rangoLetras=a-z";
             String emailAddress = cl.getAddress();
             Assert.assertEquals("ayc@unavarra.es", emailAddress);
         } catch (MultipleContactLinksOfSameTypeFoundException ex) {

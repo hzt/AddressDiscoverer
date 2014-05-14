@@ -47,6 +47,7 @@ public class ForwardsFlattenedDocumentIterator
     private final HashMap<Element, List<Element>> intermediateElementMap = new HashMap<>(); 
     private List<Element> intermediateElementsList = new ArrayList<>();
     private final List<Node> allNodes = new ArrayList<>(); 
+    private Element lastNameContainingElement;
     private int currPosition;
     private final ExtractIndividualsStatusReporter status;
     private static int counter = 0;
@@ -78,10 +79,8 @@ public class ForwardsFlattenedDocumentIterator
         
         // If we have any remaining Nodes to add as intermediates, add them to
         // the last name Node we found.
-        if (!intermediateElementsList.isEmpty()) {
-            Element lastNameElement = this.elementsWithNames.get(this.elementsWithNames.size());
-            this.intermediateElementMap.put(lastNameElement, this.intermediateElementsList);
-        }
+        if (!intermediateElementsList.isEmpty()) 
+            this.intermediateElementMap.put(lastNameContainingElement, this.intermediateElementsList);
     }
     
     /**
@@ -120,7 +119,9 @@ public class ForwardsFlattenedDocumentIterator
                     this.status.reportProgressText("Found name: " + processedString);
                     if (!this.elementsWithNames.contains((Element) currNode)) {
                         this.elementsWithNames.add(0, (Element) currNode);
-                        this.intermediateElementMap.put((Element) currNode, intermediateElementsList);
+                        if (lastNameContainingElement != null)
+                            this.intermediateElementMap.put((Element) lastNameContainingElement, intermediateElementsList);
+                        else lastNameContainingElement = (Element) currNode;
                         intermediateElementsList = new ArrayList<>();
                     }
                 }

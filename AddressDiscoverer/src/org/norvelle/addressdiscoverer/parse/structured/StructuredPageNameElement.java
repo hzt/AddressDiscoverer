@@ -10,6 +10,8 @@
  */
 package org.norvelle.addressdiscoverer.parse.structured;
 
+import org.norvelle.addressdiscoverer.parse.ContactLink;
+import org.norvelle.addressdiscoverer.parse.EmailContactLink;
 import org.norvelle.addressdiscoverer.parse.INameElement;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
@@ -40,7 +42,7 @@ public class StructuredPageNameElement implements INameElement {
             throws MultipleContactLinksOfSameTypeFoundException, 
             DoesNotContainContactLinkException 
     {
-        ContactLink link = ContactLinkLocator.findLinkForNameElement(this);
+        ContactLink link = StructuredPageContactLinkLocator.findLinkForNameElement(this);
         return link;
     }
     

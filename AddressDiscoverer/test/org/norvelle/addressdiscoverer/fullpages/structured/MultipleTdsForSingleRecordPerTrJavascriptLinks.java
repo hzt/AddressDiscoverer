@@ -37,8 +37,8 @@ import org.norvelle.addressdiscoverer.model.Individual;
 import org.norvelle.addressdiscoverer.model.Institution;
 import org.norvelle.addressdiscoverer.model.Name;
 import org.norvelle.addressdiscoverer.parse.INameElement;
-import org.norvelle.addressdiscoverer.parse.structured.ContactLink;
-import org.norvelle.addressdiscoverer.parse.structured.ContactLinkLocator;
+import org.norvelle.addressdiscoverer.parse.ContactLink;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageContactLinkLocator;
 import org.norvelle.addressdiscoverer.parse.INameElementFinder;
 import org.norvelle.addressdiscoverer.parse.structured.StructuredNameElementFinder;
 import org.norvelle.utils.Utils;
@@ -104,7 +104,7 @@ public class MultipleTdsForSingleRecordPerTrJavascriptLinks implements IProgress
     
     @Test
     public void testCreateIndividuals() {
-        ContactLinkLocator.baseUrl = "http://departamentos.uca.es/";
+        StructuredPageContactLinkLocator.baseUrl = "http://departamentos.uca.es/";
         int emailsNotFound = 0;
         int multipleEmailsFound = 0;
         int singleEmailsFound = 0;

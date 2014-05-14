@@ -8,7 +8,7 @@
  * are regulated by the conditions specified in that license, available at
  * http://www.gnu.org/licenses/gpl-3.0.html
  */
-package org.norvelle.addressdiscoverer.parse.structured;
+package org.norvelle.addressdiscoverer.parse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +28,7 @@ import org.jsoup.select.Elements;
 import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
+import org.norvelle.addressdiscoverer.parse.structured.StructuredPageContactLinkLocator;
 
 /**
  *
@@ -84,7 +85,7 @@ public class WebContactLink extends ContactLink {
         
         // Try to fetch the webpage linked to
         try {
-            String addr = ContactLinkLocator.resolveAddress(this.address);
+            String addr = StructuredPageContactLinkLocator.resolveAddress(this.address);
             URL u = new URL(addr); 
             u.toURI();
             URLConnection con = u.openConnection();

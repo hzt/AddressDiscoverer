@@ -10,6 +10,10 @@
  */
 package org.norvelle.addressdiscoverer.parse.structured;
 
+import org.norvelle.addressdiscoverer.parse.ContactLink;
+import org.norvelle.addressdiscoverer.parse.WebContactLink;
+import org.norvelle.addressdiscoverer.parse.EmailContactLink;
+import org.norvelle.addressdiscoverer.parse.ContactLinkLocator;
 import java.io.UnsupportedEncodingException;
 import org.jsoup.nodes.Element;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
@@ -26,9 +30,7 @@ import org.norvelle.utils.Utils;
  * 
  * @author enorvelle
  */
-public class ContactLinkLocator {
-    
-    public static String baseUrl = null;
+public class StructuredPageContactLinkLocator extends ContactLinkLocator {
     
     public static ContactLink findLinkForNameElement(INameElement nm) 
             throws MultipleContactLinksOfSameTypeFoundException, DoesNotContainContactLinkException 
@@ -63,46 +65,6 @@ public class ContactLinkLocator {
         } // while (i < 3) {
 
         throw new DoesNotContainContactLinkException();
-    }
-    
-    public static String resolveAddress(String address) {
-        String newAddress;
-        
-        // Do we already have a fully-formed URL?
-        if (address.startsWith("http:")) 
-            newAddress = address;
-        
-        // Change https to http
-        if (address.startsWith("https:"))
-            newAddress = address;
-        //    newAddress = address.replace("https:", "http:");
-        
-        // Now check is we have an absolute path but no protocol
-        else if (address.startsWith("/")) {
-            int slashslash = ContactLinkLocator.baseUrl.indexOf("//") + 2;
-            String domainAndProtocol = ContactLinkLocator.baseUrl.substring(0, ContactLinkLocator.baseUrl.indexOf('/', slashslash));
-            String fullUrl = domainAndProtocol + address;
-            newAddress = fullUrl;
-        }
-        
-        // We have only a relative path
-        else {
-            if (address.startsWith("./"))
-                address = address.substring(2);
-            int lastSlash = ContactLinkLocator.baseUrl.lastIndexOf("/");
-            String choppedUrl = ContactLinkLocator.baseUrl.substring(0, lastSlash + 1);
-            String fullUrl = choppedUrl + address;
-            newAddress = fullUrl;
-        }
-        
-        // De-urlencode the new address
-        String unencodedAddress;
-        try {
-            unencodedAddress = Utils.decodeHtml(newAddress, "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            return newAddress;
-        }
-        return unencodedAddress;
     }
     
 }
