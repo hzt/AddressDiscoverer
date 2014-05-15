@@ -20,6 +20,8 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.text.WordUtils;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -44,8 +46,8 @@ public class ForwardsFlattenedDocumentIterator
     // A logger instance
     private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); 
     private final List<Element> elementsWithNames = new ArrayList<>(); 
-    private final HashMap<Element, List<Element>> intermediateElementMap = new HashMap<>(); 
-    private List<Element> intermediateElementsList = new ArrayList<>();
+    private final HashMap<Element, List<String>> intermediateElementMap = new HashMap<>(); 
+    private List<String> intermediateValuesList = new ArrayList<>();
     private final List<Node> allNodes = new ArrayList<>(); 
     private Element lastNameContainingElement;
     private int currPosition;
@@ -79,8 +81,8 @@ public class ForwardsFlattenedDocumentIterator
         
         // If we have any remaining Nodes to add as intermediates, add them to
         // the last name Node we found.
-        if (!intermediateElementsList.isEmpty()) 
-            this.intermediateElementMap.put(lastNameContainingElement, this.intermediateElementsList);
+        if (!intermediateValuesList.isEmpty()) 
+            this.intermediateElementMap.put(lastNameContainingElement, this.intermediateValuesList);
     }
     
     /**
@@ -101,38 +103,38 @@ public class ForwardsFlattenedDocumentIterator
                 TextNode textChild = (TextNode) child;
                 String htmlEncodedString = WordUtils.capitalizeFully(textChild.getWholeText());
                 String processedString = Utils.decodeHtml(htmlEncodedString, encoding);
-                boolean isName;
-                try {
-                    counter ++;
-                    if (processedString.trim().isEmpty()) isName = false;
-                    else 
-                        isName = Name.isName(processedString);
-                }
-                catch (Exception ex) {
-                    logger.log(Level.SEVERE, ex.getMessage());
-                    logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(ex));
-                    throw new EndNodeWalkingException(String.format(
-                            "Could not test for nameness: %s %s", ex.getClass().getName(),
-                            ex.getMessage()));
-                }
+                if (processedString.trim().isEmpty()) continue;
+                boolean isName = Name.isName(processedString);
                 if (isName) {
                     this.status.reportProgressText("Found name: " + processedString);
                     if (!this.elementsWithNames.contains((Element) currNode)) {
                         this.elementsWithNames.add(0, (Element) currNode);
-                        if (lastNameContainingElement != null)
-                            this.intermediateElementMap.put((Element) lastNameContainingElement, intermediateElementsList);
-                        else lastNameContainingElement = (Element) currNode;
-                        intermediateElementsList = new ArrayList<>();
+                        if (lastNameContainingElement != null) 
+                            this.intermediateElementMap.put((Element) lastNameContainingElement, 
+                                    intermediateValuesList);
+                        lastNameContainingElement = (Element) currNode;
+                        intermediateValuesList = new ArrayList<>();
                     }
                 }
-                else {
-                    intermediateElementsList.add((Element) currNode);
+                else { 
+                    intermediateValuesList.add(this.extractText((Element) currNode));
                 } // isName
             } // if (!child...
         } // for(int i...
     }
 
-    public List<Element> getIntermediateElementMap(Element key) {
+    private String extractText(Element currElement) {
+        StringBuilder sb = new StringBuilder();
+        Attributes attrs = currElement.attributes();
+        for (Attribute attr : attrs.asList()) {
+            String attrValue = attr.getValue();
+            sb.append(attr.getKey()).append(": ").append(attrValue).append("\n");
+        } 
+        sb.append(currElement.ownText());
+        return sb.toString();
+    }
+    
+    public List<String> getIntermediateElementMap(Element key) {
         return intermediateElementMap.get(key);
     }
 

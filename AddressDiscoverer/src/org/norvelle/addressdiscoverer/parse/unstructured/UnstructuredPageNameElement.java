@@ -30,11 +30,11 @@ public class UnstructuredPageNameElement implements INameElement {
     
     private final Element nameContainingJsoupElement;
     private StructuredPageEmailContactLink link;
-    private final List<Element> intermediateElements;
+    private final List<String> intermediateValues;
     
-    public UnstructuredPageNameElement(Element element, List<Element> intermediateElements) {
+    public UnstructuredPageNameElement(Element element, List<String> intermediateValues) {
         this.nameContainingJsoupElement = element;
-        this.intermediateElements = intermediateElements;
+        this.intermediateValues = intermediateValues;
     }
     
     @Override
@@ -60,8 +60,8 @@ public class UnstructuredPageNameElement implements INameElement {
         return this.nameContainingJsoupElement;
     }
     
-    public List<Element> getIntermediateElements() {
-        return this.intermediateElements;
+    public List<String> getIntermediateValues() {
+        return this.intermediateValues;
     }
 
     @Override

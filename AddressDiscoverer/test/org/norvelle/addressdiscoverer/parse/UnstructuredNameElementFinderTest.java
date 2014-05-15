@@ -70,7 +70,7 @@ public class UnstructuredNameElementFinderTest {
         String htmlUri = "/org/norvelle/addressdiscoverer/resources/individuals/InfoInSuccessiveTablesNoDivisions_UNAM.html";
         String html;
         try {
-            html = Utils.loadStringFromResource(htmlUri, "UTF-8");
+            html = Utils.loadStringFromResource(htmlUri, "iso-8859-1");
         } catch (IOException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
             return;
@@ -82,15 +82,15 @@ public class UnstructuredNameElementFinderTest {
             ExtractIndividualsStatusReporter status = new ExtractIndividualsStatusReporter(
                     ClassificationStages.CREATING_ITERATOR, null);
             //iterator = new BackwardsFlattenedDocumentIterator(soup, "iso-8859-1", status);
-            finder = new UnstructuredNameElementFinder(soup, "UTF-8", status);
+            finder = new UnstructuredNameElementFinder(soup, "iso-8859-1", status);
             Assert.assertTrue("The finder should have found some names", finder.getNumberOfNames() != 0);
             Assert.assertEquals("The finder should have found 1 names", 1, finder.getNumberOfNames());
 
             // Check we have the correct name found
             List<INameElement> nameElements = finder.getNameElements();
             UnstructuredPageNameElement adeval = (UnstructuredPageNameElement) nameElements.get(0);
-            Assert.assertEquals("The name element should have 67 intermediate elements", 
-                    67, adeval.getIntermediateElements().size());
+            Assert.assertEquals("The name element should have 11 intermediate elements", 
+                    11, adeval.getIntermediateValues().size());
  
             // Check to name sure the contact link is correct.
             ContactLink cl = adeval.getContactLink();
@@ -112,7 +112,7 @@ public class UnstructuredNameElementFinderTest {
         String htmlUri = "/org/norvelle/addressdiscoverer/resources/fullpages/InfoInSuccessiveTablesNoDivisions_UNAM.html";
         String html;
         try {
-            html = Utils.loadStringFromResource(htmlUri, "UTF-8");
+            html = Utils.loadStringFromResource(htmlUri, "iso-8859-1");
         } catch (IOException ex) {
             fail("Encountered problems reading file: " + ex.getMessage());
             return;
@@ -123,7 +123,7 @@ public class UnstructuredNameElementFinderTest {
         try { 
             ExtractIndividualsStatusReporter status = new ExtractIndividualsStatusReporter(ClassificationStages.CREATING_ITERATOR, null);
             //iterator = new BackwardsFlattenedDocumentIterator(soup, "iso-8859-1", status);
-            UnstructuredNameElementFinder finder = new UnstructuredNameElementFinder(soup, "UTF-8", status);
+            UnstructuredNameElementFinder finder = new UnstructuredNameElementFinder(soup, "iso-8859-1", status);
             Assert.assertTrue("The finder should have found some names", finder.getNumberOfNames() != 0);
             Assert.assertEquals("The finder should have found 7 names", 7, finder.getNumberOfNames());
 
@@ -149,7 +149,7 @@ public class UnstructuredNameElementFinderTest {
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems iterating over document: " + ex.getMessage());
         } 
-        Assert.assertEquals("There should only be 3 names without emails", 3, numWithoutEmails);
+        Assert.assertEquals("There should only be 0 names without emails", 0, numWithoutEmails);
     }
     
 }

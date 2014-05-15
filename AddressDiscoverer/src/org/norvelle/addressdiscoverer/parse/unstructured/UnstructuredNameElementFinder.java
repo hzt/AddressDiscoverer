@@ -63,9 +63,9 @@ public class UnstructuredNameElementFinder implements INameElementFinder {
         List<INameElement> myNameElements = new ArrayList<>();
         
         for (Element jsoupNameElement : jsoupNameElementIterator) {
-            List<Element> intermediateElements = this.nameNodes.getIntermediateElementMap(jsoupNameElement);
+            List<String> intermediateValues = this.nameNodes.getIntermediateElementMap(jsoupNameElement);
             UnstructuredPageNameElement nameElement = 
-                    new UnstructuredPageNameElement(jsoupNameElement, intermediateElements);
+                    new UnstructuredPageNameElement(jsoupNameElement, intermediateValues);
             myNameElements.add(nameElement);
         }
         

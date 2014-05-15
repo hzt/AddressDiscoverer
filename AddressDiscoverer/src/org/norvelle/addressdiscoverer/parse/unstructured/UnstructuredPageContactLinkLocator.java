@@ -41,12 +41,12 @@ public class UnstructuredPageContactLinkLocator extends ContactLinkLocator {
             MultipleContactLinksOfSameTypeFoundException 
     {
         UnstructuredPageNameElement unm = (UnstructuredPageNameElement) nm;
-        List<Element> intermediateElements = unm.getIntermediateElements();
-        if (intermediateElements == null || intermediateElements.isEmpty())
+        List<String> intermediateValues = unm.getIntermediateValues();
+        if (intermediateValues == null || intermediateValues.isEmpty())
             throw new DoesNotContainContactLinkException();
         
         // First, look for email addresses
-        for (Element el : intermediateElements) {
+        for (String el : intermediateValues) {
             try {
                 UnstructuredPageEmailContactLink link = new UnstructuredPageEmailContactLink(el);
                 return link;
@@ -57,7 +57,7 @@ public class UnstructuredPageContactLinkLocator extends ContactLinkLocator {
         }
         
         // Now check for href elements.
-        for (Element el : intermediateElements) {
+        for (String el : intermediateValues) {
             try {
                 UnstructuredPageWebContactLink link = new UnstructuredPageWebContactLink(el);
                 return link;

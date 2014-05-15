@@ -48,16 +48,16 @@ public class UnstructuredPageWebContactLink extends ContactLink {
      * @throws DoesNotContainContactLinkException
      * @throws MultipleContactLinksOfSameTypeFoundException 
      */
-    public UnstructuredPageWebContactLink(Element element) 
+    public UnstructuredPageWebContactLink(String content) 
             throws DoesNotContainContactLinkException, 
             MultipleContactLinksOfSameTypeFoundException 
     {
-        super(element);
+        super(null);
         ArrayList<String> hrefs = new ArrayList();
-        Elements elements = element.getAllElements();
-        for (Element child : elements) {
-            if (child.hasAttr("href")) {
-                String href = child.attr("href");
+        String[] contentParts = StringUtils.split(content, "\n");
+        for (String part : contentParts) {
+            if (part.startsWith("href: ")) {
+                String href = part.substring(6);
                 if (!href.startsWith("mailto:"))
                     hrefs.add(href);
             }

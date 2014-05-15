@@ -37,19 +37,12 @@ public class UnstructuredPageEmailContactLink extends ContactLink {
      * @throws DoesNotContainContactLinkException
      * @throws MultipleContactLinksOfSameTypeFoundException 
      */
-    public UnstructuredPageEmailContactLink(Element element) 
+    public UnstructuredPageEmailContactLink(String content) 
             throws DoesNotContainContactLinkException, 
             MultipleContactLinksOfSameTypeFoundException 
     {
-        super(element);
-        String content = element.html();
-        try {
-            this.address = this.findLinkInString(content);
-        }
-        catch (DoesNotContainContactLinkException ex) {
-            content = element.text();
-            this.address = this.findLinkInString(content);
-        }
+        super(null);
+        this.address = this.findLinkInString(content);
     }
     
     /**
