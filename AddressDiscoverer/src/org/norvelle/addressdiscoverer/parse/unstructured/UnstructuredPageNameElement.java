@@ -21,6 +21,7 @@ import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
 import org.norvelle.addressdiscoverer.model.Name;
+import org.norvelle.addressdiscoverer.model.UnamName;
 
 /**
  *
@@ -54,6 +55,11 @@ public class UnstructuredPageNameElement implements INameElement {
     @Override
     public Name getName() throws CantParseIndividualException {
         return new Name(this.nameContainingJsoupElement.ownText());
+    }
+    
+    @Override
+    public UnamName getUnamName() throws CantParseIndividualException {
+        return new UnamName(this.nameContainingJsoupElement.ownText());
     }
     
     public Element getNameContainingElement() {

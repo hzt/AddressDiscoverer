@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
@@ -30,7 +31,7 @@ import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeF
 import org.norvelle.addressdiscoverer.gui.EmailDiscoveryPanel;
 import org.norvelle.addressdiscoverer.model.Department;
 import org.norvelle.addressdiscoverer.model.Individual;
-import org.norvelle.addressdiscoverer.model.Name;
+import org.norvelle.addressdiscoverer.model.UnamName;
 import org.norvelle.addressdiscoverer.parse.INameElement;
 import org.norvelle.addressdiscoverer.parse.ContactLink;
 import org.norvelle.addressdiscoverer.parse.structured.StructuredPageContactLinkLocator;
@@ -81,6 +82,9 @@ public class ExtractIndividualsFromFileWorker
             if (!department.getBaseUrl().isEmpty())
                 StructuredPageContactLinkLocator.baseUrl = department.getBaseUrl();
             
+            // Delete any individuals present from last parse.
+            Individual.deleteIndividualsForDepartment(department);
+            
             // Fetch the page and parse it into a JSoup document
             in = new FileInputStream(this.fileToClassify);
             String charset = Utils.getCharsetFromStream(in);
@@ -106,14 +110,15 @@ public class ExtractIndividualsFromFileWorker
                         "Processing name %d out of %d", count ++, nameElements.size()));
                 
                 // First, see if we can parse the name; if not, we skip this name
-                Name nm;
+                UnamName nm;
                 try {
-                    nm = ne.getName();
+                    nm = ne.getUnamName();
                 }
                 catch (CantParseIndividualException e) {
+                    this.reportException("Couldn't parse name for " + ne.toString());
                     continue;
                 }
-
+                
                 String email;
                 try {
                     ContactLink cl = ne.getContactLink();
@@ -126,6 +131,7 @@ public class ExtractIndividualsFromFileWorker
                     email = ex2.getMessage();
                 }
                 catch (Exception ex3) {
+                    this.reportException(String.format("Exception '%s' while processing %s", ex3.getMessage(), ne.toString()));
                     continue;
                 }
                 Individual i = new Individual(nm, email, "", department);
@@ -151,6 +157,17 @@ public class ExtractIndividualsFromFileWorker
         return "";
     }
     
+    /**
+     * A single-access point for reporting exceptions to the user.
+     * 
+     * @param message
+     */
+    public void reportException(String message) {
+        JOptionPane.showMessageDialog(null,
+            Utils.wordWrapString(message, 70),
+            "Program error", JOptionPane.ERROR_MESSAGE);
+    }
+
     @Override
     public void reportProgressStage(ExtractIndividualsStatusReporter progress) {
         publish(progress.toString());

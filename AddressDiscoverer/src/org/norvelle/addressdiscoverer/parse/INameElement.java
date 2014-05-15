@@ -16,6 +16,7 @@ import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 import org.norvelle.addressdiscoverer.exceptions.DoesNotContainContactLinkException;
 import org.norvelle.addressdiscoverer.exceptions.MultipleContactLinksOfSameTypeFoundException;
 import org.norvelle.addressdiscoverer.model.Name;
+import org.norvelle.addressdiscoverer.model.UnamName;
 
 /**
  *
@@ -26,6 +27,8 @@ public interface INameElement {
     ContactLink getContactLink() throws MultipleContactLinksOfSameTypeFoundException, DoesNotContainContactLinkException;
 
     Name getName() throws CantParseIndividualException;
+
+    UnamName getUnamName() throws CantParseIndividualException;
 
     void setContactLink(StructuredPageEmailContactLink link);
     
