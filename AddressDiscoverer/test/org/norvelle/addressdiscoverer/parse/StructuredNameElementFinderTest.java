@@ -71,7 +71,7 @@ public class StructuredNameElementFinderTest {
             //iterator = new BackwardsFlattenedDocumentIterator(soup, "iso-8859-1", status);
             StructuredNameElementFinder finder = new StructuredNameElementFinder(soup, "iso-8859-1", status);
             Assert.assertTrue("The finder should have found some names", finder.getNumberOfNames() != 0);
-            Assert.assertEquals("The finder should have found 40 names", 40, finder.getNumberOfNames());
+            Assert.assertEquals("The finder should have found 46 names", 46, finder.getNumberOfNames());
         } catch (UnsupportedEncodingException | EndNodeWalkingException ex) {
             fail("Encountered problems iterating over document: " + ex.getMessage());
         }
