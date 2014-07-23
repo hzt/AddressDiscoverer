@@ -67,12 +67,20 @@ public class Constants {
     public static final ArrayList<String> possibleTitles = new ArrayList<String>() {
         {
             add("Dr.");
+            add("Dr");
             add("Dra.");
+            add("Dra");
             add("Ing.");
+            add("Ing");
             add("Lic.");
+            add("Lic");
             add("D.");
             add("D\u00f1a.");
-            add("Prof.");
+            add("Prof."); 
+            add("Prof");
+            add("Biól.");
+            add("Biól");
+            add("MTI");
         }
     };
 }

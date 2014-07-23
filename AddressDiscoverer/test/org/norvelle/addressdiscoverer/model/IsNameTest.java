@@ -59,4 +59,16 @@ public class IsNameTest {
         Assert.assertTrue("isName should be true for PINEDA OLIVA, DAVID", isName);
     }
     
-}
+    @Test
+    public void testCentro() {
+        boolean isName = Name.isName("Centro de Ciencias Genómicas, Cuernavaca, Mor.");
+        Assert.assertFalse("isName should be false for Centro de Ciencias Genómicas, Cuernavaca, Mor.", isName);
+    }
+    
+    @Test
+    public void testCentro2() {
+        boolean isName = Name.isName("Centro de Investigaciones en Ecosistemas, Campus Morelia");
+        Assert.assertFalse("isName should be false for Centro de Investigaciones en Ecosistemas, Campus Morelia", isName);
+    }
+    
+}	

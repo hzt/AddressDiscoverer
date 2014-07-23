@@ -56,7 +56,9 @@ public class TestUtilities {
     
     public static String getTestOutputDirectory() {
         String settingsDirname = System.getProperty("user.home") + File.separator + 
-            ".addressdiscoverer";
+            "Dropbox/AddressDiscoverer";
+        //String settingsDirname = System.getProperty("user.home") + File.separator + 
+        //    ".addressdiscoverer";
         File settingsDir = new File(settingsDirname);
         if (! settingsDir.exists()) {
             settingsDir.mkdir();

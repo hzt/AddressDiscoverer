@@ -10,13 +10,12 @@
  */
 package org.norvelle.addressdiscoverer.model;
 
-import java.sql.SQLException;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.norvelle.addressdiscoverer.Constants;
 import org.norvelle.addressdiscoverer.exceptions.CantParseIndividualException;
 
@@ -49,22 +48,48 @@ public class UnamName {
         
         // Replace single quotes with apostrophes, to avoid SQL problems
         textChunk = textChunk.replaceAll("'", "ʼ");
+        textChunk = textChunk.replaceAll("M en C", "").trim();
+        textChunk = textChunk.replaceAll("M\\. en C\\.", "").trim();
 
         // Eliminate numbers... no use for them, but only ones that exist separately
         // and not as part of emails.
         textChunk = textChunk.replaceAll("\\b\\d+\\b", "").trim();
 
-        // chop off commas and anything following them.
-        if (textChunk.contains(","))
-            textChunk = textChunk.substring(0, textChunk.indexOf(","));
+        // eliminate commas and periods
+        textChunk = textChunk.replaceAll(",", "").trim();
+        textChunk = textChunk.replaceAll("\\.", "").trim();
         
         String[] chunks = StringUtils.split(textChunk, " ");
-        this.firstName = chunks[chunks.length - 1];
-        for (int i = 0; i < chunks.length - 1; i ++)
-            this.lastName += chunks[i] + " ";
+        List<String> list = new ArrayList<String>(Arrays.asList(chunks));
+        
+        // Now sort out our first and last names
+        list = this.removeTitle(list);
+        boolean firstNameEncountered = false;
+        for (String word : list) {
+            if (KnownFirstName.isFirstName(word)) 
+                firstNameEncountered = true;
+            if (firstNameEncountered) 
+                this.firstName += word + " ";
+            else 
+                this.lastName += word + " ";
+        }
+        
+        // If no first name has been discovered yet, just set the last word
+        // to be the first name
+        if (!firstNameEncountered) {
+            this.firstName = list.get(list.size() - 1);
+            this.lastName = this.lastName.replace(this.firstName, "");
+        }
+        
+        this.firstName = this.firstName.trim();
         this.lastName = this.lastName.trim();
     }
-
+    
+    private List<String> removeTitle(List<String> list) {
+        if (Constants.possibleTitles.contains(list.get(list.size() - 1))) 
+            list.remove(list.size() - 1);
+        return list;
+    }
 
     // ===================== Getters =============================
     

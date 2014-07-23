@@ -74,8 +74,8 @@ public class UnamNameTest {
             return;
         }
         
-        Assert.assertEquals("First name should be Claudia", "Claudia", name.getFirstName());
-        Assert.assertEquals("Last name should be Villalba Ana", "Villalba Ana", name.getLastName());
+        Assert.assertEquals("First name should be Ana Claudia", "Ana Claudia", name.getFirstName());
+        Assert.assertEquals("Last name should be Villalba", "Villalba", name.getLastName());
         Assert.assertEquals("Title should be ''", "", name.getTitle());
     }
 
@@ -92,6 +92,22 @@ public class UnamNameTest {
         
         Assert.assertEquals("First name should be Sidharta", "Sidharta", name.getFirstName());
         Assert.assertEquals("Last name should be Rodríguez", "Rodríguez", name.getLastName());
+        Assert.assertEquals("Title should be ''", "", name.getTitle());
+    }
+
+    @Test
+    public void testLizasoain3() {
+        String chunk = "Arita Watanabe Héctor Takeshi Dr.";
+        UnamName name;
+        try { 
+            name = new UnamName(chunk);
+        } catch (CantParseIndividualException ex) {
+            fail("Can't parse individual");
+            return;
+        }
+        
+        Assert.assertEquals("First name should be Héctor Takeshi", "Héctor Takeshi", name.getFirstName());
+        Assert.assertEquals("Last name should be Arita Watanabe", "Arita Watanabe", name.getLastName());
         Assert.assertEquals("Title should be ''", "", name.getTitle());
     }
 
